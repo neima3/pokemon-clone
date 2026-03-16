@@ -19,6 +19,8 @@ const B = Tile.BuildingWall;
 const S = Tile.Sign;
 const E = Tile.Fence;
 const L = Tile.Ledge;
+const Y = Tile.GymRoof;
+const y = Tile.GymDoor;
 
 // prettier-ignore
 export const MAP_DATA: Tile[] = [
@@ -30,9 +32,9 @@ export const MAP_DATA: Tile[] = [
   T, G, G, g, g, G, G, G, G, G, G, G, G, G, P, P, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, T,  // 4
   T, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 5
   T, G, G, G, G, G, G, G, G, G, E, E, E, E, P, G, G, P, E, E, E, E, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 6
-  T, G, F, G, G, G, G, G, G, G, E, R, R, R, P, G, G, M, M, M, E, G, G, G, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 7
-  T, G, G, G, G, G, G, G, G, G, E, B, D, B, P, G, G, B, m, B, E, G, G, W, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, T,  // 8
-  T, T, T, G, G, G, G, G, G, G, E, E, P, E, P, G, G, E, P, E, E, G, G, G, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 9
+  T, G, F, G, G, G, G, G, G, G, E, R, R, R, P, G, G, M, M, M, E, G, G, G, W, W, W, G, G, E, Y, Y, Y, E, G, G, G, G, G, T,  // 7
+  T, G, G, G, G, G, G, G, G, G, E, B, D, B, P, G, G, B, m, B, E, G, G, W, W, W, W, W, G, E, B, y, B, E, G, G, G, G, G, T,  // 8
+  T, T, T, G, G, G, G, G, G, G, E, E, P, E, P, G, G, E, P, E, E, G, G, G, W, W, W, G, G, E, E, P, E, E, G, G, G, G, G, T,  // 9
   T, G, G, G, G, G, G, G, G, G, G, G, P, P, P, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 10
   T, G, G, G, P, P, P, P, P, P, P, P, P, G, G, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T,  // 11
   T, G, G, G, P, G, G, G, G, G, G, G, S, G, G, F, G, G, S, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 12
@@ -138,5 +140,15 @@ export const MAP_NPCS: NPCData[] = [
     facing: 'right',
     dialogue: ['TIP: Your POKéMON gain EXP from battles.', 'Level them up to learn new moves!', 'Some POKéMON even evolve at higher levels!'],
     isTrainer: false,
+  },
+  // Gym Leader
+  {
+    id: 'gym_leader_brock',
+    gx: 31, gy: 10,
+    sprite: 'gymLeader',
+    facing: 'down',
+    dialogue: ['I am BROCK, the GYM LEADER!', 'My rock-hard determination is my style!', 'Show me your best!'],
+    isTrainer: true,
+    trainerId: 'gym_brock',
   },
 ];

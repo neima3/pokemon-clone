@@ -4,10 +4,11 @@ import { SFX, Music } from '@/engine/Audio';
 import { Player } from './Player';
 import { Camera } from './Camera';
 import { MAP_DATA, MAP_WIDTH, MAP_HEIGHT, MAP_NPCS, getRouteZone } from './mapData';
-import { Tile, drawTile, isSolid, isInteractable, COLORS, updateTileAnim } from './tiles';
+import { Tile, drawTile, isSolid, COLORS, updateTileAnim } from './tiles';
 import { GameState, Inventory } from '../GameState';
 import { NPC } from './NPC';
-import { rollEncounter, ITEMS, TRAINERS } from '../battle/data';
+import { rollEncounter, ITEMS, SPECIES, TYPE_COLORS } from '../battle/data';
+import { drawPokemonFront } from '../battle/sprites';
 
 /** Native GB resolution: 160x144. We use 320x240 (20x15 tiles) for more room. */
 export const VIEW_W = 320;
@@ -17,7 +18,7 @@ const ENCOUNTER_RATE = 0.15;
 const FONT = 'bold 9px monospace';
 const FONT_SM = 'bold 8px monospace';
 
-type OverworldPhase = 'explore' | 'dialogue' | 'shop' | 'heal';
+type OverworldPhase = 'explore' | 'dialogue' | 'shop' | 'heal' | 'menu';
 
 export class OverworldScene implements Scene {
   private input: Input;
@@ -48,6 +49,11 @@ export class OverworldScene implements Scene {
 
   // Heal animation
   private healTimer = 0;
+
+  // Menu state
+  private menuCursor = 0;
+  private menuSubPhase: 'main' | 'pokemon' | 'bag' | 'pokedex' | 'save' = 'main';
+  private menuPokemonCursor = 0;
 
   // HUD
   private showMiniStatus = true;
@@ -113,6 +119,9 @@ export class OverworldScene implements Scene {
       case 'heal':
         this.updateHeal(dt);
         break;
+      case 'menu':
+        this.updateMenu();
+        break;
     }
   }
 
@@ -122,6 +131,15 @@ export class OverworldScene implements Scene {
     const wasMoving = this.player.isMoving;
 
     if (!this.player.isMoving) {
+      // Check for menu open (M key or Start)
+      if (this.input.getMenuPressed()) {
+        SFX.menuConfirm();
+        this.phase = 'menu';
+        this.menuCursor = 0;
+        this.menuSubPhase = 'main';
+        return;
+      }
+
       // Check for interaction
       if (this.input.getActionPressed()) {
         if (this.tryInteract()) return;
@@ -236,6 +254,15 @@ export class OverworldScene implements Scene {
         });
         return true;
       }
+      if (tile === Tile.GymDoor) {
+        SFX.menuConfirm();
+        if (this.gameState.hasBadge('BOULDER BADGE')) {
+          this.startDialogue(['PEWTER GYM', 'LEADER: BROCK', 'You already have the BOULDER BADGE!']);
+        } else {
+          this.startDialogue(['PEWTER GYM', 'LEADER: BROCK', 'Specializes in Rock-type POKéMON.']);
+        }
+        return true;
+      }
     }
 
     return false;
@@ -312,6 +339,75 @@ export class OverworldScene implements Scene {
     }
   }
 
+  // ── Pause Menu ──
+
+  private updateMenu() {
+    switch (this.menuSubPhase) {
+      case 'main': this.updateMenuMain(); break;
+      case 'pokemon': this.updateMenuPokemon(); break;
+      case 'bag': this.updateMenuBag(); break;
+      case 'pokedex': this.updateMenuPokedex(); break;
+      case 'save': this.updateMenuSave(); break;
+    }
+  }
+
+  private updateMenuMain() {
+    const dir = this.input.getDirectionPressed();
+    const items = 5; // POKéMON, BAG, POKéDEX, SAVE, CLOSE
+    if (dir === 'up' && this.menuCursor > 0) { this.menuCursor--; SFX.menuSelect(); }
+    if (dir === 'down' && this.menuCursor < items - 1) { this.menuCursor++; SFX.menuSelect(); }
+
+    if (this.input.getCancelPressed() || this.input.getMenuPressed()) {
+      SFX.menuCancel();
+      this.phase = 'explore';
+      return;
+    }
+
+    if (this.input.getActionPressed()) {
+      SFX.menuConfirm();
+      switch (this.menuCursor) {
+        case 0: this.menuSubPhase = 'pokemon'; this.menuPokemonCursor = 0; break;
+        case 1: this.menuSubPhase = 'bag'; break;
+        case 2: this.menuSubPhase = 'pokedex'; break;
+        case 3: this.menuSubPhase = 'save'; break;
+        case 4: this.phase = 'explore'; break;
+      }
+    }
+  }
+
+  private updateMenuPokemon() {
+    const dir = this.input.getDirectionPressed();
+    const total = this.gameState.team.length;
+    if (dir === 'up' && this.menuPokemonCursor > 0) { this.menuPokemonCursor--; SFX.menuSelect(); }
+    if (dir === 'down' && this.menuPokemonCursor < total - 1) { this.menuPokemonCursor++; SFX.menuSelect(); }
+
+    if (this.input.getCancelPressed()) {
+      SFX.menuCancel();
+      this.menuSubPhase = 'main';
+    }
+  }
+
+  private updateMenuBag() {
+    if (this.input.getCancelPressed() || this.input.getActionPressed()) {
+      SFX.menuCancel();
+      this.menuSubPhase = 'main';
+    }
+  }
+
+  private updateMenuPokedex() {
+    if (this.input.getCancelPressed() || this.input.getActionPressed()) {
+      SFX.menuCancel();
+      this.menuSubPhase = 'main';
+    }
+  }
+
+  private updateMenuSave() {
+    this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
+    this.gameState.save();
+    SFX.save();
+    this.menuSubPhase = 'main';
+  }
+
   private checkEncounter() {
     const tile = MAP_DATA[this.player.gy * MAP_WIDTH + this.player.gx];
     if (tile === Tile.TallGrass && Math.random() < ENCOUNTER_RATE) {
@@ -331,6 +427,12 @@ export class OverworldScene implements Scene {
   }
 
   render(ctx: CanvasRenderingContext2D) {
+    // Menu is full overlay
+    if (this.phase === 'menu') {
+      this.renderMenu(ctx);
+      return;
+    }
+
     ctx.fillStyle = COLORS.dark;
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
@@ -412,11 +514,19 @@ export class OverworldScene implements Scene {
     ctx.textBaseline = 'top';
     ctx.fillText(zoneName, 6, 4);
 
-    // Money
+    // Money + badges
     ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';
     ctx.fillRect(VIEW_W - 72, 2, 70, 12);
     ctx.fillStyle = '#f8d870';
     ctx.fillText(`¥${this.gameState.money}`, VIEW_W - 68, 4);
+
+    // Badge count
+    if (this.gameState.badges.size > 0) {
+      ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';
+      ctx.fillRect(VIEW_W - 72, 16, 70, 12);
+      ctx.fillStyle = '#f8d830';
+      ctx.fillText(`\u2605 ${this.gameState.badges.size} BADGE`, VIEW_W - 68, 18);
+    }
   }
 
   private drawDialogueBox(ctx: CanvasRenderingContext2D) {
@@ -527,6 +637,307 @@ export class OverworldScene implements Scene {
     ctx.fillText('Healing your POKéMON...', VIEW_W / 2, VIEW_H / 2);
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
+  }
+
+  // ── Menu Rendering ──
+
+  private renderMenu(ctx: CanvasRenderingContext2D) {
+    switch (this.menuSubPhase) {
+      case 'main': this.renderMenuMain(ctx); break;
+      case 'pokemon': this.renderMenuPokemon(ctx); break;
+      case 'bag': this.renderMenuBag(ctx); break;
+      case 'pokedex': this.renderMenuPokedex(ctx); break;
+      case 'save': this.renderMenuMain(ctx); break; // Save is instant
+    }
+  }
+
+  private renderMenuMain(ctx: CanvasRenderingContext2D) {
+    // Full screen background
+    ctx.fillStyle = '#283848';
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+    // Menu panel (right side)
+    const mx = VIEW_W - 130, my = 10, mw = 120, mh = 140;
+    ctx.fillStyle = '#f8f8f0';
+    ctx.fillRect(mx, my, mw, mh);
+    ctx.strokeStyle = COLORS.dark;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(mx, my, mw, mh);
+
+    ctx.fillStyle = COLORS.dark;
+    ctx.font = FONT;
+    ctx.textBaseline = 'top';
+
+    const items = ['POKéMON', 'BAG', 'POKéDEX', 'SAVE', 'CLOSE'];
+    for (let i = 0; i < items.length; i++) {
+      const y = my + 10 + i * 24;
+      if (i === this.menuCursor) {
+        ctx.fillText('\u25b6', mx + 8, y);
+      }
+      ctx.fillText(items[i], mx + 24, y);
+    }
+
+    // Player info panel (left side)
+    const px = 10, py = 10, pw = 160, ph = 100;
+    ctx.fillStyle = '#f8f8f0';
+    ctx.fillRect(px, py, pw, ph);
+    ctx.strokeStyle = COLORS.dark;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(px, py, pw, ph);
+
+    ctx.fillStyle = COLORS.dark;
+    ctx.font = FONT;
+    ctx.fillText('TRAINER CARD', px + 10, py + 8);
+
+    ctx.font = FONT_SM;
+    ctx.fillText(`Money: ¥${this.gameState.money}`, px + 10, py + 28);
+    ctx.fillText(`POKéDEX: ${this.gameState.pokedexCaught.size} caught`, px + 10, py + 42);
+    ctx.fillText(`Badges: ${this.gameState.badges.size}`, px + 10, py + 56);
+
+    // Draw badge stars
+    let badgeX = px + 10;
+    for (const badge of this.gameState.badges) {
+      ctx.fillStyle = '#f8d830';
+      ctx.fillRect(badgeX, py + 70, 12, 12);
+      ctx.fillStyle = '#c0a020';
+      ctx.fillRect(badgeX + 2, py + 72, 8, 8);
+      ctx.fillStyle = '#f8d830';
+      ctx.fillRect(badgeX + 4, py + 74, 4, 4);
+      badgeX += 16;
+    }
+
+    // Controls hint
+    ctx.fillStyle = '#88c070';
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Z: Select  X/M: Close', VIEW_W / 2, VIEW_H - 16);
+    ctx.textAlign = 'left';
+  }
+
+  private renderMenuPokemon(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = '#283848';
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+    // Title
+    ctx.fillStyle = '#f8f8f0';
+    ctx.font = FONT;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
+    ctx.fillText('POKéMON', VIEW_W / 2, 6);
+    ctx.textAlign = 'left';
+
+    // Team list (left side)
+    for (let i = 0; i < this.gameState.team.length; i++) {
+      const mon = this.gameState.team[i];
+      const y = 24 + i * 28;
+      const selected = i === this.menuPokemonCursor;
+
+      // Background
+      ctx.fillStyle = selected ? '#485868' : '#384858';
+      ctx.fillRect(4, y, 150, 26);
+      ctx.strokeStyle = selected ? '#88c070' : '#506878';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(4, y, 150, 26);
+
+      // Cursor
+      if (selected) {
+        ctx.fillStyle = '#88c070';
+        ctx.font = FONT;
+        ctx.fillText('\u25b6', 8, y + 6);
+      }
+
+      // Name + Level
+      ctx.fillStyle = mon.isAlive ? '#f8f8f0' : '#a08080';
+      ctx.font = FONT;
+      ctx.fillText(mon.name, 24, y + 4);
+      ctx.font = FONT_SM;
+      ctx.fillText(`Lv${mon.level}`, 24, y + 16);
+
+      // HP bar
+      const barX = 80, barW = 60, barH = 5;
+      ctx.fillStyle = '#181818';
+      ctx.fillRect(barX, y + 18, barW, barH);
+      const pct = mon.hpPercent;
+      const fillW = Math.max(0, (barW - 2) * pct);
+      ctx.fillStyle = pct > 0.5 ? '#48b048' : pct > 0.2 ? '#f8c830' : '#e04040';
+      ctx.fillRect(barX + 1, y + 19, fillW, barH - 2);
+
+      // HP text
+      ctx.fillStyle = '#f8f8f0';
+      ctx.font = 'bold 7px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${mon.hp}/${mon.maxHp}`, 152, y + 6);
+      ctx.textAlign = 'left';
+    }
+
+    // Selected Pokemon details (right side)
+    if (this.menuPokemonCursor < this.gameState.team.length) {
+      const mon = this.gameState.team[this.menuPokemonCursor];
+      const dx = 162, dy = 24, dw = 152, dh = 196;
+
+      ctx.fillStyle = '#384858';
+      ctx.fillRect(dx, dy, dw, dh);
+      ctx.strokeStyle = '#506878';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(dx, dy, dw, dh);
+
+      // Draw sprite
+      drawPokemonFront(ctx, mon.species.id, dx + 44, dy + 4);
+
+      // Types
+      ctx.font = FONT_SM;
+      ctx.textAlign = 'center';
+      for (let t = 0; t < mon.species.types.length; t++) {
+        const type = mon.species.types[t];
+        const color = (TYPE_COLORS as Record<string, string>)[type] ?? '#808080';
+        ctx.fillStyle = color;
+        ctx.fillRect(dx + 20 + t * 58, dy + 62, 52, 11);
+        ctx.fillStyle = '#f8f8f0';
+        ctx.font = 'bold 7px monospace';
+        ctx.fillText(type.toUpperCase(), dx + 46 + t * 58, dy + 64);
+      }
+      ctx.textAlign = 'left';
+
+      // Stats
+      ctx.font = FONT_SM;
+      ctx.fillStyle = '#88c070';
+      const stats = [
+        { label: 'HP', value: `${mon.hp}/${mon.maxHp}` },
+        { label: 'ATK', value: `${mon.attack}` },
+        { label: 'DEF', value: `${mon.defense}` },
+        { label: 'SPD', value: `${mon.speed}` },
+      ];
+      for (let s = 0; s < stats.length; s++) {
+        const sy = dy + 80 + s * 14;
+        ctx.fillStyle = '#88a0b8';
+        ctx.fillText(stats[s].label, dx + 10, sy);
+        ctx.fillStyle = '#f8f8f0';
+        ctx.textAlign = 'right';
+        ctx.fillText(stats[s].value, dx + dw - 10, sy);
+        ctx.textAlign = 'left';
+      }
+
+      // Moves
+      ctx.fillStyle = '#88a0b8';
+      ctx.fillText('MOVES:', dx + 10, dy + 140);
+      ctx.fillStyle = '#f8f8f0';
+      for (let m = 0; m < mon.moves.length; m++) {
+        ctx.fillText(mon.moves[m].data.name, dx + 14, dy + 154 + m * 12);
+      }
+
+      // Status
+      if (mon.status) {
+        const statusLabels: Record<string, string> = {
+          poison: 'POISONED', burn: 'BURNED', paralyze: 'PARALYZED', sleep: 'ASLEEP',
+        };
+        ctx.fillStyle = '#e04040';
+        ctx.fillText(statusLabels[mon.status] ?? '', dx + 10, dy + dh - 14);
+      }
+    }
+
+    // Controls
+    ctx.fillStyle = '#88c070';
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('X: Back', VIEW_W / 2, VIEW_H - 8);
+    ctx.textAlign = 'left';
+  }
+
+  private renderMenuBag(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = '#283848';
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+    const bx = 40, by = 30, bw = VIEW_W - 80, bh = 160;
+    ctx.fillStyle = '#f8f8f0';
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = COLORS.dark;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bx, by, bw, bh);
+
+    ctx.fillStyle = COLORS.dark;
+    ctx.font = FONT;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
+    ctx.fillText('BAG', bx + bw / 2, by + 8);
+    ctx.textAlign = 'left';
+
+    const items: Array<{ name: string; count: number; desc: string }> = [
+      { name: 'POKé BALL', count: this.gameState.inventory.pokeball, desc: 'Catches wild POKéMON.' },
+      { name: 'POTION', count: this.gameState.inventory.potion, desc: 'Restores 20 HP.' },
+      { name: 'SUPER POTION', count: this.gameState.inventory.superPotion, desc: 'Restores 50 HP.' },
+    ];
+
+    for (let i = 0; i < items.length; i++) {
+      const y = by + 30 + i * 20;
+      ctx.fillStyle = COLORS.dark;
+      ctx.font = FONT;
+      ctx.fillText(items[i].name, bx + 14, y);
+      ctx.font = FONT_SM;
+      ctx.textAlign = 'right';
+      ctx.fillText(`x${items[i].count}`, bx + bw - 14, y + 1);
+      ctx.textAlign = 'left';
+      ctx.fillStyle = COLORS.mid;
+      ctx.font = 'bold 7px monospace';
+      ctx.fillText(items[i].desc, bx + 14, y + 12);
+    }
+
+    ctx.fillStyle = '#88c070';
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Press any key to go back', bx + bw / 2, by + bh - 14);
+    ctx.textAlign = 'left';
+  }
+
+  private renderMenuPokedex(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = '#283848';
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+    const bx = 20, by = 20, bw = VIEW_W - 40, bh = 190;
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = '#a02020';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bx, by, bw, bh);
+
+    // Inner screen
+    ctx.fillStyle = '#f8f8f0';
+    ctx.fillRect(bx + 8, by + 8, bw - 16, bh - 16);
+    ctx.strokeStyle = COLORS.dark;
+    ctx.strokeRect(bx + 8, by + 8, bw - 16, bh - 16);
+
+    ctx.fillStyle = COLORS.dark;
+    ctx.font = FONT;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
+    ctx.fillText('POKéDEX', bx + bw / 2, by + 14);
+    ctx.textAlign = 'left';
+
+    ctx.font = FONT_SM;
+    ctx.fillText(`SEEN: ${this.gameState.pokedexSeen.size}`, bx + 20, by + 32);
+    ctx.fillText(`CAUGHT: ${this.gameState.pokedexCaught.size}`, bx + 120, by + 32);
+
+    // List seen Pokemon
+    const allSpecies = Object.entries(SPECIES).sort((a, b) => a[1].id - b[1].id);
+    let row = 0;
+    for (const [key, species] of allSpecies) {
+      if (!this.gameState.pokedexSeen.has(key)) continue;
+      const x = bx + 20 + (row % 3) * 90;
+      const y = by + 50 + Math.floor(row / 3) * 16;
+      if (y > by + bh - 30) break;
+
+      const caught = this.gameState.pokedexCaught.has(key);
+      ctx.fillStyle = caught ? COLORS.dark : '#808080';
+      ctx.font = 'bold 7px monospace';
+      const icon = caught ? '\u25cf' : '\u25cb';
+      ctx.fillText(`${icon} #${String(species.id).padStart(3, '0')} ${species.name}`, x, y);
+      row++;
+    }
+
+    ctx.fillStyle = '#88c070';
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Press any key to go back', VIEW_W / 2, VIEW_H - 16);
+    ctx.textAlign = 'left';
   }
 }
 

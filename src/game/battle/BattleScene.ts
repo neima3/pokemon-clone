@@ -4,8 +4,8 @@ import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
-import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch } from './BattleEngine';
-import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData } from './data';
+import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage } from './BattleEngine';
+import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType } from './data';
 import { GameState, Inventory } from '../GameState';
 
 type Phase =
@@ -42,7 +42,7 @@ export class BattleScene implements Scene {
   private msgQueue: Array<{ text: string; done?: () => void }> = [];
 
   // Attack animation
-  private anim = { active: false, isPlayer: true, timer: 0, done: () => {} };
+  private anim = { active: false, isPlayer: true, timer: 0, done: () => {}, moveType: 'normal' as PokemonType, critical: false };
 
   // HP display (for smooth animation)
   private playerDisplayHp: number;
@@ -102,6 +102,9 @@ export class BattleScene implements Scene {
       this.enemyMon = this.trainerTeam[0];
       this.enemyDisplayHp = this.enemyMon.hp;
     }
+
+    // Track Pokemon seen in pokedex
+    gameState.pokedexSeen.add(this.enemyMon.speciesKey);
   }
 
   onEnter() {
@@ -485,6 +488,9 @@ export class BattleScene implements Scene {
             () => {
               const caught = new Pokemon(this.enemyMon.speciesKey, this.enemyMon.level);
               caught.hp = this.enemyMon.hp;
+              caught.status = this.enemyMon.status;
+              // Track caught in pokedex
+              this.gameState.pokedexCaught.add(this.enemyMon.speciesKey);
               if (this.gameState.addToTeam(caught)) {
                 this.queueMessages(
                   [`${caught.name} was added to your team!`],
@@ -522,6 +528,9 @@ export class BattleScene implements Scene {
       const oldName = this.evolvingMon.name;
       this.evolvingMon.evolve();
       const newName = this.evolvingMon.name;
+      // Track evolution in pokedex
+      this.gameState.pokedexSeen.add(this.evolvingMon.speciesKey);
+      this.gameState.pokedexCaught.add(this.evolvingMon.speciesKey);
       this.evolvingMon = null;
 
       // Update display if this is the active mon
@@ -560,6 +569,20 @@ export class BattleScene implements Scene {
   // ── Enemy solo turn (after using item/switching) ──
 
   private doEnemyTurn() {
+    // Check if enemy can act (sleep, paralysis)
+    const actCheck = canAct(this.enemyMon);
+    if (!actCheck.canAct) {
+      const prefix = this.isTrainerBattle ? 'Foe ' : 'Wild ';
+      this.queueMessages([actCheck.message ?? `${prefix}${this.enemyMon.name} can't move!`], () => {
+        this.applyEndOfTurnStatus(() => {
+          this.phase = 'action';
+          this.cursor = 0;
+        });
+      });
+      return;
+    }
+
+    // If enemy woke up, show message then let them move
     const enemyMove = getEnemyMove(this.enemyMon);
     if (!enemyMove) {
       this.phase = 'action';
@@ -567,14 +590,65 @@ export class BattleScene implements Scene {
       return;
     }
 
-    this.doAttack(this.enemyMon, this.playerMon, enemyMove, false, () => {
-      if (!this.playerMon.isAlive) {
-        this.handleFaint(this.playerMon);
-        return;
-      }
-      this.phase = 'action';
-      this.cursor = 0;
-    });
+    const msgs: string[] = [];
+    if (actCheck.message) msgs.push(actCheck.message);
+
+    if (msgs.length > 0) {
+      this.queueMessages(msgs, () => {
+        this.doAttack(this.enemyMon, this.playerMon, enemyMove, false, () => {
+          if (!this.playerMon.isAlive) {
+            this.handleFaint(this.playerMon);
+            return;
+          }
+          this.applyEndOfTurnStatus(() => {
+            this.phase = 'action';
+            this.cursor = 0;
+          });
+        });
+      });
+    } else {
+      this.doAttack(this.enemyMon, this.playerMon, enemyMove, false, () => {
+        if (!this.playerMon.isAlive) {
+          this.handleFaint(this.playerMon);
+          return;
+        }
+        this.applyEndOfTurnStatus(() => {
+          this.phase = 'action';
+          this.cursor = 0;
+        });
+      });
+    }
+  }
+
+  // ── End-of-turn status damage ──
+
+  private applyEndOfTurnStatus(then: () => void) {
+    const msgs: string[] = [];
+
+    // Player status damage
+    const playerStatus = applyStatusDamage(this.playerMon);
+    if (playerStatus?.message) msgs.push(playerStatus.message);
+
+    // Enemy status damage
+    const enemyStatus = applyStatusDamage(this.enemyMon);
+    if (enemyStatus?.message) msgs.push(enemyStatus.message);
+
+    if (msgs.length > 0) {
+      this.queueMessages(msgs, () => {
+        // Check for faints from status damage
+        if (!this.playerMon.isAlive) {
+          this.handleFaint(this.playerMon);
+          return;
+        }
+        if (!this.enemyMon.isAlive) {
+          this.handleFaint(this.enemyMon);
+          return;
+        }
+        then();
+      });
+    } else {
+      then();
+    }
   }
 
   // ── Turn execution ──
@@ -591,22 +665,51 @@ export class BattleScene implements Scene {
       ? { mon: this.enemyMon, move: enemyMove!, isPlayer: false }
       : { mon: this.playerMon, move: playerMove, isPlayer: true };
 
-    this.doAttack(first.mon, first.isPlayer ? this.enemyMon : this.playerMon, first.move, first.isPlayer, () => {
+    this.executeOneAttack(first.mon, first.isPlayer ? this.enemyMon : this.playerMon, first.move, first.isPlayer, () => {
       const defender = first.isPlayer ? this.enemyMon : this.playerMon;
       if (!defender.isAlive) {
         this.handleFaint(defender);
         return;
       }
-      this.doAttack(second.mon, second.isPlayer ? this.enemyMon : this.playerMon, second.move, second.isPlayer, () => {
+      this.executeOneAttack(second.mon, second.isPlayer ? this.enemyMon : this.playerMon, second.move, second.isPlayer, () => {
         const def2 = second.isPlayer ? this.enemyMon : this.playerMon;
         if (!def2.isAlive) {
           this.handleFaint(def2);
           return;
         }
-        this.phase = 'action';
-        this.cursor = 0;
+        // Apply end-of-turn status damage
+        this.applyEndOfTurnStatus(() => {
+          this.phase = 'action';
+          this.cursor = 0;
+        });
       });
     });
+  }
+
+  /** Execute one attack, checking status conditions first */
+  private executeOneAttack(attacker: Pokemon, defender: Pokemon, move: MoveInstance, isPlayer: boolean, then: () => void) {
+    // Check if attacker can act
+    const actCheck = canAct(attacker);
+    if (!actCheck.canAct) {
+      const prefix = isPlayer ? '' : (this.isTrainerBattle ? 'Foe ' : 'Wild ');
+      const msgs: string[] = [];
+      if (actCheck.message) msgs.push(actCheck.message);
+      if (msgs.length > 0) {
+        this.queueMessages(msgs, then);
+      } else {
+        then();
+      }
+      return;
+    }
+
+    // If woke up, show message then attack
+    if (actCheck.message) {
+      this.queueMessages([actCheck.message], () => {
+        this.doAttack(attacker, defender, move, isPlayer, then);
+      });
+    } else {
+      this.doAttack(attacker, defender, move, isPlayer, then);
+    }
   }
 
   private doAttack(attacker: Pokemon, defender: Pokemon, move: MoveInstance, isPlayer: boolean, then: () => void) {
@@ -621,6 +724,9 @@ export class BattleScene implements Scene {
       messages.push(`${prefix}${attacker.name}'s attack missed!`);
     } else if (result.damage > 0) {
       SFX.attackHit();
+      if (result.critical) {
+        messages.push('A critical hit!');
+      }
       if (result.effectiveness > 1) {
         SFX.superEffective();
         messages.push("It's super effective!");
@@ -637,14 +743,14 @@ export class BattleScene implements Scene {
       messages.push(result.statusMessage);
     }
 
-    this.playAttackAnim(isPlayer, () => {
+    this.playAttackAnim(isPlayer, move.data.type as PokemonType, result.critical, () => {
       this.queueMessages(messages, then);
     });
   }
 
-  private playAttackAnim(isPlayer: boolean, callback: () => void) {
+  private playAttackAnim(isPlayer: boolean, moveType: PokemonType, critical: boolean, callback: () => void) {
     this.phase = 'animating';
-    this.anim = { active: true, isPlayer, timer: 0, done: callback };
+    this.anim = { active: true, isPlayer, timer: 0, done: callback, moveType, critical };
   }
 
   private handleFaint(fainted: Pokemon) {
@@ -665,6 +771,8 @@ export class BattleScene implements Scene {
               const next = this.trainerTeam[this.trainerTeamIndex];
               this.enemyMon = next;
               this.enemyDisplayHp = next.hp;
+              // Track in pokedex
+              this.gameState.pokedexSeen.add(next.speciesKey);
               this.queueMessages(
                 [`${this.trainerData!.name} sent out ${next.name}!`],
                 () => {
@@ -690,6 +798,11 @@ export class BattleScene implements Scene {
         this.gameState.addMoney(reward);
         msgs.push(`You defeated ${this.trainerData.name}!`);
         msgs.push(`You got ¥${reward} for winning!`);
+        // Gym badge
+        if (this.trainerData.isGymLeader && this.trainerData.badgeName) {
+          this.gameState.addBadge(this.trainerData.badgeName);
+          msgs.push(`You received the ${this.trainerData.badgeName}!`);
+        }
         if (this.trainerData.defeatMessage) {
           msgs.push(`"${this.trainerData.defeatMessage}"`);
         }
@@ -830,6 +943,14 @@ export class BattleScene implements Scene {
     drawPokemonBack(ctx, this.playerMon.species.id, Math.round(psx), 76, pVisible);
     drawPokemonFront(ctx, this.enemyMon.species.id, Math.round(esx), 14, eVisible);
 
+    // Type-colored attack flash
+    if (this.anim.active) {
+      BattleUI.drawAttackFlash(ctx, this.anim.moveType, this.anim.timer, this.anim.isPlayer);
+      if (this.anim.critical) {
+        BattleUI.drawCriticalEffect(ctx, this.anim.timer, this.anim.isPlayer);
+      }
+    }
+
     // Draw catch ball
     if (this.phase === 'catching' && this.catchTimer < 0.6 + this.catchTargetShakes * 0.5 + 0.5) {
       if (this.catchTimer > 0.1) {
@@ -840,9 +961,8 @@ export class BattleScene implements Scene {
       }
     }
 
-    // Draw info boxes
-    const enemyPrefix = this.isTrainerBattle ? '' : ''; // No prefix in info box
-    BattleUI.drawEnemyInfo(ctx, this.enemyMon.name, this.enemyMon.level, this.enemyDisplayHp / this.enemyMon.maxHp);
+    // Draw info boxes with status
+    BattleUI.drawEnemyInfo(ctx, this.enemyMon.name, this.enemyMon.level, this.enemyDisplayHp / this.enemyMon.maxHp, this.enemyMon.status);
     BattleUI.drawPlayerInfo(
       ctx,
       this.playerMon.name,
@@ -851,6 +971,7 @@ export class BattleScene implements Scene {
       this.playerMon.maxHp,
       this.playerDisplayHp / this.playerMon.maxHp,
       this.playerDisplayExp,
+      this.playerMon.status,
     );
 
     // Trainer team indicator

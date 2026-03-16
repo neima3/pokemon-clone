@@ -31,6 +31,9 @@ export const enum Tile {
   Fence = 13,
   // Route markers
   Ledge = 14,
+  // Gym
+  GymRoof = 15,
+  GymDoor = 16,
 }
 
 /** Which tiles block movement */
@@ -42,14 +45,16 @@ export function isSolid(tile: Tile): boolean {
     || tile === Tile.MartRoof
     || tile === Tile.BuildingWall
     || tile === Tile.Fence
-    || tile === Tile.Ledge;
+    || tile === Tile.Ledge
+    || tile === Tile.GymRoof;
 }
 
 /** Tiles that trigger interaction with Z key */
 export function isInteractable(tile: Tile): boolean {
   return tile === Tile.PokeCenterDoor
     || tile === Tile.MartDoor
-    || tile === Tile.Sign;
+    || tile === Tile.Sign
+    || tile === Tile.GymDoor;
 }
 
 const TILE_SIZE = 16;
@@ -238,6 +243,34 @@ export function drawTile(
       ctx.fillRect(px, py + 12, s, 4);
       ctx.fillStyle = COLORS.dark;
       ctx.fillRect(px, py + 14, s, 2);
+      break;
+
+    case Tile.GymRoof:
+      ctx.fillStyle = '#a08850';
+      ctx.fillRect(px, py, s, s);
+      ctx.fillStyle = '#c0a060';
+      ctx.fillRect(px + 2, py + 2, s - 4, 4);
+      // GYM star badge
+      ctx.fillStyle = '#f8d830';
+      ctx.fillRect(px + 5, py + 6, 6, 6);
+      ctx.fillRect(px + 6, py + 5, 4, 8);
+      break;
+
+    case Tile.GymDoor:
+      ctx.fillStyle = COLORS.wall;
+      ctx.fillRect(px, py, s, s);
+      // Door frame
+      ctx.fillStyle = '#a08850';
+      ctx.fillRect(px + 2, py, s - 4, 2);
+      // Door (darker, imposing)
+      ctx.fillStyle = '#705830';
+      ctx.fillRect(px + 3, py + 2, s - 6, s - 2);
+      // GYM label
+      ctx.fillStyle = '#f8d830';
+      ctx.fillRect(px + 5, py + 5, 6, 3);
+      // Handle
+      ctx.fillStyle = '#f8d830';
+      ctx.fillRect(px + 10, py + 8, 2, 2);
       break;
   }
 }

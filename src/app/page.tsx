@@ -13,10 +13,10 @@ export default function Home() {
       <GameCanvas />
       <div className="font-mono text-sm text-center leading-relaxed max-w-[640px]">
         <p className="text-[#88c070]">
-          Arrows/WASD move &bull; Z/Enter confirm &bull; X/Esc cancel
+          Arrows/WASD move &bull; Z/Enter confirm &bull; X/Esc cancel &bull; M menu
         </p>
         <p className="text-[#346856] text-xs mt-1">
-          Talk to NPCs &bull; Visit the POK&Eacute;MON Center to heal &bull; Shop at the POK&Eacute; Mart
+          Talk to NPCs &bull; Visit the POK&Eacute;MON Center to heal &bull; Shop at the POK&Eacute; Mart &bull; Challenge the GYM
         </p>
       </div>
     </main>

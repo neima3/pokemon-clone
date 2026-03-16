@@ -1,6 +1,8 @@
 // ── Pokemon Types ──
 
-export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying';
+export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic';
+
+export type StatusCondition = 'poison' | 'burn' | 'paralyze' | 'sleep';
 
 const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
   fire:     { grass: 2, water: 0.5, bug: 2, fire: 0.5, rock: 0.5 },
@@ -13,6 +15,7 @@ const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number
   rock:     { fire: 2, bug: 2, flying: 2, ground: 0.5 },
   flying:   { grass: 2, bug: 2, ground: 0, rock: 0.5, electric: 0.5 },
   normal:   { rock: 0.5 },
+  psychic:  { poison: 2 },
 };
 
 export function getTypeEffectiveness(atkType: PokemonType, defTypes: PokemonType[]): number {
@@ -32,7 +35,10 @@ export interface MoveData {
   accuracy: number;
   maxPp: number;
   category: 'physical' | 'status';
-  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed';
+  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'poison' | 'burn' | 'paralyze' | 'sleep';
+  /** Secondary status effect on damaging moves (e.g. Ember 10% burn) */
+  statusEffect?: StatusCondition;
+  statusChance?: number;
 }
 
 export const MOVES: Record<string, MoveData> = {
@@ -51,9 +57,9 @@ export const MOVES: Record<string, MoveData> = {
   razorLeaf:    { name: 'RAZOR LEAF',   type: 'grass',    power: 55,  accuracy: 95,  maxPp: 25, category: 'physical' },
   seedBomb:     { name: 'SEED BOMB',    type: 'grass',    power: 80,  accuracy: 100, maxPp: 15, category: 'physical' },
   // Fire
-  ember:        { name: 'EMBER',        type: 'fire',     power: 40,  accuracy: 100, maxPp: 25, category: 'physical' },
-  fireFang:     { name: 'FIRE FANG',    type: 'fire',     power: 65,  accuracy: 95,  maxPp: 15, category: 'physical' },
-  flamethrower: { name: 'FLAMETHRWR',   type: 'fire',     power: 90,  accuracy: 100, maxPp: 15, category: 'physical' },
+  ember:        { name: 'EMBER',        type: 'fire',     power: 40,  accuracy: 100, maxPp: 25, category: 'physical', statusEffect: 'burn', statusChance: 10 },
+  fireFang:     { name: 'FIRE FANG',    type: 'fire',     power: 65,  accuracy: 95,  maxPp: 15, category: 'physical', statusEffect: 'burn', statusChance: 10 },
+  flamethrower: { name: 'FLAMETHRWR',   type: 'fire',     power: 90,  accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'burn', statusChance: 10 },
   // Water
   waterGun:     { name: 'WATER GUN',    type: 'water',    power: 40,  accuracy: 100, maxPp: 25, category: 'physical' },
   bubbleBeam:   { name: 'BUBBLEBEAM',   type: 'water',    power: 65,  accuracy: 100, maxPp: 20, category: 'physical' },
@@ -62,20 +68,34 @@ export const MOVES: Record<string, MoveData> = {
   stringShot:   { name: 'STRING SHOT',  type: 'bug',      power: 0,   accuracy: 95,  maxPp: 40, category: 'status', effect: 'lower_speed' },
   bugBite:      { name: 'BUG BITE',     type: 'bug',      power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
   // Electric
-  thunderShock: { name: 'THNDR SHOCK',  type: 'electric',  power: 40,  accuracy: 100, maxPp: 30, category: 'physical' },
-  thunderbolt:  { name: 'THNDR BOLT',   type: 'electric',  power: 90,  accuracy: 100, maxPp: 15, category: 'physical' },
-  spark:        { name: 'SPARK',        type: 'electric',  power: 65,  accuracy: 100, maxPp: 20, category: 'physical' },
+  thunderShock: { name: 'THNDR SHOCK',  type: 'electric',  power: 40,  accuracy: 100, maxPp: 30, category: 'physical', statusEffect: 'paralyze', statusChance: 10 },
+  thunderbolt:  { name: 'THNDR BOLT',   type: 'electric',  power: 90,  accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'paralyze', statusChance: 10 },
+  spark:        { name: 'SPARK',        type: 'electric',  power: 65,  accuracy: 100, maxPp: 20, category: 'physical', statusEffect: 'paralyze', statusChance: 30 },
   // Ground/Rock
   rockThrow:    { name: 'ROCK THROW',   type: 'rock',      power: 50,  accuracy: 90,  maxPp: 15, category: 'physical' },
   mudSlap:      { name: 'MUD-SLAP',     type: 'ground',    power: 20,  accuracy: 100, maxPp: 10, category: 'physical' },
   rockSlide:    { name: 'ROCK SLIDE',   type: 'rock',      power: 75,  accuracy: 90,  maxPp: 10, category: 'physical' },
   // Poison
-  poisonSting:  { name: 'POISON STING', type: 'poison',    power: 15,  accuracy: 100, maxPp: 35, category: 'physical' },
+  poisonSting:  { name: 'POISON STING', type: 'poison',    power: 15,  accuracy: 100, maxPp: 35, category: 'physical', statusEffect: 'poison', statusChance: 30 },
   // Flying
   wingAttack:   { name: 'WING ATK',     type: 'flying',    power: 60,  accuracy: 100, maxPp: 35, category: 'physical' },
   aerialAce:    { name: 'AERIAL ACE',   type: 'flying',    power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
   leer:         { name: 'LEER',         type: 'normal',    power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'lower_defense' },
   screech:      { name: 'SCREECH',      type: 'normal',    power: 0,   accuracy: 85,  maxPp: 40, category: 'status', effect: 'lower_defense' },
+  // New moves — Sprint 005
+  harden:       { name: 'HARDEN',       type: 'bug',       power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'raise_defense' },
+  confusion:    { name: 'CONFUSION',    type: 'psychic',   power: 50,  accuracy: 100, maxPp: 25, category: 'physical' },
+  psybeam:      { name: 'PSYBEAM',      type: 'psychic',   power: 65,  accuracy: 100, maxPp: 20, category: 'physical' },
+  sleepPowder:  { name: 'SLEEP POWDER', type: 'grass',     power: 0,   accuracy: 75,  maxPp: 15, category: 'status', effect: 'sleep' },
+  stunSpore:    { name: 'STUN SPORE',   type: 'grass',     power: 0,   accuracy: 75,  maxPp: 30, category: 'status', effect: 'paralyze' },
+  poisonPowder: { name: 'PSN POWDER',   type: 'poison',    power: 0,   accuracy: 75,  maxPp: 35, category: 'status', effect: 'poison' },
+  hyperFang:    { name: 'HYPER FANG',   type: 'normal',    power: 80,  accuracy: 90,  maxPp: 15, category: 'physical' },
+  airSlash:     { name: 'AIR SLASH',    type: 'flying',    power: 75,  accuracy: 95,  maxPp: 15, category: 'physical' },
+  bind:         { name: 'BIND',         type: 'normal',    power: 15,  accuracy: 85,  maxPp: 20, category: 'physical' },
+  rockTomb:     { name: 'ROCK TOMB',    type: 'rock',      power: 60,  accuracy: 95,  maxPp: 15, category: 'physical', effect: 'lower_speed' },
+  ironTail:     { name: 'IRON TAIL',    type: 'normal',    power: 100, accuracy: 75,  maxPp: 15, category: 'physical', effect: 'lower_defense' },
+  pursuit:      { name: 'PURSUIT',      type: 'normal',    power: 40,  accuracy: 100, maxPp: 20, category: 'physical' },
+  focusEnergy:  { name: 'FOCUS ENRGY',  type: 'normal',    power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'raise_attack' },
 };
 
 // ── Species ──
@@ -160,13 +180,29 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'gust'],
     baseExpYield: 50, catchRate: 255,
     levelUpMoves: [{ level: 5, moveKey: 'gust' }, { level: 9, moveKey: 'quickAttack' }, { level: 13, moveKey: 'wingAttack' }],
+    evolution: { level: 18, into: 'pidgeotto' },
+  },
+  pidgeotto: {
+    id: 17, name: 'PIDGEOTTO', types: ['normal', 'flying'],
+    baseHp: 63, baseAtk: 60, baseDef: 55, baseSpd: 71,
+    learnedMoves: ['tackle', 'gust', 'quickAttack', 'wingAttack'],
+    baseExpYield: 122, catchRate: 120,
+    levelUpMoves: [{ level: 20, moveKey: 'airSlash' }],
   },
   rattata: {
     id: 19, name: 'RATTATA', types: ['normal'],
     baseHp: 30, baseAtk: 56, baseDef: 35, baseSpd: 72,
     learnedMoves: ['tackle', 'tailWhip', 'quickAttack'],
     baseExpYield: 51, catchRate: 255,
-    levelUpMoves: [{ level: 7, moveKey: 'bite' }, { level: 10, moveKey: 'quickAttack' }],
+    levelUpMoves: [{ level: 7, moveKey: 'bite' }, { level: 10, moveKey: 'quickAttack' }, { level: 14, moveKey: 'pursuit' }],
+    evolution: { level: 20, into: 'raticate' },
+  },
+  raticate: {
+    id: 20, name: 'RATICATE', types: ['normal'],
+    baseHp: 55, baseAtk: 81, baseDef: 60, baseSpd: 97,
+    learnedMoves: ['tackle', 'quickAttack', 'bite', 'pursuit'],
+    baseExpYield: 145, catchRate: 127,
+    levelUpMoves: [{ level: 22, moveKey: 'hyperFang' }],
   },
   caterpie: {
     id: 10, name: 'CATERPIE', types: ['bug'],
@@ -174,6 +210,22 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'stringShot'],
     baseExpYield: 39, catchRate: 255,
     levelUpMoves: [{ level: 7, moveKey: 'bugBite' }],
+    evolution: { level: 7, into: 'metapod' },
+  },
+  metapod: {
+    id: 11, name: 'METAPOD', types: ['bug'],
+    baseHp: 50, baseAtk: 20, baseDef: 55, baseSpd: 30,
+    learnedMoves: ['tackle', 'harden'],
+    baseExpYield: 72, catchRate: 120,
+    levelUpMoves: [{ level: 7, moveKey: 'harden' }],
+    evolution: { level: 10, into: 'butterfree' },
+  },
+  butterfree: {
+    id: 12, name: 'BUTTERFREE', types: ['bug', 'flying'],
+    baseHp: 60, baseAtk: 45, baseDef: 50, baseSpd: 70,
+    learnedMoves: ['confusion', 'gust', 'poisonPowder', 'stunSpore'],
+    baseExpYield: 178, catchRate: 45,
+    levelUpMoves: [{ level: 12, moveKey: 'sleepPowder' }, { level: 15, moveKey: 'psybeam' }],
   },
   pikachu: {
     id: 25, name: 'PIKACHU', types: ['electric'],
@@ -202,6 +254,14 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['leer', 'poisonSting'],
     baseExpYield: 55, catchRate: 235,
     levelUpMoves: [{ level: 7, moveKey: 'tackle' }, { level: 9, moveKey: 'bite' }, { level: 13, moveKey: 'headbutt' }],
+  },
+  // Gym leader Pokemon
+  onix: {
+    id: 95, name: 'ONIX', types: ['rock', 'ground'],
+    baseHp: 35, baseAtk: 45, baseDef: 160, baseSpd: 70,
+    learnedMoves: ['tackle', 'bind', 'rockThrow', 'rockTomb'],
+    baseExpYield: 77, catchRate: 45,
+    levelUpMoves: [{ level: 6, moveKey: 'rockThrow' }, { level: 10, moveKey: 'rockTomb' }, { level: 15, moveKey: 'ironTail' }],
   },
 };
 
@@ -266,6 +326,22 @@ export const ITEMS: Record<string, ItemData> = {
   superPotion: { name: 'SUPER POTION', type: 'medicine', description: 'Restores 50 HP.', healAmount: 50, price: 700 },
 };
 
+// ── Type colors (for UI) ──
+
+export const TYPE_COLORS: Record<PokemonType, string> = {
+  normal:   '#a8a878',
+  fire:     '#f08030',
+  water:    '#6890f0',
+  grass:    '#78c850',
+  poison:   '#a040a0',
+  bug:      '#a8b820',
+  electric: '#f8d030',
+  ground:   '#e0c068',
+  rock:     '#b8a038',
+  flying:   '#a890f0',
+  psychic:  '#f85888',
+};
+
 // ── EXP ──
 
 /** Medium-fast EXP curve: total EXP at level L = L^3 */
@@ -290,7 +366,9 @@ export interface TrainerData {
   team: Array<{ species: string; level: number }>;
   reward: number; // money
   defeatMessage: string;
-  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker';
+  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader';
+  isGymLeader?: boolean;
+  badgeName?: string;
 }
 
 export const TRAINERS: Record<string, TrainerData> = {
@@ -321,5 +399,14 @@ export const TRAINERS: Record<string, TrainerData> = {
     reward: 350,
     defeatMessage: "You've got real grit, kid!",
     sprite: 'hiker',
+  },
+  gym_brock: {
+    name: 'LEADER BROCK',
+    team: [{ species: 'geodude', level: 10 }, { species: 'onix', level: 12 }],
+    reward: 1200,
+    defeatMessage: "Your POKéMON's power is incredible!",
+    sprite: 'gymLeader',
+    isGymLeader: true,
+    badgeName: 'BOULDER BADGE',
   },
 };

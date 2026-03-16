@@ -1,4 +1,4 @@
-import { MoveData, MOVES, SPECIES, SpeciesData, totalExpForLevel } from './data';
+import { MoveData, MOVES, SPECIES, SpeciesData, totalExpForLevel, StatusCondition } from './data';
 
 export interface MoveInstance {
   data: MoveData;
@@ -33,6 +33,11 @@ export class Pokemon {
   atkStage = 0;
   defStage = 0;
   spdStage = 0;
+
+  /** Status condition (poison, burn, paralyze, sleep) */
+  status: StatusCondition | null = null;
+  /** Turns remaining for sleep */
+  sleepTurns = 0;
 
   constructor(speciesKey: string, level: number) {
     const species = SPECIES[speciesKey];
@@ -99,6 +104,8 @@ export class Pokemon {
   heal() {
     this.hp = this.maxHp;
     this.resetStages();
+    this.status = null;
+    this.sleepTurns = 0;
     for (const m of this.moves) m.pp = m.data.maxPp;
   }
 

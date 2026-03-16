@@ -44,7 +44,7 @@ export class Input {
       this.pressed.add(e.key);
     }
     // Prevent scrolling for space/arrows
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'm', 'M'].includes(e.key)) {
       e.preventDefault();
     }
   }
@@ -92,6 +92,18 @@ export class Input {
   /** Returns true if cancel key (X/Backspace/Escape) was just pressed. Consumed on read. */
   getCancelPressed(): boolean {
     const keys = ['x', 'X', 'Backspace', 'Escape'];
+    for (const k of keys) {
+      if (this.pressed.has(k)) {
+        keys.forEach((k2) => this.pressed.delete(k2));
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** Returns true if menu key (M) was just pressed. Consumed on read. */
+  getMenuPressed(): boolean {
+    const keys = ['m', 'M'];
     for (const k of keys) {
       if (this.pressed.has(k)) {
         keys.forEach((k2) => this.pressed.delete(k2));

@@ -15,6 +15,9 @@ interface SaveData {
   playerPosition: { x: number; y: number };
   money: number;
   defeatedTrainers: string[];
+  badges: string[];
+  pokedexSeen: string[];
+  pokedexCaught: string[];
 }
 
 export class GameState {
@@ -23,6 +26,9 @@ export class GameState {
   playerPosition = { x: 15, y: 13 };
   money = 1000;
   defeatedTrainers: Set<string> = new Set();
+  badges: Set<string> = new Set();
+  pokedexSeen: Set<string> = new Set();
+  pokedexCaught: Set<string> = new Set();
 
   get hasStarter() {
     return this.team.length > 0;
@@ -67,6 +73,14 @@ export class GameState {
     this.defeatedTrainers.add(trainerId);
   }
 
+  addBadge(badgeName: string) {
+    this.badges.add(badgeName);
+  }
+
+  hasBadge(badgeName: string): boolean {
+    return this.badges.has(badgeName);
+  }
+
   /** Heal all team Pokemon */
   healTeam() {
     for (const p of this.team) p.heal();
@@ -80,6 +94,9 @@ export class GameState {
       playerPosition: { ...this.playerPosition },
       money: this.money,
       defeatedTrainers: [...this.defeatedTrainers],
+      badges: [...this.badges],
+      pokedexSeen: [...this.pokedexSeen],
+      pokedexCaught: [...this.pokedexCaught],
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -104,6 +121,9 @@ export class GameState {
       this.playerPosition = data.playerPosition ?? { x: 15, y: 13 };
       this.money = data.money ?? 1000;
       this.defeatedTrainers = new Set(data.defeatedTrainers ?? []);
+      this.badges = new Set(data.badges ?? []);
+      this.pokedexSeen = new Set(data.pokedexSeen ?? []);
+      this.pokedexCaught = new Set(data.pokedexCaught ?? []);
       return this.team.length > 0;
     } catch {
       return false;

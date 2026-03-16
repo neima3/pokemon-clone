@@ -1,7 +1,7 @@
 import { COLORS } from '../overworld/tiles';
 import { MoveInstance } from './Pokemon';
 import { Inventory } from '../GameState';
-import { ITEMS } from './data';
+import { ITEMS, TYPE_COLORS, PokemonType, StatusCondition } from './data';
 import { Pokemon } from './Pokemon';
 
 const W = 320;
@@ -13,6 +13,13 @@ function hpColor(pct: number): string {
   if (pct > 0.2) return '#f8c830';
   return '#e04040';
 }
+
+const STATUS_COLORS: Record<StatusCondition, { bg: string; text: string; label: string }> = {
+  poison:   { bg: '#a040a0', text: '#f8f8f0', label: 'PSN' },
+  burn:     { bg: '#f08030', text: '#f8f8f0', label: 'BRN' },
+  paralyze: { bg: '#f8d030', text: '#081820', label: 'PAR' },
+  sleep:    { bg: '#a8a878', text: '#f8f8f0', label: 'SLP' },
+};
 
 export const BattleUI = {
   /** Draw battle background with platforms */
@@ -35,7 +42,7 @@ export const BattleUI = {
   },
 
   /** Draw enemy info box (top-left) */
-  drawEnemyInfo(ctx: CanvasRenderingContext2D, name: string, level: number, hpPct: number) {
+  drawEnemyInfo(ctx: CanvasRenderingContext2D, name: string, level: number, hpPct: number, status?: StatusCondition | null) {
     const bx = 8, by = 8, bw = 144, bh = 38;
 
     // Box background
@@ -55,11 +62,23 @@ export const BattleUI = {
     ctx.font = FONT_SM;
     ctx.fillText(`Lv${level}`, bx + bw - 34, by + 5);
 
+    // Status badge
+    if (status) {
+      const s = STATUS_COLORS[status];
+      ctx.fillStyle = s.bg;
+      ctx.fillRect(bx + 6, by + 16, 22, 9);
+      ctx.fillStyle = s.text;
+      ctx.font = 'bold 7px monospace';
+      ctx.fillText(s.label, bx + 8, by + 17);
+    }
+
     // HP label
-    ctx.fillText('HP', bx + 6, by + 20);
+    ctx.fillStyle = COLORS.dark;
+    ctx.font = FONT_SM;
+    ctx.fillText('HP', bx + 6, by + 26);
 
     // HP bar background
-    const barX = bx + 22, barY = by + 20, barW = 108, barH = 6;
+    const barX = bx + 22, barY = by + 26, barW = 108, barH = 6;
     ctx.fillStyle = COLORS.dark;
     ctx.fillRect(barX, barY, barW, barH);
     ctx.fillStyle = '#303030';
@@ -80,6 +99,7 @@ export const BattleUI = {
     maxHp: number,
     hpPct: number,
     expPct: number,
+    status?: StatusCondition | null,
   ) {
     const bx = 156, by = 92, bw = 156, bh = 58;
 
@@ -100,7 +120,19 @@ export const BattleUI = {
     ctx.font = FONT_SM;
     ctx.fillText(`Lv${level}`, bx + bw - 34, by + 5);
 
+    // Status badge
+    if (status) {
+      const s = STATUS_COLORS[status];
+      ctx.fillStyle = s.bg;
+      ctx.fillRect(bx + bw - 62, by + 4, 22, 9);
+      ctx.fillStyle = s.text;
+      ctx.font = 'bold 7px monospace';
+      ctx.fillText(s.label, bx + bw - 60, by + 5);
+    }
+
     // HP label
+    ctx.fillStyle = COLORS.dark;
+    ctx.font = FONT_SM;
     ctx.fillText('HP', bx + 6, by + 18);
 
     // HP bar
@@ -207,7 +239,7 @@ export const BattleUI = {
     ctx.fillText(`${name} do?`, bx + 12, by + 36);
   },
 
-  /** Draw move selection menu */
+  /** Draw move selection menu with type colors */
   drawMoveMenu(ctx: CanvasRenderingContext2D, moves: MoveInstance[], cursor: number) {
     const bx = 4, by = 156, bw = 312, bh = 80;
 
@@ -217,8 +249,6 @@ export const BattleUI = {
     ctx.lineWidth = 2;
     ctx.strokeRect(bx, by, bw, bh);
 
-    ctx.fillStyle = COLORS.dark;
-    ctx.font = FONT;
     ctx.textBaseline = 'top';
 
     // 2x2 grid of moves
@@ -229,17 +259,40 @@ export const BattleUI = {
       const my = by + 10 + row * 24;
 
       if (i === cursor) {
+        ctx.fillStyle = COLORS.dark;
+        ctx.font = FONT;
         ctx.fillText('\u25b6', mx - 14, my);
       }
+
+      // Type-colored move name
+      const typeColor = TYPE_COLORS[moves[i].data.type as PokemonType] ?? COLORS.dark;
+      ctx.fillStyle = i === cursor ? typeColor : COLORS.dark;
+      ctx.font = FONT;
       ctx.fillText(moves[i].data.name, mx, my);
     }
 
-    // PP display for selected move
+    // PP display and type for selected move
     if (cursor < moves.length) {
       const m = moves[cursor];
+      const typeColor = TYPE_COLORS[m.data.type as PokemonType] ?? '#808080';
+
+      // Type badge
+      ctx.fillStyle = typeColor;
+      ctx.fillRect(bx + 150, by + bh - 22, 50, 11);
+      ctx.fillStyle = '#f8f8f0';
+      ctx.font = 'bold 7px monospace';
+      ctx.fillText(m.data.type.toUpperCase(), bx + 153, by + bh - 20);
+
+      // PP
+      ctx.fillStyle = m.pp <= 0 ? '#e04040' : COLORS.dark;
       ctx.font = FONT_SM;
       ctx.fillText(`PP ${m.pp}/${m.data.maxPp}`, bx + 22, by + bh - 18);
-      ctx.fillText(`TYPE/${m.data.type.toUpperCase()}`, bx + 150, by + bh - 18);
+
+      // Power
+      if (m.data.power > 0) {
+        ctx.fillStyle = '#606060';
+        ctx.fillText(`POW ${m.data.power}`, bx + 90, by + bh - 18);
+      }
     }
   },
 
@@ -326,7 +379,17 @@ export const BattleUI = {
       ctx.font = FONT;
       ctx.fillText(mon.name, bx + 24, y + 2);
       ctx.font = FONT_SM;
-      ctx.fillText(`Lv${mon.level}`, bx + 120, y + 3);
+      ctx.fillText(`Lv${mon.level}`, bx + 110, y + 3);
+
+      // Status badge
+      if (mon.status) {
+        const s = STATUS_COLORS[mon.status];
+        ctx.fillStyle = s.bg;
+        ctx.fillRect(bx + 130, y + 2, 22, 9);
+        ctx.fillStyle = s.text;
+        ctx.font = 'bold 7px monospace';
+        ctx.fillText(s.label, bx + 132, y + 3);
+      }
 
       // HP bar
       const barX = bx + 160, barW = 80, barH = 5;
@@ -384,6 +447,47 @@ export const BattleUI = {
     ctx.lineWidth = 1;
     ctx.strokeRect(-7, -7, 14, 14);
     ctx.restore();
+  },
+
+  /** Draw type-colored attack flash effect */
+  drawAttackFlash(ctx: CanvasRenderingContext2D, moveType: PokemonType, timer: number, isPlayerAttacking: boolean) {
+    if (timer < 0.15 || timer > 0.4) return;
+    const color = TYPE_COLORS[moveType] ?? '#f8f8f0';
+    const alpha = 0.4 * (1 - (timer - 0.15) / 0.25);
+
+    if (isPlayerAttacking) {
+      // Flash on enemy side
+      ctx.fillStyle = color;
+      ctx.globalAlpha = alpha;
+      ctx.fillRect(160, 0, 160, 90);
+      ctx.globalAlpha = 1;
+    } else {
+      // Flash on player side
+      ctx.fillStyle = color;
+      ctx.globalAlpha = alpha;
+      ctx.fillRect(0, 60, 160, 96);
+      ctx.globalAlpha = 1;
+    }
+  },
+
+  /** Draw critical hit star burst effect */
+  drawCriticalEffect(ctx: CanvasRenderingContext2D, timer: number, isPlayerAttacking: boolean) {
+    if (timer < 0.2 || timer > 0.4) return;
+    const cx = isPlayerAttacking ? 240 : 80;
+    const cy = isPlayerAttacking ? 40 : 110;
+    const size = 12 * ((timer - 0.2) / 0.2);
+    ctx.fillStyle = '#f8d830';
+    ctx.globalAlpha = 1 - (timer - 0.2) / 0.2;
+    // Star pattern
+    for (let i = 0; i < 4; i++) {
+      const angle = (i * Math.PI) / 4;
+      ctx.fillRect(
+        cx + Math.cos(angle) * size - 2,
+        cy + Math.sin(angle) * size - 2,
+        4, 4,
+      );
+    }
+    ctx.globalAlpha = 1;
   },
 };
 
