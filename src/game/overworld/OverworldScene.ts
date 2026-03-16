@@ -4,8 +4,9 @@ import { Player } from './Player';
 import { Camera } from './Camera';
 import { MAP_DATA, MAP_WIDTH, MAP_HEIGHT } from './mapData';
 import { Tile, drawTile, isSolid, COLORS } from './tiles';
+import { GameState } from '../GameState';
 
-/** Native GB resolution: 160×144. We use 320×240 (20×15 tiles) for more room. */
+/** Native GB resolution: 160x144. We use 320x240 (20x15 tiles) for more room. */
 export const VIEW_W = 320;
 export const VIEW_H = 240;
 
@@ -16,18 +17,36 @@ export class OverworldScene implements Scene {
   private player: Player;
   private camera: Camera;
   private onEncounter?: () => void;
+  private gameState?: GameState;
   private frozen = false;
 
-  constructor(input: Input, onEncounter?: () => void) {
+  constructor(input: Input, onEncounter?: () => void, gameState?: GameState) {
     this.input = input;
     this.onEncounter = onEncounter;
-    this.player = new Player(4, 4);
+    this.gameState = gameState;
+
+    // Restore position from gameState if available
+    const startX = gameState?.playerPosition.x ?? 4;
+    const startY = gameState?.playerPosition.y ?? 4;
+    this.player = new Player(startX, startY);
     this.camera = new Camera(VIEW_W, VIEW_H, MAP_WIDTH, MAP_HEIGHT);
   }
 
   onEnter() {
     this.input.clear();
     this.frozen = false;
+
+    // Restore position from gameState on re-enter
+    if (this.gameState) {
+      this.player.setPosition(this.gameState.playerPosition.x, this.gameState.playerPosition.y);
+    }
+  }
+
+  onExit() {
+    // Save position
+    if (this.gameState) {
+      this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
+    }
   }
 
   update(dt: number) {
@@ -59,6 +78,10 @@ export class OverworldScene implements Scene {
     const tile = MAP_DATA[this.player.gy * MAP_WIDTH + this.player.gx];
     if (tile === Tile.TallGrass && Math.random() < ENCOUNTER_RATE) {
       this.frozen = true;
+      // Save position before encounter
+      if (this.gameState) {
+        this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
+      }
       this.onEncounter?.();
     }
   }

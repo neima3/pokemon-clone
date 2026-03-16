@@ -25,29 +25,41 @@ export default function GameCanvas() {
     const scenes = new SceneManager();
     const gameState = new GameState();
 
-    // Create overworld with encounter callback
-    const overworld = new OverworldScene(input, () => {
+    const startEncounter = () => {
       const speciesKey = WILD_POKEMON[Math.floor(Math.random() * WILD_POKEMON.length)];
       const level = 2 + Math.floor(Math.random() * 4); // 2-5
       const wild = new Pokemon(speciesKey, level);
-      const lead = gameState.leadPokemon!;
 
-      const battle = new BattleScene(input, lead, wild, (won) => {
+      const battle = new BattleScene(input, gameState, wild, (won) => {
         if (!won) {
           // Heal team on loss
           for (const p of gameState.team) p.heal();
         }
+        // Auto-save after battle
+        gameState.save();
         scenes.switch(overworld);
       });
       scenes.switch(battle);
-    });
+    };
 
-    // Start with starter selection
-    const starter = new StarterSelectScene(input, (pokemon) => {
-      gameState.team.push(pokemon);
+    // Create overworld with encounter callback
+    const overworld = new OverworldScene(input, startEncounter, gameState);
+
+    // Check for existing save
+    const hasSave = gameState.load();
+
+    if (hasSave) {
+      // Resume from save — go straight to overworld
       scenes.switch(overworld);
-    });
-    scenes.switch(starter);
+    } else {
+      // New game — start with starter selection
+      const starter = new StarterSelectScene(input, (pokemon) => {
+        gameState.team.push(pokemon);
+        gameState.save();
+        scenes.switch(overworld);
+      });
+      scenes.switch(starter);
+    }
 
     const loop = new GameLoop(
       (dt) => scenes.update(dt),

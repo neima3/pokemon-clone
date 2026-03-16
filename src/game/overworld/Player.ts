@@ -31,6 +31,15 @@ export class Player {
     return this.moving;
   }
 
+  /** Teleport to a grid position (used for save/load) */
+  setPosition(gx: number, gy: number) {
+    this.gx = gx;
+    this.gy = gy;
+    this.px = gx * TILE;
+    this.py = gy * TILE;
+    this.moving = false;
+  }
+
   /** Attempt to start a grid-based move. Returns false if already moving. */
   tryMove(dir: Direction, canMove: (gx: number, gy: number) => boolean): boolean {
     if (this.moving) return false;

@@ -74,3 +74,31 @@ export function determineTurnOrder(player: Pokemon, enemy: Pokemon): 'player' | 
   if (ps !== es) return ps > es ? 'player' : 'enemy';
   return Math.random() < 0.5 ? 'player' : 'enemy';
 }
+
+/**
+ * Calculate catch rate. Returns number of shakes (0-3) and whether caught.
+ * Based on simplified Gen I formula.
+ */
+export function attemptCatch(
+  target: Pokemon,
+  catchMultiplier: number,
+): { shakes: number; caught: boolean } {
+  const rate = target.species.catchRate;
+  const hpFactor = (3 * target.maxHp - 2 * target.hp) / (3 * target.maxHp);
+  const catchRate = Math.min(255, Math.floor(rate * hpFactor * catchMultiplier));
+
+  // Each shake has a probability based on catch rate
+  const shakeProb = catchRate / 255;
+  let shakes = 0;
+
+  for (let i = 0; i < 3; i++) {
+    if (Math.random() < shakeProb) {
+      shakes++;
+    } else {
+      return { shakes, caught: false };
+    }
+  }
+
+  // All 3 shakes passed = caught
+  return { shakes: 3, caught: true };
+}

@@ -11,8 +11,8 @@ export default function Home() {
         POK&Eacute;MON
       </h1>
       <GameCanvas />
-      <p className="font-mono text-[#88c070] text-sm">
-        Arrow keys / WASD to move
+      <p className="font-mono text-[#88c070] text-sm text-center leading-relaxed">
+        Arrows/WASD move &bull; Z/Enter confirm &bull; X/Esc cancel
       </p>
     </main>
   );
