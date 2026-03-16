@@ -74,6 +74,18 @@ export class Pokemon {
     return totalExpForLevel(this.level + 1) - this.exp;
   }
 
+  /** Check if this Pokemon can evolve at its current level */
+  get canEvolve(): boolean {
+    return !!this.species.evolution && this.level >= this.species.evolution.level;
+  }
+
+  /** Get the species key this Pokemon evolves into, or null */
+  get evolutionTarget(): string | null {
+    if (!this.species.evolution) return null;
+    if (this.level < this.species.evolution.level) return null;
+    return this.species.evolution.into;
+  }
+
   getEffAtk() { return Math.max(1, Math.floor(this.attack * stageMultiplier(this.atkStage))); }
   getEffDef() { return Math.max(1, Math.floor(this.defense * stageMultiplier(this.defStage))); }
   getEffSpd() { return Math.max(1, Math.floor(this.speed * stageMultiplier(this.spdStage))); }
@@ -102,6 +114,31 @@ export class Pokemon {
     const hpGain = this.maxHp - oldMaxHp;
     this.hp = Math.min(this.maxHp, this.hp + hpGain);
     return hpGain;
+  }
+
+  /**
+   * Evolve this Pokemon into a new species.
+   * Preserves HP ratio, moves, and EXP.
+   */
+  evolve(): boolean {
+    const target = this.evolutionTarget;
+    if (!target) return false;
+
+    const newSpecies = SPECIES[target];
+    if (!newSpecies) return false;
+
+    const hpRatio = this.hp / this.maxHp;
+
+    this.speciesKey = target;
+    this.species = newSpecies;
+
+    // Recalculate stats with new base stats
+    this.recalcStats();
+
+    // Restore HP proportionally
+    this.hp = Math.max(1, Math.round(this.maxHp * hpRatio));
+
+    return true;
   }
 
   /**
@@ -155,10 +192,12 @@ export class Pokemon {
     mon.exp = data.exp;
     mon.hp = Math.min(data.hp, mon.maxHp);
     // Restore moves with saved PP
-    mon.moves = data.moves.map((saved) => {
-      const moveData = MOVES[saved.key];
-      return { data: moveData, key: saved.key, pp: Math.min(saved.pp, moveData.maxPp) };
-    });
+    mon.moves = data.moves
+      .filter((saved) => MOVES[saved.key]) // skip unknown moves
+      .map((saved) => {
+        const moveData = MOVES[saved.key];
+        return { data: moveData, key: saved.key, pp: Math.min(saved.pp, moveData.maxPp) };
+      });
     return mon;
   }
 }

@@ -1,17 +1,19 @@
 import type { Scene } from '@/engine/Scene';
 import { Input } from '@/engine/Input';
+import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
 import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch } from './BattleEngine';
-import { calculateExpGain, ITEMS, MOVES } from './data';
+import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData } from './data';
 import { GameState, Inventory } from '../GameState';
 
 type Phase =
   | 'intro' | 'message' | 'action' | 'moves'
   | 'animating' | 'result'
   | 'bag' | 'party'
-  | 'catching' | 'exp';
+  | 'catching' | 'exp'
+  | 'evolving';
 
 export class BattleScene implements Scene {
   private input: Input;
@@ -19,6 +21,12 @@ export class BattleScene implements Scene {
   private playerMon: Pokemon;
   private enemyMon: Pokemon;
   private onEnd: (won: boolean) => void;
+
+  // Trainer battle info
+  private isTrainerBattle = false;
+  private trainerData: TrainerData | null = null;
+  private trainerTeam: Pokemon[] = [];
+  private trainerTeamIndex = 0;
 
   // Phase state
   private phase: Phase = 'intro';
@@ -70,7 +78,11 @@ export class BattleScene implements Scene {
   // Party tracking — which team index is active
   private activeTeamIndex = 0;
 
-  constructor(input: Input, gameState: GameState, enemyMon: Pokemon, onEnd: (won: boolean) => void) {
+  // Evolution state
+  private evolveTimer = 0;
+  private evolvingMon: Pokemon | null = null;
+
+  constructor(input: Input, gameState: GameState, enemyMon: Pokemon, onEnd: (won: boolean) => void, trainerId?: string) {
     this.input = input;
     this.gameState = gameState;
     this.playerMon = gameState.leadPokemon!;
@@ -80,12 +92,23 @@ export class BattleScene implements Scene {
     this.enemyDisplayHp = enemyMon.hp;
     this.playerDisplayExp = this.playerMon.expPercent;
     this.activeTeamIndex = 0;
+
+    // Set up trainer battle
+    if (trainerId && TRAINERS[trainerId]) {
+      this.isTrainerBattle = true;
+      this.trainerData = TRAINERS[trainerId];
+      this.trainerTeam = this.trainerData.team.map((t) => new Pokemon(t.species, t.level));
+      this.trainerTeamIndex = 0;
+      this.enemyMon = this.trainerTeam[0];
+      this.enemyDisplayHp = this.enemyMon.hp;
+    }
   }
 
   onEnter() {
     this.input.clear();
     this.phase = 'intro';
     this.introTimer = 0;
+    Music.battle();
   }
 
   // ── Message helpers ──
@@ -129,15 +152,16 @@ export class BattleScene implements Scene {
 
     switch (this.phase) {
       case 'intro': this.updateIntro(dt); break;
-      case 'message': this.updateMessage(dt); break;
+      case 'message': this.updateMessage(); break;
       case 'action': this.updateAction(); break;
       case 'moves': this.updateMoves(); break;
       case 'animating': this.updateAnimating(dt); break;
-      case 'result': this.updateResult(dt); break;
+      case 'result': this.updateResult(); break;
       case 'bag': this.updateBag(); break;
       case 'party': this.updateParty(); break;
       case 'catching': this.updateCatching(dt); break;
-      case 'exp': break; // EXP phase is message-driven
+      case 'evolving': this.updateEvolving(dt); break;
+      case 'exp': break;
     }
   }
 
@@ -158,8 +182,9 @@ export class BattleScene implements Scene {
     }
 
     if (this.introTimer >= 0.6) {
+      const enemyPrefix = this.isTrainerBattle ? `${this.trainerData!.name} sent out` : 'Wild';
       this.queueMessages(
-        [`Wild ${this.enemyMon.name} appeared!`, `Go! ${this.playerMon.name}!`],
+        [`${enemyPrefix} ${this.enemyMon.name}!`, `Go! ${this.playerMon.name}!`],
         () => {
           this.phase = 'action';
           this.cursor = 0;
@@ -168,8 +193,8 @@ export class BattleScene implements Scene {
     }
   }
 
-  private updateMessage(dt: number) {
-    this.msgCharIdx += dt * 40;
+  private updateMessage() {
+    this.msgCharIdx += 1.2; // ~40 chars/sec at 60fps
 
     if (this.input.getActionPressed()) {
       if (this.msgCharIdx < this.msgText.length) {
@@ -192,28 +217,46 @@ export class BattleScene implements Scene {
 
   private updateAction() {
     const dir = this.input.getDirectionPressed();
-    // 2x2 grid navigation: FIGHT(0) BAG(1) / POKEMON(2) RUN(3)
     if (dir === 'up' && this.cursor >= 2) this.cursor -= 2;
     if (dir === 'down' && this.cursor < 2) this.cursor += 2;
     if (dir === 'left' && this.cursor % 2 === 1) this.cursor -= 1;
     if (dir === 'right' && this.cursor % 2 === 0) this.cursor += 1;
 
+    if (dir) SFX.menuSelect();
+
     if (this.input.getActionPressed()) {
+      SFX.menuConfirm();
       switch (this.cursor) {
         case 0: // FIGHT
           this.phase = 'moves';
           this.cursor = 0;
           break;
         case 1: // BAG
-          this.openBag();
+          if (this.isTrainerBattle) {
+            this.queueMessages(["Can't use items in trainer battles!"], () => {
+              this.phase = 'action';
+              this.cursor = 1;
+            });
+          } else {
+            this.openBag();
+          }
           break;
         case 2: // POKEMON
           this.openParty();
           break;
         case 3: // RUN
-          this.queueMessages(['Got away safely!'], () => {
-            this.onEnd(true);
-          });
+          if (this.isTrainerBattle) {
+            this.queueMessages(["Can't run from trainer battles!"], () => {
+              this.phase = 'action';
+              this.cursor = 3;
+            });
+          } else {
+            SFX.run();
+            this.queueMessages(['Got away safely!'], () => {
+              Music.stop();
+              this.onEnd(true);
+            });
+          }
           break;
       }
     }
@@ -228,7 +271,10 @@ export class BattleScene implements Scene {
     if (dir === 'left' && this.cursor % 2 === 1) this.cursor -= 1;
     if (dir === 'right' && this.cursor % 2 === 0 && this.cursor + 1 < moveCount) this.cursor += 1;
 
+    if (dir) SFX.menuSelect();
+
     if (this.input.getCancelPressed()) {
+      SFX.menuCancel();
       this.phase = 'action';
       this.cursor = 0;
       return;
@@ -236,7 +282,11 @@ export class BattleScene implements Scene {
 
     if (this.input.getActionPressed()) {
       const move = this.playerMon.moves[this.cursor];
-      if (move.pp <= 0) return;
+      if (move.pp <= 0) {
+        SFX.bump();
+        return;
+      }
+      SFX.menuConfirm();
       this.executeTurn(move);
     }
   }
@@ -250,9 +300,10 @@ export class BattleScene implements Scene {
     }
   }
 
-  private updateResult(dt: number) {
-    this.resultTimer += dt;
+  private updateResult() {
+    this.resultTimer += 1 / 60;
     if (this.resultTimer > 0.5 && this.input.getActionPressed()) {
+      Music.stop();
       this.onEnd(this.battleWon);
     }
   }
@@ -271,26 +322,29 @@ export class BattleScene implements Scene {
 
   private updateBag() {
     const dir = this.input.getDirectionPressed();
-    const totalItems = this.bagItems.length + 1; // +1 for CANCEL
+    const totalItems = this.bagItems.length + 1;
 
     if (dir === 'up' && this.cursor > 0) this.cursor--;
     if (dir === 'down' && this.cursor < totalItems - 1) this.cursor++;
+    if (dir) SFX.menuSelect();
 
     if (this.input.getCancelPressed()) {
+      SFX.menuCancel();
       this.phase = 'action';
-      this.cursor = 1; // Return to BAG position
+      this.cursor = 1;
       return;
     }
 
     if (this.input.getActionPressed()) {
       if (this.cursor >= this.bagItems.length) {
-        // CANCEL
+        SFX.menuCancel();
         this.phase = 'action';
         this.cursor = 1;
         return;
       }
 
       const item = this.bagItems[this.cursor];
+      SFX.menuConfirm();
       if (item.key === 'pokeball') {
         this.usePokeball();
       } else {
@@ -303,6 +357,7 @@ export class BattleScene implements Scene {
     if (!this.gameState.useItem('pokeball')) return;
 
     const itemData = ITEMS.pokeball;
+    SFX.catchBall();
     const result = attemptCatch(this.enemyMon, itemData.catchMultiplier!);
     this.catchTargetShakes = result.shakes;
     this.catchCaught = result.caught;
@@ -326,10 +381,11 @@ export class BattleScene implements Scene {
     this.playerMon.hp = Math.min(this.playerMon.maxHp, this.playerMon.hp + healAmount);
     const healed = this.playerMon.hp - before;
 
+    SFX.heal();
+
     this.queueMessages(
       [`Used ${itemData.name}!`, `${this.playerMon.name} recovered ${healed} HP!`],
       () => {
-        // Enemy turn after using item
         this.doEnemyTurn();
       },
     );
@@ -344,20 +400,22 @@ export class BattleScene implements Scene {
 
   private updateParty() {
     const dir = this.input.getDirectionPressed();
-    const totalOptions = this.gameState.team.length + 1; // +1 for CANCEL
+    const totalOptions = this.gameState.team.length + 1;
 
     if (dir === 'up' && this.cursor > 0) this.cursor--;
     if (dir === 'down' && this.cursor < totalOptions - 1) this.cursor++;
+    if (dir) SFX.menuSelect();
 
     if (this.input.getCancelPressed()) {
+      SFX.menuCancel();
       this.phase = 'action';
-      this.cursor = 2; // Return to POKEMON position
+      this.cursor = 2;
       return;
     }
 
     if (this.input.getActionPressed()) {
       if (this.cursor >= this.gameState.team.length) {
-        // CANCEL
+        SFX.menuCancel();
         this.phase = 'action';
         this.cursor = 2;
         return;
@@ -365,15 +423,15 @@ export class BattleScene implements Scene {
 
       const selected = this.gameState.team[this.cursor];
       if (!selected.isAlive) {
-        // Can't switch to fainted Pokemon
+        SFX.bump();
         return;
       }
       if (this.cursor === this.activeTeamIndex) {
-        // Already active
+        SFX.bump();
         return;
       }
 
-      // Switch Pokemon
+      SFX.menuConfirm();
       const oldMon = this.playerMon;
       oldMon.resetStages();
       this.activeTeamIndex = this.cursor;
@@ -384,7 +442,6 @@ export class BattleScene implements Scene {
       this.queueMessages(
         [`Come back, ${oldMon.name}!`, `Go! ${this.playerMon.name}!`],
         () => {
-          // Enemy turn after switching
           this.doEnemyTurn();
         },
       );
@@ -396,37 +453,36 @@ export class BattleScene implements Scene {
   private updateCatching(dt: number) {
     this.catchTimer += dt;
 
-    // Phase 1 (0-0.3s): Ball flies toward enemy
     if (this.catchTimer < 0.3) {
       const t = this.catchTimer / 0.3;
       this.catchBallX = 100 + t * 110;
       this.catchBallY = 80 - Math.sin(t * Math.PI) * 40;
       this.enemyVisible = true;
-    }
-    // Phase 2 (0.3-0.6s): Enemy disappears, ball drops
-    else if (this.catchTimer < 0.6) {
+    } else if (this.catchTimer < 0.6) {
       this.enemyVisible = false;
       const t = (this.catchTimer - 0.3) / 0.3;
       this.catchBallX = 230;
       this.catchBallY = 40 + t * 30;
-    }
-    // Phase 3 (0.6+): Shakes
-    else {
+    } else {
       this.catchBallX = 230;
       this.catchBallY = 70;
       const shakeTime = this.catchTimer - 0.6;
       const currentShake = Math.floor(shakeTime / 0.5);
 
+      // Play shake SFX
+      if (currentShake > this.catchShakes && currentShake <= this.catchTargetShakes) {
+        SFX.catchShake();
+      }
+
       if (currentShake < this.catchTargetShakes) {
         this.catchShakes = currentShake;
       } else {
-        // Done shaking
         if (this.catchCaught) {
           this.enemyVisible = false;
+          SFX.catchSuccess();
           this.queueMessages(
             [`Gotcha! ${this.enemyMon.name} was caught!`],
             () => {
-              // Add to team
               const caught = new Pokemon(this.enemyMon.speciesKey, this.enemyMon.level);
               caught.hp = this.enemyMon.hp;
               if (this.gameState.addToTeam(caught)) {
@@ -444,6 +500,7 @@ export class BattleScene implements Scene {
           );
         } else {
           this.enemyVisible = true;
+          SFX.catchFail();
           this.queueMessages(
             [`Oh no! It broke free!`],
             () => {
@@ -453,6 +510,51 @@ export class BattleScene implements Scene {
         }
       }
     }
+  }
+
+  // ── Evolution ──
+
+  private updateEvolving(dt: number) {
+    this.evolveTimer += dt;
+
+    // Flashing animation for 2 seconds, then evolve
+    if (this.evolveTimer >= 2.5 && this.evolvingMon) {
+      const oldName = this.evolvingMon.name;
+      this.evolvingMon.evolve();
+      const newName = this.evolvingMon.name;
+      this.evolvingMon = null;
+
+      // Update display if this is the active mon
+      this.playerDisplayHp = this.playerMon.hp;
+
+      this.queueMessages(
+        [`${oldName} evolved into ${newName}!`],
+        () => {
+          // Check if there are more team members to evolve
+          this.checkTeamEvolution();
+        },
+      );
+    }
+  }
+
+  private checkTeamEvolution() {
+    for (const mon of this.gameState.team) {
+      if (mon.canEvolve) {
+        SFX.evolve();
+        this.evolvingMon = mon;
+        this.evolveTimer = 0;
+        this.phase = 'evolving';
+        this.queueMessages([`What? ${mon.name} is evolving!`], () => {
+          this.phase = 'evolving';
+          this.evolveTimer = 0;
+        });
+        return;
+      }
+    }
+
+    // No more evolutions — end battle
+    this.phase = 'result';
+    this.resultTimer = 0;
   }
 
   // ── Enemy solo turn (after using item/switching) ──
@@ -509,16 +611,27 @@ export class BattleScene implements Scene {
 
   private doAttack(attacker: Pokemon, defender: Pokemon, move: MoveInstance, isPlayer: boolean, then: () => void) {
     const result = executeMove(attacker, defender, move);
-    const prefix = isPlayer ? '' : 'Wild ';
+    const prefix = isPlayer ? '' : (this.isTrainerBattle ? 'Foe ' : 'Wild ');
     const messages: string[] = [];
 
     messages.push(`${prefix}${attacker.name} used ${move.data.name}!`);
 
     if (result.missed) {
+      SFX.attackMiss();
       messages.push(`${prefix}${attacker.name}'s attack missed!`);
     } else if (result.damage > 0) {
-      if (result.effectiveness > 1) messages.push("It's super effective!");
-      if (result.effectiveness < 1) messages.push("It's not very effective...");
+      SFX.attackHit();
+      if (result.effectiveness > 1) {
+        SFX.superEffective();
+        messages.push("It's super effective!");
+      }
+      if (result.effectiveness < 1) {
+        SFX.notEffective();
+        messages.push("It's not very effective...");
+      }
+      if (result.effectiveness === 0) {
+        messages.push("It had no effect...");
+      }
     }
     if (result.statusMessage) {
       messages.push(result.statusMessage);
@@ -536,26 +649,60 @@ export class BattleScene implements Scene {
 
   private handleFaint(fainted: Pokemon) {
     const isEnemy = fainted === this.enemyMon;
-    this.battleWon = isEnemy;
+    SFX.faint();
 
-    const msgs: string[] = [];
     if (isEnemy) {
-      msgs.push(`Wild ${fainted.name} fainted!`);
+      // Check for next trainer Pokemon
+      if (this.isTrainerBattle) {
+        this.trainerTeamIndex++;
+        if (this.trainerTeamIndex < this.trainerTeam.length) {
+          // Trainer sends next Pokemon
+          const expGain = calculateExpGain(this.enemyMon.speciesKey, this.enemyMon.level);
+          const msgs = [`Foe ${fainted.name} fainted!`, `${this.playerMon.name} gained ${expGain} EXP!`];
 
-      // Calculate and award EXP
+          this.queueMessages(msgs, () => {
+            this.awardExpMidBattle(expGain, () => {
+              const next = this.trainerTeam[this.trainerTeamIndex];
+              this.enemyMon = next;
+              this.enemyDisplayHp = next.hp;
+              this.queueMessages(
+                [`${this.trainerData!.name} sent out ${next.name}!`],
+                () => {
+                  this.phase = 'action';
+                  this.cursor = 0;
+                },
+              );
+            });
+          });
+          return;
+        }
+      }
+
+      this.battleWon = true;
+      const msgs: string[] = [];
+      msgs.push(`${this.isTrainerBattle ? 'Foe ' : 'Wild '}${fainted.name} fainted!`);
+
       const expGain = calculateExpGain(this.enemyMon.speciesKey, this.enemyMon.level);
       msgs.push(`${this.playerMon.name} gained ${expGain} EXP!`);
+
+      if (this.isTrainerBattle && this.trainerData) {
+        const reward = this.trainerData.reward;
+        this.gameState.addMoney(reward);
+        msgs.push(`You defeated ${this.trainerData.name}!`);
+        msgs.push(`You got ¥${reward} for winning!`);
+        if (this.trainerData.defeatMessage) {
+          msgs.push(`"${this.trainerData.defeatMessage}"`);
+        }
+      }
 
       this.queueMessages(msgs, () => {
         this.awardExp(expGain);
       });
     } else {
-      msgs.push(`${fainted.name} fainted!`);
+      const msgs = [`${fainted.name} fainted!`];
 
-      // Check if any other team member is alive
       const nextAlive = this.gameState.team.find((p) => p.isAlive);
       if (nextAlive) {
-        // Force switch
         msgs.push(`${nextAlive.name}, go!`);
         this.queueMessages(msgs, () => {
           this.activeTeamIndex = this.gameState.team.indexOf(nextAlive);
@@ -566,6 +713,7 @@ export class BattleScene implements Scene {
           this.cursor = 0;
         });
       } else {
+        this.battleWon = false;
         msgs.push('You blacked out!');
         this.queueMessages(msgs, () => {
           this.phase = 'result';
@@ -575,22 +723,45 @@ export class BattleScene implements Scene {
     }
   }
 
+  /** Award EXP mid-battle (trainer battles with multiple Pokemon) */
+  private awardExpMidBattle(amount: number, then: () => void) {
+    const events = this.playerMon.gainExp(amount);
+    this.playerDisplayExp = this.playerMon.expPercent;
+
+    if (events.length === 0) {
+      then();
+      return;
+    }
+
+    const msgs: string[] = [];
+    for (const ev of events) {
+      SFX.levelUp();
+      msgs.push(`${this.playerMon.name} grew to Lv.${ev.newLevel}!`);
+      for (const moveKey of ev.newMoves) {
+        const moveData = MOVES[moveKey];
+        if (moveData) {
+          msgs.push(`${this.playerMon.name} learned ${moveData.name}!`);
+        }
+      }
+    }
+    this.playerDisplayHp = this.playerMon.hp;
+    this.queueMessages(msgs, then);
+  }
+
   private awardExp(amount: number) {
     const events = this.playerMon.gainExp(amount);
     this.playerDisplayExp = this.playerMon.expPercent;
 
     if (events.length === 0) {
-      // No level up
       this.queueMessages(['You won!'], () => {
-        this.phase = 'result';
-        this.resultTimer = 0;
+        this.checkTeamEvolution();
       });
       return;
     }
 
-    // Level up messages
     const msgs: string[] = [];
     for (const ev of events) {
+      SFX.levelUp();
       msgs.push(`${this.playerMon.name} grew to Lv.${ev.newLevel}!`);
       for (const moveKey of ev.newMoves) {
         const moveData = MOVES[moveKey];
@@ -604,8 +775,7 @@ export class BattleScene implements Scene {
     this.playerDisplayHp = this.playerMon.hp;
 
     this.queueMessages(msgs, () => {
-      this.phase = 'result';
-      this.resultTimer = 0;
+      this.checkTeamEvolution();
     });
   }
 
@@ -615,6 +785,12 @@ export class BattleScene implements Scene {
     // Party screen is a full overlay
     if (this.phase === 'party') {
       BattleUI.drawPartyMenu(ctx, this.gameState.team, this.activeTeamIndex, this.cursor);
+      return;
+    }
+
+    // Evolution screen
+    if (this.phase === 'evolving' && this.evolvingMon) {
+      this.renderEvolution(ctx);
       return;
     }
 
@@ -646,7 +822,6 @@ export class BattleScene implements Scene {
       psx = -60 + (this.playerSpriteX + 60) * p;
     }
 
-    // During catch, override enemy visibility
     if (this.phase === 'catching') {
       eVisible = this.enemyVisible;
     }
@@ -666,6 +841,7 @@ export class BattleScene implements Scene {
     }
 
     // Draw info boxes
+    const enemyPrefix = this.isTrainerBattle ? '' : ''; // No prefix in info box
     BattleUI.drawEnemyInfo(ctx, this.enemyMon.name, this.enemyMon.level, this.enemyDisplayHp / this.enemyMon.maxHp);
     BattleUI.drawPlayerInfo(
       ctx,
@@ -676,6 +852,11 @@ export class BattleScene implements Scene {
       this.playerDisplayHp / this.playerMon.maxHp,
       this.playerDisplayExp,
     );
+
+    // Trainer team indicator
+    if (this.isTrainerBattle) {
+      this.drawTrainerBalls(ctx);
+    }
 
     // Draw bottom UI based on phase
     switch (this.phase) {
@@ -707,4 +888,58 @@ export class BattleScene implements Scene {
       ctx.fillRect(0, 0, 320, 240);
     }
   }
+
+  private renderEvolution(ctx: CanvasRenderingContext2D) {
+    // Dark background
+    ctx.fillStyle = '#081820';
+    ctx.fillRect(0, 0, 320, 240);
+
+    if (this.evolvingMon) {
+      // Flashing sprite
+      const flash = Math.sin(this.evolveTimer * 10) > 0;
+      const id = this.evolvingMon.species.id;
+      const targetKey = this.evolvingMon.evolutionTarget;
+      const targetId = targetKey ? (SPECIES_LOOKUP[targetKey] ?? id) : id;
+
+      // Alternate between old and new sprite
+      const showNew = this.evolveTimer > 1.5 && flash;
+      const spriteId = showNew ? targetId : id;
+
+      // White glow effect
+      const glowAlpha = 0.3 + Math.sin(this.evolveTimer * 6) * 0.3;
+      ctx.fillStyle = `rgba(255, 255, 255, ${glowAlpha})`;
+      ctx.fillRect(100, 30, 120, 120);
+
+      drawPokemonFront(ctx, spriteId, 128, 50);
+
+      // Text
+      ctx.fillStyle = '#f8f8f0';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${this.evolvingMon.name} is evolving!`, 160, 190);
+      ctx.textAlign = 'left';
+    }
+  }
+
+  private drawTrainerBalls(ctx: CanvasRenderingContext2D) {
+    // Show small pokeball indicators for trainer's remaining pokemon
+    const totalMons = this.trainerTeam.length;
+    for (let i = 0; i < totalMons; i++) {
+      const x = 160 + i * 12;
+      const y = 86;
+      const alive = this.trainerTeam[i].isAlive;
+      ctx.fillStyle = alive ? '#e04040' : '#808080';
+      ctx.fillRect(x, y, 8, 8);
+      ctx.fillStyle = '#f8f8f8';
+      ctx.fillRect(x, y + 3, 8, 2);
+      ctx.fillRect(x + 3, y + 2, 2, 4);
+    }
+  }
+}
+
+// Quick lookup for species IDs by key (for evolution rendering)
+import { SPECIES } from './data';
+const SPECIES_LOOKUP: Record<string, number> = {};
+for (const [key, data] of Object.entries(SPECIES)) {
+  SPECIES_LOOKUP[key] = data.id;
 }

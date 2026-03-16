@@ -13,12 +13,16 @@ interface SaveData {
   team: PokemonSaveData[];
   inventory: Inventory;
   playerPosition: { x: number; y: number };
+  money: number;
+  defeatedTrainers: string[];
 }
 
 export class GameState {
   team: Pokemon[] = [];
   inventory: Inventory = { pokeball: 5, potion: 3, superPotion: 0 };
-  playerPosition = { x: 4, y: 4 };
+  playerPosition = { x: 15, y: 13 };
+  money = 1000;
+  defeatedTrainers: Set<string> = new Set();
 
   get hasStarter() {
     return this.team.length > 0;
@@ -45,12 +49,37 @@ export class GameState {
     return true;
   }
 
+  addMoney(amount: number) {
+    this.money += amount;
+  }
+
+  spendMoney(amount: number): boolean {
+    if (this.money < amount) return false;
+    this.money -= amount;
+    return true;
+  }
+
+  isTrainerDefeated(trainerId: string): boolean {
+    return this.defeatedTrainers.has(trainerId);
+  }
+
+  defeatTrainer(trainerId: string) {
+    this.defeatedTrainers.add(trainerId);
+  }
+
+  /** Heal all team Pokemon */
+  healTeam() {
+    for (const p of this.team) p.heal();
+  }
+
   /** Save game state to localStorage */
   save() {
     const data: SaveData = {
       team: this.team.map((p) => p.toJSON()),
       inventory: { ...this.inventory },
       playerPosition: { ...this.playerPosition },
+      money: this.money,
+      defeatedTrainers: [...this.defeatedTrainers],
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -72,7 +101,9 @@ export class GameState {
         potion: data.inventory.potion ?? 0,
         superPotion: data.inventory.superPotion ?? 0,
       };
-      this.playerPosition = data.playerPosition ?? { x: 4, y: 4 };
+      this.playerPosition = data.playerPosition ?? { x: 15, y: 13 };
+      this.money = data.money ?? 1000;
+      this.defeatedTrainers = new Set(data.defeatedTrainers ?? []);
       return this.team.length > 0;
     } catch {
       return false;

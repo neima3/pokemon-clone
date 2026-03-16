@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { GameLoop, Input, SceneManager } from '@/engine';
+import { GameLoop, Input, SceneManager, initAudio } from '@/engine';
 import { OverworldScene, VIEW_W, VIEW_H } from './overworld/OverworldScene';
-import { BattleScene, Pokemon, WILD_POKEMON } from './battle';
+import { BattleScene, Pokemon } from './battle';
 import { StarterSelectScene } from './StarterSelectScene';
 import { GameState } from './GameState';
+import { TransitionEffect } from './TransitionEffect';
 
 const SCALE = 2;
 
@@ -24,35 +25,58 @@ export default function GameCanvas() {
 
     const scenes = new SceneManager();
     const gameState = new GameState();
+    const transition = new TransitionEffect();
 
-    const startEncounter = () => {
-      const speciesKey = WILD_POKEMON[Math.floor(Math.random() * WILD_POKEMON.length)];
-      const level = 2 + Math.floor(Math.random() * 4); // 2-5
+    // Initialize audio on first click/keypress
+    const initAudioOnce = () => {
+      initAudio();
+      window.removeEventListener('click', initAudioOnce);
+      window.removeEventListener('keydown', initAudioOnce);
+    };
+    window.addEventListener('click', initAudioOnce);
+    window.addEventListener('keydown', initAudioOnce);
+
+    const startEncounter = (speciesKey: string, level: number) => {
       const wild = new Pokemon(speciesKey, level);
 
-      const battle = new BattleScene(input, gameState, wild, (won) => {
-        if (!won) {
-          // Heal team on loss
-          for (const p of gameState.team) p.heal();
-        }
-        // Auto-save after battle
-        gameState.save();
-        scenes.switch(overworld);
+      transition.battleEnter(() => {
+        const battle = new BattleScene(input, gameState, wild, (won) => {
+          if (!won) {
+            for (const p of gameState.team) p.heal();
+          }
+          gameState.save();
+          scenes.switch(overworld);
+        });
+        scenes.switch(battle);
       });
-      scenes.switch(battle);
     };
 
-    // Create overworld with encounter callback
-    const overworld = new OverworldScene(input, startEncounter, gameState);
+    const startTrainerBattle = (trainerId: string, npcId: string) => {
+      // Create a dummy enemy (the BattleScene constructor builds the trainer team)
+      const dummyMon = new Pokemon('rattata', 1);
+
+      transition.battleEnter(() => {
+        const battle = new BattleScene(input, gameState, dummyMon, (won) => {
+          if (won) {
+            gameState.defeatTrainer(trainerId);
+          } else {
+            for (const p of gameState.team) p.heal();
+          }
+          gameState.save();
+          scenes.switch(overworld);
+        }, trainerId);
+        scenes.switch(battle);
+      });
+    };
+
+    const overworld = new OverworldScene(input, startEncounter, gameState, startTrainerBattle);
 
     // Check for existing save
     const hasSave = gameState.load();
 
     if (hasSave) {
-      // Resume from save — go straight to overworld
       scenes.switch(overworld);
     } else {
-      // New game — start with starter selection
       const starter = new StarterSelectScene(input, (pokemon) => {
         gameState.team.push(pokemon);
         gameState.save();
@@ -62,14 +86,24 @@ export default function GameCanvas() {
     }
 
     const loop = new GameLoop(
-      (dt) => scenes.update(dt),
-      () => scenes.render(ctx),
+      (dt) => {
+        transition.update(dt);
+        if (!transition.active) {
+          scenes.update(dt);
+        }
+      },
+      () => {
+        scenes.render(ctx);
+        transition.render(ctx, VIEW_W, VIEW_H);
+      },
     );
     loop.start();
 
     return () => {
       loop.stop();
       input.detach();
+      window.removeEventListener('click', initAudioOnce);
+      window.removeEventListener('keydown', initAudioOnce);
     };
   }, []);
 

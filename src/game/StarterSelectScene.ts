@@ -1,5 +1,6 @@
 import type { Scene } from '@/engine/Scene';
 import { Input } from '@/engine/Input';
+import { SFX } from '@/engine/Audio';
 import { COLORS } from './overworld/tiles';
 import { STARTERS, SPECIES } from './battle/data';
 import { Pokemon } from './battle/Pokemon';
@@ -38,10 +39,17 @@ export class StarterSelectScene implements Scene {
     }
 
     const dir = this.input.getDirectionPressed();
-    if (dir === 'left' && this.cursor > 0) this.cursor--;
-    if (dir === 'right' && this.cursor < 2) this.cursor++;
+    if (dir === 'left' && this.cursor > 0) {
+      this.cursor--;
+      SFX.menuSelect();
+    }
+    if (dir === 'right' && this.cursor < 2) {
+      this.cursor++;
+      SFX.menuSelect();
+    }
 
     if (this.input.getActionPressed()) {
+      SFX.menuConfirm();
       this.confirmed = true;
       this.confirmTimer = 0;
     }
@@ -116,6 +124,12 @@ export class StarterSelectScene implements Scene {
     ctx.font = 'bold 7px monospace';
     ctx.textAlign = 'center';
     ctx.fillText(`HP:${species.baseHp}  ATK:${species.baseAtk}  DEF:${species.baseDef}  SPD:${species.baseSpd}`, W / 2, 200);
+
+    // Evolution info
+    if (species.evolution) {
+      ctx.fillStyle = '#88c070';
+      ctx.fillText(`Evolves at Lv.${species.evolution.level}`, W / 2, 215);
+    }
 
     ctx.textAlign = 'left';
   }
