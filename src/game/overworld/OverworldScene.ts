@@ -9,20 +9,32 @@ import { Tile, drawTile, isSolid, COLORS } from './tiles';
 export const VIEW_W = 320;
 export const VIEW_H = 240;
 
+const ENCOUNTER_RATE = 0.15;
+
 export class OverworldScene implements Scene {
   private input: Input;
   private player: Player;
   private camera: Camera;
+  private onEncounter?: () => void;
+  private frozen = false;
 
-  constructor(input: Input) {
+  constructor(input: Input, onEncounter?: () => void) {
     this.input = input;
+    this.onEncounter = onEncounter;
     this.player = new Player(4, 4);
     this.camera = new Camera(VIEW_W, VIEW_H, MAP_WIDTH, MAP_HEIGHT);
   }
 
-  onEnter() {}
+  onEnter() {
+    this.input.clear();
+    this.frozen = false;
+  }
 
   update(dt: number) {
+    if (this.frozen) return;
+
+    const wasMoving = this.player.isMoving;
+
     if (!this.player.isMoving) {
       const dir = this.input.getDirection();
       if (dir) {
@@ -34,7 +46,21 @@ export class OverworldScene implements Scene {
       }
     }
     this.player.update(dt);
+
+    // Check for encounter when player finishes a step
+    if (wasMoving && !this.player.isMoving) {
+      this.checkEncounter();
+    }
+
     this.camera.follow(this.player.px, this.player.py);
+  }
+
+  private checkEncounter() {
+    const tile = MAP_DATA[this.player.gy * MAP_WIDTH + this.player.gx];
+    if (tile === Tile.TallGrass && Math.random() < ENCOUNTER_RATE) {
+      this.frozen = true;
+      this.onEncounter?.();
+    }
   }
 
   render(ctx: CanvasRenderingContext2D) {

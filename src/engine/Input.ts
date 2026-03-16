@@ -14,6 +14,7 @@ const KEY_MAP: Record<string, Direction> = {
 export class Input {
   private held = new Set<Direction>();
   private queue: Direction[] = [];
+  private pressed = new Set<string>();
 
   constructor() {
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -39,6 +40,13 @@ export class Input {
         this.queue.push(dir);
       }
     }
+    if (!e.repeat) {
+      this.pressed.add(e.key);
+    }
+    // Prevent scrolling for space/arrows
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+      e.preventDefault();
+    }
   }
 
   private onKeyUp(e: KeyboardEvent) {
@@ -54,5 +62,49 @@ export class Input {
     // Clean stale entries
     this.queue = this.queue.filter((d) => this.held.has(d));
     return this.queue.length > 0 ? this.queue[this.queue.length - 1] : null;
+  }
+
+  /** Returns a direction if one was just pressed (consumed on read). For menus. */
+  getDirectionPressed(): Direction | null {
+    for (const [key, dir] of Object.entries(KEY_MAP)) {
+      if (this.pressed.has(key)) {
+        for (const [k2, d2] of Object.entries(KEY_MAP)) {
+          if (d2 === dir) this.pressed.delete(k2);
+        }
+        return dir;
+      }
+    }
+    return null;
+  }
+
+  /** Returns true if action key (Z/Enter/Space) was just pressed. Consumed on read. */
+  getActionPressed(): boolean {
+    const keys = ['z', 'Z', 'Enter', ' '];
+    for (const k of keys) {
+      if (this.pressed.has(k)) {
+        keys.forEach((k2) => this.pressed.delete(k2));
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** Returns true if cancel key (X/Backspace/Escape) was just pressed. Consumed on read. */
+  getCancelPressed(): boolean {
+    const keys = ['x', 'X', 'Backspace', 'Escape'];
+    for (const k of keys) {
+      if (this.pressed.has(k)) {
+        keys.forEach((k2) => this.pressed.delete(k2));
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** Clear all buffered input. Call when switching scenes. */
+  clear() {
+    this.held.clear();
+    this.queue = [];
+    this.pressed.clear();
   }
 }
