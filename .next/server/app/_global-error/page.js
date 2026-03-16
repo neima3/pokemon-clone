@@ -1,0 +1,11 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/_global-error/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__b1d69706._.js")
+R.c("server/chunks/ssr/Desktop_Apps_pokemon-clone_3e24d8da._.js")
+R.c("server/chunks/ssr/bef84_next_dist_1e6eea5d._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__9609169e._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__d8843b6d._.js")
+R.c("server/chunks/ssr/bef84_next_dist_aeb69a82._.js")
+R.c("server/chunks/ssr/Desktop_Apps_pokemon-clone_src_app_d2428276._.js")
+R.c("server/chunks/ssr/88004_pokemon-clone__next-internal_server_app__global-error_page_actions_e2ec8d4d.js")
+R.m(8667)
+module.exports=R.m(8667).exports

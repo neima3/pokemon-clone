@@ -1,0 +1,3 @@
+module.exports=[70127,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(83610);a.n(d("[project]/Desktop/Apps/pokemon-clone/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},65869,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(83610);a.n(d("[project]/Desktop/Apps/pokemon-clone/node_modules/next/dist/client/components/builtin/global-error.js"))},56846,a=>{"use strict";a.i(70127);var b=a.i(65869);a.n(b)}];
+
+//# sourceMappingURL=bef84_next_dist_client_components_builtin_global-error_f5b6f70f.js.map

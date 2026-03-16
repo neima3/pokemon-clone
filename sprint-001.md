@@ -7,7 +7,16 @@
 4. Player character with movement
 5. Collision detection
 
-## Status: IN PROGRESS
+## Status: COMPLETE
+
+## Completed
+- ✅ Canvas-based game engine with GameLoop, Input, Scene manager, AssetLoader
+- ✅ Overworld with tile map system (20x15 grid, 16x16px tiles)
+- ✅ Player character with 4-directional movement
+- ✅ Collision detection
+- ✅ Camera that follows player
+- ✅ GameBoy Color palette styling
+- ✅ Deployed to Vercel
 
 ## Notes
 - Started: 2026-03-16
