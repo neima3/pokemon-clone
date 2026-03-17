@@ -2,7 +2,7 @@ import type { Scene } from '@/engine/Scene';
 import { Input } from '@/engine/Input';
 import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
-import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles } from './BattleUI';
+import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
 import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType } from './data';
@@ -74,6 +74,12 @@ export class BattleScene implements Scene {
   
   // Status particles
   private statusParticles: StatusParticle[] = [];
+
+  // Heal particles
+  private healParticles: HealParticle[] = [];
+
+  // Stat change text
+  private statChangeTexts: StatChangeText[] = [];
 
   // Catch animation state
 
@@ -193,6 +199,16 @@ export class BattleScene implements Scene {
     // Update status particles
     StatusParticles.update(this.statusParticles, dt);
     this.statusParticles = this.statusParticles.filter(p => p.life > 0);
+
+    // Update heal particles
+    HealParticles.update(this.healParticles, dt);
+    this.healParticles = this.healParticles.filter(p => p.life > 0);
+
+    // Update stat change text
+    for (const sct of this.statChangeTexts) {
+      StatChangeHelper.update(sct, dt);
+    }
+    this.statChangeTexts = this.statChangeTexts.filter(sct => sct.timer < sct.maxTimer);
 
     // Spawn status particles for Pokemon with status conditions
     if (this.playerMon.status && this.phase !== 'intro' && Math.random() < dt * 2) {
@@ -1391,6 +1407,14 @@ export class BattleScene implements Scene {
     // Render damage numbers
     for (const dn of this.damageNumbers) {
       DamageNumbers.render(ctx, dn);
+    }
+
+    // Render heal particles
+    HealParticles.render(ctx, this.healParticles);
+
+    // Render stat change text
+    for (const sct of this.statChangeTexts) {
+      StatChangeHelper.render(ctx, sct);
     }
 
     // Render status particles

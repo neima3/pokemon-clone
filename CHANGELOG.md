@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0] - 2026-03-17
+
+### Added
+- Sprint 017: Visual Polish & Quality Improvements
+- Healing visual effects: floating green plus particles when using potions or recovery moves
+- Stat change visual indicators: floating +/- text when stats are raised or lowered
+- New particle systems: HealParticles and StatChangeHelper for battle feedback
+
+### Fixed
+- Fixed dragon-type attack animation not rendering properly (replaced stroke with filled diamond shapes)
+- Fixed bag menu in battle now shows all item types (Great Ball, Ultra Ball, Hyper Potion, Max Potion, etc.)
+
+### Changed
+- Improved bag menu layout with smaller font to fit more items
+- Enhanced battle feedback with visual indicators for healing and stat changes
+
 ## [0.16.0] - 2026-03-17
 
 ### Added

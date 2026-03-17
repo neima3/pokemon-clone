@@ -336,21 +336,29 @@ export const BattleUI = {
     ctx.lineWidth = 2;
     ctx.strokeRect(bx, by, bw, bh);
 
-    // Title
     ctx.fillStyle = COLORS.dark;
     ctx.font = FONT;
     ctx.textBaseline = 'top';
 
-    const items: Array<{ key: keyof Inventory; count: number }> = [
+    // Build items list from inventory
+    const allItems: Array<{ key: keyof Inventory; count: number }> = [
       { key: 'pokeball', count: inventory.pokeball },
+      { key: 'greatBall', count: inventory.greatBall },
+      { key: 'ultraBall', count: inventory.ultraBall },
       { key: 'potion', count: inventory.potion },
       { key: 'superPotion', count: inventory.superPotion },
+      { key: 'hyperPotion', count: inventory.hyperPotion },
+      { key: 'maxPotion', count: inventory.maxPotion },
+      { key: 'antidote', count: inventory.antidote },
+      { key: 'fullHeal', count: inventory.fullHeal },
+      { key: 'revive', count: inventory.revive },
     ];
-    // Filter to items with count > 0, plus CANCEL
-    const visibleItems = items.filter((i) => i.count > 0);
+    
+    const visibleItems = allItems.filter((i) => i.count > 0);
 
     for (let i = 0; i < visibleItems.length; i++) {
-      const y = by + 8 + i * 16;
+      const y = by + 8 + i * 14;
+      if (y > by + bh - 20) break; // Don't render outside box
       const item = ITEMS[visibleItems[i].key];
       if (i === cursor) {
         ctx.fillText('\u25b6', bx + 8, y);
@@ -365,7 +373,7 @@ export const BattleUI = {
 
     // CANCEL option
     const cancelIdx = visibleItems.length;
-    const cy = by + 8 + cancelIdx * 16;
+    const cy = by + 8 + Math.min(visibleItems.length, 5) * 14;
     if (cursor === cancelIdx) {
       ctx.fillText('\u25b6', bx + 8, cy);
     }
@@ -701,7 +709,7 @@ export const BattleUI = {
         break;
       }
       case 'dragon': {
-        // Dragon energy - swirling draconic aura
+        // Dragon energy - swirling draconic aura with diamond shapes
         for (let i = 0; i < 10; i++) {
           const angle = (i / 10) * Math.PI * 2 + t * 6;
           const dist = 15 + t * 25;
@@ -712,12 +720,14 @@ export const BattleUI = {
           ctx.save();
           ctx.translate(px, py);
           ctx.rotate(angle * 2 + t * 8);
+          // Draw diamond shape instead of using stroke
           ctx.beginPath();
-          ctx.moveTo(-6, 0);
-          ctx.lineTo(6, 0);
-          ctx.lineTo(0, -4);
-          ctx.lineTo(0, 4);
-          ctx.stroke();
+          ctx.moveTo(0, -6);
+          ctx.lineTo(4, 0);
+          ctx.lineTo(0, 6);
+          ctx.lineTo(-4, 0);
+          ctx.closePath();
+          ctx.fill();
           ctx.restore();
         }
         for (let i = 0; i < 6; i++) {
@@ -874,6 +884,24 @@ export interface StatusParticle {
   type: 'poison' | 'burn' | 'paralyze' | 'sleep';
 }
 
+export interface HealParticle {
+  x: number;
+  y: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+}
+
+export interface StatChangeText {
+  x: number;
+  y: number;
+  text: string;
+  color: string;
+  timer: number;
+  maxTimer: number;
+}
+
 export const StatusParticles = {
   create(type: StatusCondition): StatusParticle[] {
     const particles: StatusParticle[] = []
@@ -933,6 +961,82 @@ export const StatusParticles = {
           break
       }
     }
+    ctx.globalAlpha = 1
+  },
+};
+
+export const HealParticles = {
+  create(x: number, y: number, count: number = 12): HealParticle[] {
+    const particles: HealParticle[] = []
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: x + (Math.random() - 0.5) * 40,
+        y: y + Math.random() * 30,
+        vy: -30 - Math.random() * 20,
+        life: 0.8 + Math.random() * 0.4,
+        maxLife: 0.8 + Math.random() * 0.4,
+        size: 3 + Math.random() * 3,
+      })
+    }
+    return particles
+  },
+
+  update(particles: HealParticle[], dt: number): void {
+    for (const p of particles) {
+      p.y += p.vy * dt
+      p.x += Math.sin(p.y * 0.1) * 0.5
+      p.life -= dt
+    }
+  },
+
+  render(ctx: CanvasRenderingContext2D, particles: HealParticle[]): void {
+    for (const p of particles) {
+      if (p.life <= 0) continue
+      const alpha = Math.max(0, p.life / p.maxLife)
+      ctx.globalAlpha = alpha
+      // Draw plus sign
+      ctx.fillStyle = '#40c040'
+      ctx.fillRect(p.x - p.size / 2, p.y - 1, p.size, 2)
+      ctx.fillRect(p.x - 1, p.y - p.size / 2, 2, p.size)
+      // Glow effect
+      ctx.fillStyle = '#80f080'
+      ctx.globalAlpha = alpha * 0.5
+      ctx.fillRect(p.x - p.size / 2 - 1, p.y - 2, p.size + 2, 4)
+      ctx.fillRect(p.x - 2, p.y - p.size / 2 - 1, 4, p.size + 2)
+    }
+    ctx.globalAlpha = 1
+  },
+};
+
+export const StatChangeHelper = {
+  create(x: number, y: number, stat: string, stages: number): StatChangeText {
+    const text = stages > 0 ? `${stat} +${stages}` : `${stat} ${stages}`
+    return {
+      x,
+      y,
+      text,
+      color: stages > 0 ? '#48b048' : '#e04040',
+      timer: 0,
+      maxTimer: 1.2,
+    }
+  },
+
+  update(sct: StatChangeText, dt: number): void {
+    sct.timer += dt
+    sct.y -= dt * 20
+  },
+
+  render(ctx: CanvasRenderingContext2D, sct: StatChangeText): void {
+    if (sct.timer >= sct.maxTimer) return
+    const alpha = 1 - (sct.timer / sct.maxTimer)
+    ctx.globalAlpha = alpha
+    ctx.font = 'bold 10px monospace'
+    ctx.textAlign = 'center'
+    ctx.fillStyle = '#181818'
+    ctx.fillText(sct.text, sct.x + 1, sct.y + 1)
+    ctx.fillStyle = sct.color
+    ctx.fillText(sct.text, sct.x, sct.y)
+    ctx.textAlign = 'left'
     ctx.globalAlpha = 1
   },
 };
