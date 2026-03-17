@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-03-17
+
+### Added
+- Sprint 012: Weather system with visual effects (rain, sun, fog, sandstorm, hail)
+- Weather affects battles (water boosted in rain, fire boosted in sun, etc.)
+- Held items system for Pokémon (type-boosting items, leftovers, lum berry)
+- Damage numbers display during battles
+- Running shoes toggle (B key or hold Shift)
+- Critical hit sound effect
+- Badge get fanfare sound
+- Weather change sound effect
+
+### Fixed
+- Status conditions now properly cured at Pokémon Center
+
 ## [0.7.0] - 2026-03-16
 
 ### Added
