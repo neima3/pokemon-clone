@@ -7,6 +7,7 @@ import { drawPokemonFront, drawPokemonBack } from './sprites';
 import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType } from './data';
 import { GameState, Inventory } from '../GameState';
+import type { WeatherType } from '../Weather';
 
 type Phase =
   | 'intro' | 'message' | 'action' | 'moves'
@@ -82,6 +83,11 @@ export class BattleScene implements Scene {
 
   // Stat change text
   private statChangeTexts: StatChangeText[] = [];
+
+  // Weather effects
+  private weather: WeatherType = 'clear';
+  private weatherParticles: Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number }> = [];
+  private weatherTimer = 0;
 
   // Catch animation state
   private catchTimer = 0;
@@ -211,6 +217,9 @@ export class BattleScene implements Scene {
     }
     this.statChangeTexts = this.statChangeTexts.filter(sct => sct.timer < sct.maxTimer);
 
+    // Update weather particles
+    this.updateWeatherParticles(dt);
+
     // Spawn status particles for Pokemon with status conditions
     if (this.playerMon.status && this.phase !== 'intro' && Math.random() < dt * 2) {
       const particles = StatusParticles.create(this.playerMon.status);
@@ -250,6 +259,139 @@ export class BattleScene implements Scene {
     const speed = this.playerMon.maxHp * 0.8;
     if (display > target) return Math.max(target, display - speed * dt);
     return Math.min(target, display + speed * dt);
+  }
+
+  setWeather(weather: WeatherType) {
+    this.weather = weather;
+    this.weatherParticles = [];
+  }
+
+  private updateWeatherParticles(dt: number) {
+    if (this.weather === 'clear') return;
+    
+    this.weatherTimer += dt;
+    
+    const targetCount = this.weather === 'rain' ? 60 : this.weather === 'hail' ? 30 : this.weather === 'sandstorm' ? 40 : 20;
+    
+    while (this.weatherParticles.length < targetCount) {
+      this.spawnWeatherParticle();
+    }
+    
+    for (const p of this.weatherParticles) {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+    }
+    
+    this.weatherParticles = this.weatherParticles.filter(p => p.life > 0 && p.y < 200 && p.x < 340);
+  }
+
+  private spawnWeatherParticle() {
+    switch (this.weather) {
+      case 'rain':
+        this.weatherParticles.push({
+          x: Math.random() * 320,
+          y: -10,
+          vx: -20,
+          vy: 250 + Math.random() * 100,
+          life: 1.5 + Math.random(),
+          maxLife: 1.5 + Math.random(),
+          size: 2 + Math.random() * 2,
+        });
+        break;
+      case 'hail':
+        this.weatherParticles.push({
+          x: Math.random() * 320,
+          y: -10,
+          vx: -15,
+          vy: 120 + Math.random() * 50,
+          life: 2 + Math.random(),
+          maxLife: 2 + Math.random(),
+          size: 3 + Math.random() * 3,
+        });
+        break;
+      case 'sandstorm':
+        this.weatherParticles.push({
+          x: -10,
+          y: Math.random() * 150,
+          vx: 180 + Math.random() * 80,
+          vy: Math.sin(this.weatherTimer * 2) * 15,
+          life: 1.2 + Math.random(),
+          maxLife: 1.2 + Math.random(),
+          size: 2 + Math.random() * 2,
+        });
+        break;
+      case 'sunny':
+        this.weatherParticles.push({
+          x: Math.random() * 320,
+          y: Math.random() * 150,
+          vx: 0,
+          vy: -8,
+          life: 0.8 + Math.random(),
+          maxLife: 0.8 + Math.random(),
+          size: 3 + Math.random() * 4,
+        });
+        break;
+      case 'fog':
+        this.weatherParticles.push({
+          x: Math.random() * 320,
+          y: Math.random() * 150,
+          vx: 8 + Math.random() * 15,
+          vy: Math.sin(this.weatherTimer + Math.random()) * 3,
+          life: 3 + Math.random() * 2,
+          maxLife: 3 + Math.random() * 2,
+          size: 25 + Math.random() * 35,
+        });
+        break;
+    }
+  }
+
+  private renderWeather(ctx: CanvasRenderingContext2D) {
+    if (this.weather === 'clear') return;
+    
+    for (const p of this.weatherParticles) {
+      const alpha = Math.min(1, p.life / p.maxLife);
+      
+      switch (this.weather) {
+        case 'rain':
+          ctx.strokeStyle = `rgba(140, 170, 210, ${alpha * 0.5})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x + p.vx * 0.015, p.y + p.vy * 0.015);
+          ctx.stroke();
+          break;
+        case 'hail':
+          ctx.fillStyle = `rgba(190, 210, 240, ${alpha * 0.7})`;
+          ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+          break;
+        case 'sandstorm':
+          ctx.fillStyle = `rgba(200, 170, 130, ${alpha * 0.4})`;
+          ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+          break;
+        case 'sunny':
+          ctx.fillStyle = `rgba(255, 235, 170, ${alpha * 0.35})`;
+          ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+          break;
+        case 'fog':
+          ctx.fillStyle = `rgba(190, 190, 200, ${alpha * 0.12})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+      }
+    }
+    
+    if (this.weather === 'sunny') {
+      ctx.fillStyle = 'rgba(255, 235, 190, 0.06)';
+      ctx.fillRect(0, 0, 320, 156);
+    } else if (this.weather === 'fog') {
+      ctx.fillStyle = 'rgba(170, 170, 180, 0.12)';
+      ctx.fillRect(0, 0, 320, 156);
+    } else if (this.weather === 'sandstorm') {
+      ctx.fillStyle = 'rgba(200, 170, 130, 0.08)';
+      ctx.fillRect(0, 0, 320, 156);
+    }
   }
 
   private updateIntro(dt: number) {
@@ -1011,6 +1153,10 @@ export class BattleScene implements Scene {
     const messages: string[] = [];
 
     messages.push(`${prefix}${attacker.name} used ${move.data.name}!`);
+    
+    if (result.hits && result.hits > 1) {
+      messages.push(`Hit ${result.hits} times!`);
+    }
 
     if (result.missed) {
       SFX.attackMiss();
@@ -1306,6 +1452,9 @@ export class BattleScene implements Scene {
     }
 
     BattleUI.drawBackground(ctx);
+
+    // Render weather effects
+    this.renderWeather(ctx);
 
     // Calculate sprite positions with animation offsets
     let psx = this.playerSpriteX;

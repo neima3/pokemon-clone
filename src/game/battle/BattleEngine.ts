@@ -17,14 +17,10 @@ export interface TurnResult {
   recoilMessage?: string;
   drainHeal?: number;
   drainMessage?: string;
+  hits?: number;
 }
 
   
-export interface TurnEndResult {
-  message?: string;
-  cured?: boolean;
-}
-
 export interface CatchResult {
   shakes: number;
   caught: boolean;
@@ -102,12 +98,69 @@ export function determineTurnOrder(player: Pokemon, enemy: Pokemon, playerMove?:
   return Math.random() < 0.5 ? 'player' : 'enemy';
 }
 
-export function getEnemyMove(enemy: Pokemon, _player: Pokemon): MoveInstance | null {
+export function getEnemyMove(enemy: Pokemon, player: Pokemon): MoveInstance | null {
   const usableMoves = enemy.moves.filter(m => m.pp > 0);
   if (usableMoves.length === 0) return null;
   
-  const idx = Math.floor(Math.random() * usableMoves.length);
-  return usableMoves[idx];
+  interface ScoredMove {
+    move: MoveInstance;
+    score: number;
+  }
+  
+  const scoredMoves: ScoredMove[] = usableMoves.map(move => {
+    let score = move.data.power || 50;
+    
+    const effectiveness = getTypeEffectiveness(move.data.type, player.species.types);
+    score *= effectiveness;
+    
+    if (effectiveness === 0) score = 0;
+    
+    if (enemy.species.types.includes(move.data.type)) {
+      score *= 1.3;
+    }
+    
+    if (move.data.accuracy < 100) {
+      score *= move.data.accuracy / 100;
+    }
+    
+    if (move.data.priority && move.data.priority > 0) {
+      score *= 1.2;
+    }
+    
+    if (move.data.drain) {
+      score *= 1.1;
+    }
+    
+    if (move.data.category === 'status') {
+      score = 40;
+      if (move.data.effect === 'poison' && !player.status && !player.isImmuneToStatus('poison')) {
+        score = 60;
+      }
+      if (move.data.effect === 'burn' && !player.status && !player.isImmuneToStatus('burn')) {
+        score = 55;
+      }
+      if (move.data.effect === 'paralyze' && !player.status && !player.isImmuneToStatus('paralyze')) {
+        score = 50;
+      }
+      if (move.data.effect === 'sleep' && !player.status && !player.isImmuneToStatus('sleep')) {
+        score = 65;
+      }
+    }
+    
+    score += (Math.random() - 0.5) * 20;
+    
+    return { move, score };
+  });
+  
+  scoredMoves.sort((a, b) => b.score - a.score);
+  
+  if (scoredMoves[0].score > 60 && Math.random() < 0.7) {
+    return scoredMoves[0].move;
+  }
+  
+  const topMoves = scoredMoves.slice(0, Math.min(3, scoredMoves.length));
+  const idx = Math.floor(Math.random() * topMoves.length);
+  return topMoves[idx].move;
 }
 
 function checkAbilityImmunity(attacker: Pokemon, defender: Pokemon, moveType: PokemonType): { immune: boolean; message?: string } {
@@ -145,10 +198,10 @@ function checkAbilityImmunity(attacker: Pokemon, defender: Pokemon, moveType: Po
 
 function checkContactAbility(attacker: Pokemon, defender: Pokemon): string | null {
   const ability = defender.ability;
-  if (!ability || !attacker.status) return null;
+  if (!ability || attacker.status) return null;
   
   if (ability.effect === 'paralyze_contact') {
-    if (!attacker.status && Math.random() < 0.3) {
+    if (Math.random() < 0.3) {
       if (!attacker.isImmuneToStatus('paralyze')) {
         attacker.status = 'paralyze';
         return `${attacker.name} was paralyzed by ${defender.name}'s STATIC!`;
@@ -157,7 +210,7 @@ function checkContactAbility(attacker: Pokemon, defender: Pokemon): string | nul
   }
   
   if (ability.effect === 'poison_contact') {
-    if (!attacker.status && Math.random() < 0.3) {
+    if (Math.random() < 0.3) {
       if (!attacker.isImmuneToStatus('poison')) {
         attacker.status = 'poison';
         return `${attacker.name} was poisoned by ${defender.name}'s POISON POINT!`;
@@ -166,7 +219,7 @@ function checkContactAbility(attacker: Pokemon, defender: Pokemon): string | nul
   }
   
   if (ability.effect === 'burn_contact') {
-    if (!attacker.status && Math.random() < 0.3) {
+    if (Math.random() < 0.3) {
       if (!attacker.isImmuneToStatus('burn')) {
         attacker.status = 'burn';
         return `${attacker.name} was burned by ${defender.name}'s FLAME BODY!`;
@@ -175,7 +228,7 @@ function checkContactAbility(attacker: Pokemon, defender: Pokemon): string | nul
   }
   
   if (ability.effect === 'spore_contact') {
-    if (!attacker.status && Math.random() < 0.1) {
+    if (Math.random() < 0.1) {
       const effects: StatusCondition[] = ['paralyze', 'poison', 'sleep'];
       const effect = effects[Math.floor(Math.random() * effects.length)];
       if (!attacker.isImmuneToStatus(effect)) {
@@ -313,36 +366,55 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     atk = Math.floor(atk * 1.5);
   }
   
-  let damage = Math.floor(((2 * attacker.level / 5 + 2) * move.data.power * atk / def) / 50) + 2;
+  let baseDamage = Math.floor(((2 * attacker.level / 5 + 2) * move.data.power * atk / def) / 50) + 2;
   
-  if (result.critical) {
-    damage = Math.floor(damage * 1.5);
+  let numHits = 1;
+  if (move.data.hits) {
+    const [minHits, maxHits] = move.data.hits;
+    numHits = minHits + Math.floor(Math.random() * (maxHits - minHits + 1));
+    result.hits = numHits;
   }
   
-  damage = Math.floor(damage * result.effectiveness);
+  let totalDamage = 0;
+  let anyCritical = false;
   
-  const abilityMod = getAbilityDamageModifier(attacker, defender, move.data.type);
-  damage = Math.floor(damage * abilityMod);
-  
-  if (weather) {
-    if (weather === 'rain') {
-      if (move.data.type === 'water') damage = Math.floor(damage * 1.5);
-      if (move.data.type === 'fire') damage = Math.floor(damage * 0.5);
+  for (let hit = 0; hit < numHits; hit++) {
+    let hitDamage = baseDamage;
+    
+    if (Math.random() < critRate) {
+      hitDamage = Math.floor(hitDamage * 1.5);
+      anyCritical = true;
     }
-    if (weather === 'sunny') {
-      if (move.data.type === 'fire') damage = Math.floor(damage * 1.5);
-      if (move.data.type === 'water') damage = Math.floor(damage * 0.5);
+    
+    hitDamage = Math.floor(hitDamage * result.effectiveness);
+    
+    const abilityMod = getAbilityDamageModifier(attacker, defender, move.data.type);
+    hitDamage = Math.floor(hitDamage * abilityMod);
+    
+    if (weather) {
+      if (weather === 'rain') {
+        if (move.data.type === 'water') hitDamage = Math.floor(hitDamage * 1.5);
+        if (move.data.type === 'fire') hitDamage = Math.floor(hitDamage * 0.5);
+      }
+      if (weather === 'sunny') {
+        if (move.data.type === 'fire') hitDamage = Math.floor(hitDamage * 1.5);
+        if (move.data.type === 'water') hitDamage = Math.floor(hitDamage * 0.5);
+      }
     }
+    
+    if (attacker.species.types.includes(move.data.type)) {
+      hitDamage = Math.floor(hitDamage * 1.5);
+      if (attacker.ability?.effect === 'stab_boost') {
+        hitDamage = Math.floor(hitDamage * 1.33);
+      }
+    }
+    
+    hitDamage = Math.max(1, hitDamage);
+    totalDamage += hitDamage;
   }
   
-  if (attacker.species.types.includes(move.data.type)) {
-    damage = Math.floor(damage * 1.5);
-    if (attacker.ability?.effect === 'stab_boost') {
-      damage = Math.floor(damage * 1.33);
-    }
-  }
-  
-  damage = Math.max(1, damage);
+  result.critical = anyCritical;
+  let damage = totalDamage;
   
   const sturdyCheck = checkSturdyAbility(defender, damage);
   if (sturdyCheck.survived) {

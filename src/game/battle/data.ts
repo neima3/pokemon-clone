@@ -436,6 +436,8 @@ export interface MoveData {
   drain?: number;
   /** Percentage of damage dealt that hurts the user (e.g., 25 for recoil moves) */
   recoil?: number;
+  /** Multi-hit moves: [min, max] hits (e.g., [2, 5] for Double Slap) */
+  hits?: [number, number];
 }
 
 export const MOVES: Record<string, MoveData> = {
@@ -503,7 +505,11 @@ export const MOVES: Record<string, MoveData> = {
   swift:        { name: 'SWIFT',        type: 'normal',    power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
   surf:         { name: 'SURF',         type: 'water',     power: 90,  accuracy: 100, maxPp: 15, category: 'physical' },
   lowKick:      { name: 'LOW KICK',     type: 'fighting',  power: 65,  accuracy: 100, maxPp: 20, category: 'physical' },
-  furySwipes:   { name: 'FURY SWIPES',  type: 'normal',    power: 50,  accuracy: 80,  maxPp: 15, category: 'physical' },
+  furySwipes:   { name: 'FURY SWIPES',  type: 'normal',    power: 18,  accuracy: 80,  maxPp: 15, category: 'physical', hits: [2, 5] },
+  furyAttack:   { name: 'FURY ATTACK',  type: 'normal',    power: 15,  accuracy: 85,  maxPp: 20, category: 'physical', hits: [2, 5] },
+  pinMissile:   { name: 'PIN MISSILE',  type: 'bug',       power: 25,  accuracy: 95,  maxPp: 20, category: 'physical', hits: [2, 5] },
+  bulletSeed:   { name: 'BULLET SEED',  type: 'grass',     power: 25,  accuracy: 100, maxPp: 30, category: 'physical', hits: [2, 5] },
+  rockBlast:    { name: 'ROCK BLAST',   type: 'rock',      power: 25,  accuracy: 90,  maxPp: 10, category: 'physical', hits: [2, 5] },
   megaPunch:    { name: 'MEGA PUNCH',   type: 'normal',    power: 80,  accuracy: 85,  maxPp: 20, category: 'physical' },
   karatechop:   { name: 'KARATE CHOP',  type: 'fighting',  power: 50,  accuracy: 100, maxPp: 25, category: 'physical' },
   acidSpray:    { name: 'ACID SPRAY',   type: 'poison',    power: 40,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'lower_defense' },
@@ -523,7 +529,7 @@ export const MOVES: Record<string, MoveData> = {
   selfDestruct: { name: 'SELFDSTRCT',  type: 'normal',   power: 200, accuracy: 100, maxPp: 5,  category: 'physical' },
   dig:          { name: 'DIG',         type: 'ground',   power: 80,  accuracy: 100, maxPp: 10, category: 'physical' },
   sing:         { name: 'SING',        type: 'normal',   power: 0,   accuracy: 55,  maxPp: 15, category: 'status', effect: 'sleep' },
-  doubleSlap:   { name: 'DOUBLESLAP',  type: 'normal',   power: 45,  accuracy: 85,  maxPp: 10, category: 'physical' },
+  doubleSlap:   { name: 'DOUBLESLAP',  type: 'normal',   power: 15,  accuracy: 85,  maxPp: 10, category: 'physical', hits: [2, 5] },
   pound:        { name: 'POUND',       type: 'normal',   power: 40,  accuracy: 100, maxPp: 35, category: 'physical' },
   disable:      { name: 'DISABLE',     type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'lower_speed' },
   hypnosis:     { name: 'HYPNOSIS',    type: 'psychic',  power: 0,   accuracy: 60,  maxPp: 20, category: 'status', effect: 'sleep' },
@@ -596,7 +602,7 @@ export const MOVES: Record<string, MoveData> = {
   magnetBomb:   { name: 'MAGNET BOMB',type: 'steel',     power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
   mirrorShot:   { name: 'MIRROR SHOT',type: 'steel',     power: 65,  accuracy: 85,  maxPp: 10, category: 'physical', effect: 'lower_attack' },
   boneClub:     { name: 'BONE CLUB',  type: 'ground',    power: 65,  accuracy: 85,  maxPp: 20, category: 'physical' },
-  bonemerang:    { name: 'BONEMERANG', type: 'ground',    power: 50,  accuracy: 90,  maxPp: 10, category: 'physical' },
+  bonemerang:    { name: 'BONEMERANG', type: 'ground',    power: 50,  accuracy: 90,  maxPp: 10, category: 'physical', hits: [2, 2] },
   hornAttack:   { name: 'HORN ATK',   type: 'normal',    power: 65,  accuracy: 100, maxPp: 25, category: 'physical' },
   hornDrill:    { name: 'HORN DRILL', type: 'normal',    power: 120, accuracy: 50,  maxPp: 5,  category: 'physical' },
   megaKick:     { name: 'MEGA KICK',  type: 'normal',    power: 120, accuracy: 75,  maxPp: 5,  category: 'physical' },
