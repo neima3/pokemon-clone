@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.4] - 2026-03-17
+
+### Added
+- Sprint 034: Legendary Encounters & Post-Game
+- Legendary battle theme music: dramatic and intense theme for legendary encounters
+- Legendary battle music triggers when encountering Mewtwo in Cerulean Cave
+- Master Ball gift from cave guard when first entering Cerulean Cave as Champion
+- Cave guard now allows physical passage into Cerulean Cave after becoming Champion
+
+### Legendary Encounter Mechanics
+- Mewtwo encounter in Cerulean Cave (post-game only)
+- Mewtwo: Level 70 legendary Psychic-type with high stats
+- Mewtwo has Pressure ability (doubles opponent PP usage)
+- Cannot be encountered again once caught or defeated
+- Master Ball: Catches any Pokemon with 100% success rate
+
+### Post-Game Content
+- Post-game unlocks after defeating Champion Gary
+- Cerulean Cave accessible only to Champions
+- Special dialogue from NPCs acknowledging Champion status
+
 ## [0.32.0] - 2026-03-17
 
 ### Added

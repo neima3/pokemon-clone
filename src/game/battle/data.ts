@@ -668,6 +668,7 @@ export const MOVES: Record<string, MoveData> = {
   closeCombat:  { name: 'CLOSE COMBAT',type: 'fighting', power: 120, accuracy: 100, maxPp: 5,  category: 'physical' },
   highJumpKick: { name: 'HI JUMP KCK', type: 'fighting', power: 130, accuracy: 90,  maxPp: 10, category: 'physical', recoil: 50 },
   crossChop:    { name: 'CROSS CHOP',  type: 'fighting', power: 100, accuracy: 80,  maxPp: 5,  category: 'physical' },
+  auraSphere:   { name: 'AURA SPHERE', type: 'fighting', power: 80,  accuracy: 100, maxPp: 20, category: 'physical' },
   dragonClaw:   { name: 'DRAGON CLAW', type: 'dragon',   power: 80,  accuracy: 100, maxPp: 15, category: 'physical' },
   dragonBreath: { name: 'DRAGON BRTH', type: 'dragon',   power: 60,  accuracy: 100, maxPp: 20, category: 'physical', statusEffect: 'paralyze', statusChance: 30 },
   dragonPulse:  { name: 'DRAGON PLSE', type: 'dragon',   power: 85,  accuracy: 100, maxPp: 10, category: 'physical' },
@@ -792,6 +793,7 @@ export interface SpeciesData {
   levelUpMoves: LevelUpMove[];
   evolution?: EvolutionData;
   abilities?: string[];
+  isLegendary?: boolean;
 }
 
 export const SPECIES: Record<string, SpeciesData> = {
@@ -1706,10 +1708,21 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 202, catchRate: 45,
     levelUpMoves: [{ level: 20, moveKey: 'wingAttack' }, { level: 26, moveKey: 'bite' }, { level: 32, moveKey: 'rockSlide' }, { level: 38, moveKey: 'hyperBeam' }, { level: 44, moveKey: 'gigaDrain' }],
   },
+
+  // Mewtwo (legendary)
+  mewtwo: {
+    id: 150, name: 'MEWTWO', types: ['psychic'],
+    baseHp: 106, baseAtk: 110, baseDef: 90, baseSpd: 130,
+    learnedMoves: ['psychic', 'shadowBall', 'auraSphere', 'recover'],
+    baseExpYield: 340, catchRate: 3,
+    levelUpMoves: [{ level: 70, moveKey: 'psychic' }, { level: 75, moveKey: 'shadowBall' }, { level: 80, moveKey: 'auraSphere' }, { level: 85, moveKey: 'recover' }, { level: 90, moveKey: 'hyperBeam' }],
+    abilities: ['pressure'],
+    isLegendary: true,
+  },
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon', 'raichu', 'meowth', 'persian', 'nidoking', 'kangaskhan', 'tauros', 'ekans', 'aerodactyl'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon', 'raichu', 'meowth', 'persian', 'nidoking', 'kangaskhan', 'tauros', 'ekans', 'aerodactyl', 'mewtwo'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
@@ -1823,6 +1836,18 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
     { species: 'gyarados', minLevel: 20, maxLevel: 25, weight: 2 },
     { species: 'rattata', minLevel: 8, maxLevel: 12, weight: 3 },
   ],
+  ceruleanCave: [
+    { species: 'mewtwo', minLevel: 70, maxLevel: 70, weight: 3 },
+    { species: 'gastly', minLevel: 45, maxLevel: 55, weight: 20 },
+    { species: 'haunter', minLevel: 50, maxLevel: 60, weight: 15 },
+    { species: 'cubone', minLevel: 45, maxLevel: 52, weight: 12 },
+    { species: 'machoke', minLevel: 48, maxLevel: 56, weight: 10 },
+    { species: 'kadabra', minLevel: 46, maxLevel: 54, weight: 10 },
+    { species: 'dittom', minLevel: 45, maxLevel: 50, weight: 8 },
+    { species: 'electrode', minLevel: 50, maxLevel: 58, weight: 10 },
+    { species: 'wigglytuff', minLevel: 48, maxLevel: 55, weight: 7 },
+    { species: 'parasect', minLevel: 46, maxLevel: 52, weight: 5 },
+  ],
 };
 
 /** Pick a random encounter from a route table */
@@ -1881,6 +1906,7 @@ export const ITEMS: Record<string, ItemData> = {
   pokeball:    { name: 'POKé BALL',    type: 'pokeball', description: 'Catches wild POKéMON.', catchMultiplier: 1.0, price: 200 },
   greatBall:   { name: 'GREAT BALL',   type: 'pokeball', description: 'Better catch rate.', catchMultiplier: 1.5, price: 600 },
   ultraBall:   { name: 'ULTRA BALL',   type: 'pokeball', description: 'Best catch rate!', catchMultiplier: 2.0, price: 1200 },
+  masterBall:  { name: 'MASTER BALL',  type: 'pokeball', description: 'Catches any POKéMON!', catchMultiplier: 255, price: 0 },
   potion:      { name: 'POTION',       type: 'medicine', description: 'Restores 20 HP.', healAmount: 20, price: 300 },
   superPotion: { name: 'SUPER POTION', type: 'medicine', description: 'Restores 50 HP.', healAmount: 50, price: 700 },
   antidote:    { name: 'ANTIDOTE',     type: 'medicine', description: 'Cures poison.', statusCure: 'cure_poison', price: 100 },

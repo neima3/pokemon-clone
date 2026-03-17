@@ -240,8 +240,8 @@ export class OverworldScene implements Scene {
           if (gx < 0 || gy < 0 || gx >= MAP_WIDTH || gy >= MAP_HEIGHT) return false;
           const tile = MAP_DATA[gy * MAP_WIDTH + gx];
           if (isSolid(tile)) return false;
-          // Check NPC collision
-          if (this.npcs.some((n) => n.gx === gx && n.gy === gy)) return false;
+          // Check NPC collision (cave guard allows passage in post-game)
+          if (this.npcs.some((n) => n.gx === gx && n.gy === gy && !(n.data.blocksCave && this.gameState.isPostGame()))) return false;
           return true;
         });
       }
@@ -331,6 +331,22 @@ export class OverworldScene implements Scene {
             this.gameState.save();
             this.startDialogue(['You received the OLD ROD!', 'Face water and press Z to fish!']);
           });
+        }
+        return true;
+      }
+
+      // Cave guard blocks Cerulean Cave until post-game
+      if (npc.data.blocksCave) {
+        if (this.gameState.isPostGame()) {
+          if (this.gameState.inventory.masterBall === 0) {
+            this.gameState.inventory.masterBall = 1;
+            this.gameState.save();
+            this.startDialogue(['Oh, CHAMPION!', 'You may enter CERULEAN CAVE.', 'Take this MASTER BALL.', 'It will catch any POKéMON without fail!', 'Beware of the powerful POKéMON inside!']);
+          } else {
+            this.startDialogue(['Oh, CHAMPION!', 'You may enter CERULEAN CAVE.', 'Beware of the powerful POKéMON inside!']);
+          }
+        } else {
+          this.startDialogue(npc.data.dialogue);
         }
         return true;
       }
@@ -795,14 +811,27 @@ export class OverworldScene implements Scene {
         }
         return;
       }
+
+      // Check if player is in Cerulean Cave without post-game access
+      const zone = getRouteZone(this.player.gx, this.player.gy);
+      if (zone === 'ceruleanCave' && !this.gameState.isPostGame()) {
+        return;
+      }
+
       if (Math.random() >= encounterRate) return;
 
       this.frozen = true;
       this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
       Music.stop();
       SFX.encounter();
-      const zone = getRouteZone(this.player.gx, this.player.gy);
       const encounter = rollEncounter(zone);
+      
+      // Check if legendary is already defeated/caught
+      if (encounter.species === 'mewtwo' && this.gameState.isLegendaryDefeated('mewtwo')) {
+        this.frozen = false;
+        return;
+      }
+      
       // Small delay for the encounter SFX to play
       setTimeout(() => {
         this.onEncounter?.(encounter.species, encounter.level);

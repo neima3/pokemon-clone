@@ -55,8 +55,8 @@ export const MAP_DATA: Tile[] = [
   T, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T,  // 27
   T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 28
   T, T, T, T, P, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, P, T, T, T, T,  // 29
-  T, G, G, G, P, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 30
-  T, G, G, G, P, G, g, g, g, g, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, T, T, G, E, Y, Y, Y, E, G, G, T,  // 31
+  T, G, G, G, P, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, P, G, G, T, T,  // 30
+  T, G, G, G, P, G, g, g, g, g, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, T, T, G, E, Y, Y, Y, E, T, 17, T,  // 31
   T, G, F, G, P, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, g, g, G, G, G, F, G, G, G, G, G, T, T, G, E, B, y, B, E, G, G, T,  // 32
   T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, T, T, G, E, E, P, E, E, G, G, T,  // 33
   T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, P, G, G, F, G, T,  // 34
@@ -104,12 +104,17 @@ export const MAP_DATA: Tile[] = [
   T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, T,  // 73
   T, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, G, G, T,  // 74
   T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 75
+// ── Cerulean Cave (post-game area) ──
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 76
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 77
 ];
 
 /** Get the route zone for a given grid position */
 export function getRouteZone(gx: number, gy: number): string {
   // Pokemon League: rows 66+
   if (gy >= 66) return 'pokemonLeague';
+  // Cerulean Cave: specific location near top-right
+  if (gy >= 30 && gy <= 31 && gx >= 46 && gx <= 48) return 'ceruleanCave';
   // Town area: roughly rows 4-15, cols 8-22
   if (gy >= 4 && gy <= 15 && gx >= 8 && gx <= 22) return 'town';
   // Route 9: rows 56+ (Viridian City / Giovanni's Gym)
@@ -613,5 +618,15 @@ export const MAP_NPCS: NPCData[] = [
     facing: 'down',
     dialogue: ['Welcome to the POKéMON LEAGUE!', 'Defeat the ELITE FOUR and CHAMPION to become a POKéMON MASTER!', 'Good luck, trainer!'],
     isTrainer: false,
+  },
+  // Cerulean Cave guard — blocks entrance until post-game
+  {
+    id: 'cave_guard',
+    gx: 47, gy: 31,
+    sprite: 'hiker',
+    facing: 'left',
+    dialogue: ['This is CERULEAN CAVE.', 'Only POKéMON LEAGUE CHAMPIONS may enter.', 'It\'s dangerous inside!'],
+    isTrainer: false,
+    blocksCave: true,
   },
 ];

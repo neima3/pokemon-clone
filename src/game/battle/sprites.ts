@@ -4898,6 +4898,102 @@ SPRITES[142] = {
   },
 };
 
+// ── Mewtwo (150) ──
+SPRITES[150] = {
+  front: (ctx, x, y) => {
+    // Body (humanoid, purple-gray)
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 18, y + 16, 20, 24);
+    // Head (elongated, alien-like)
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 16, y + 2, 24, 18);
+    ctx.fillRect(x + 14, y + 6, 4, 10);
+    ctx.fillRect(x + 38, y + 6, 4, 10);
+    // Horns/tubes on head
+    ctx.fillStyle = '#a088a0';
+    ctx.fillRect(x + 12, y + 0, 6, 10);
+    ctx.fillRect(x + 38, y + 0, 6, 10);
+    ctx.fillStyle = '#786078';
+    ctx.fillRect(x + 14, y + 2, 2, 6);
+    ctx.fillRect(x + 40, y + 2, 2, 6);
+    // Neck tube
+    ctx.fillStyle = '#a088a0';
+    ctx.fillRect(x + 26, y + 14, 6, 8);
+    ctx.fillStyle = '#786078';
+    ctx.fillRect(x + 28, y + 16, 2, 4);
+    // Eyes (intense, purple)
+    ctx.fillStyle = '#f8f8f8';
+    ctx.fillRect(x + 20, y + 8, 6, 4);
+    ctx.fillRect(x + 30, y + 8, 6, 4);
+    ctx.fillStyle = '#8048a0';
+    ctx.fillRect(x + 22, y + 9, 3, 2);
+    ctx.fillRect(x + 32, y + 9, 3, 2);
+    // Mouth line
+    ctx.fillStyle = '#786078';
+    ctx.fillRect(x + 24, y + 14, 10, 1);
+    // Arms (thin, humanoid)
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 10, y + 20, 8, 4);
+    ctx.fillRect(x + 38, y + 20, 8, 4);
+    ctx.fillRect(x + 6, y + 22, 6, 4);
+    ctx.fillRect(x + 44, y + 22, 6, 4);
+    // Hands (three-fingered)
+    ctx.fillStyle = '#c0a8c0';
+    ctx.fillRect(x + 4, y + 26, 3, 3);
+    ctx.fillRect(x + 7, y + 26, 3, 3);
+    ctx.fillRect(x + 10, y + 26, 3, 3);
+    ctx.fillRect(x + 41, y + 26, 3, 3);
+    ctx.fillRect(x + 44, y + 26, 3, 3);
+    ctx.fillRect(x + 47, y + 26, 3, 3);
+    // Legs
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 20, y + 38, 6, 10);
+    ctx.fillRect(x + 30, y + 38, 6, 10);
+    // Feet
+    ctx.fillStyle = '#c0a8c0';
+    ctx.fillRect(x + 18, y + 46, 8, 4);
+    ctx.fillRect(x + 30, y + 46, 8, 4);
+    // Tail (long, thin)
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 24, y + 40, 4, 14);
+    ctx.fillRect(x + 20, y + 50, 8, 4);
+  },
+  back: (ctx, x, y) => {
+    // Body
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 18, y + 16, 20, 24);
+    // Head
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 16, y + 2, 24, 18);
+    // Horns from behind
+    ctx.fillStyle = '#a088a0';
+    ctx.fillRect(x + 12, y + 0, 6, 12);
+    ctx.fillRect(x + 38, y + 0, 6, 12);
+    ctx.fillStyle = '#786078';
+    ctx.fillRect(x + 14, y + 2, 2, 8);
+    ctx.fillRect(x + 40, y + 2, 2, 8);
+    // Neck tube
+    ctx.fillStyle = '#a088a0';
+    ctx.fillRect(x + 26, y + 14, 6, 8);
+    // Arms
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 10, y + 20, 8, 4);
+    ctx.fillRect(x + 38, y + 20, 8, 4);
+    // Legs
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 20, y + 38, 6, 10);
+    ctx.fillRect(x + 30, y + 38, 6, 10);
+    // Feet
+    ctx.fillStyle = '#c0a8c0';
+    ctx.fillRect(x + 18, y + 46, 8, 4);
+    ctx.fillRect(x + 30, y + 46, 8, 4);
+    // Tail
+    ctx.fillStyle = '#d8c0d8';
+    ctx.fillRect(x + 24, y + 40, 4, 14);
+    ctx.fillRect(x + 20, y + 50, 8, 4);
+  },
+};
+
 export function drawPokemonFront(ctx: CanvasRenderingContext2D, speciesId: number, x: number, y: number, visible = true) {
   if (!visible) return;
   SPRITES[speciesId]?.front(ctx, x, y);

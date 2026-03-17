@@ -187,6 +187,8 @@ export class BattleScene implements Scene {
       Music.champion();
     } else if (this.trainerData?.isGymLeader) {
       Music.gymBattle();
+    } else if (this.enemyMon.species.isLegendary) {
+      Music.legendaryBattle();
     } else {
       Music.battle();
     }
@@ -978,8 +980,11 @@ export class BattleScene implements Scene {
       { key: 'pokeball' as keyof Inventory, count: this.gameState.inventory.pokeball },
       { key: 'greatBall' as keyof Inventory, count: this.gameState.inventory.greatBall },
       { key: 'ultraBall' as keyof Inventory, count: this.gameState.inventory.ultraBall },
+      { key: 'masterBall' as keyof Inventory, count: this.gameState.inventory.masterBall },
       { key: 'potion' as keyof Inventory, count: this.gameState.inventory.potion },
       { key: 'superPotion' as keyof Inventory, count: this.gameState.inventory.superPotion },
+      { key: 'hyperPotion' as keyof Inventory, count: this.gameState.inventory.hyperPotion },
+      { key: 'maxPotion' as keyof Inventory, count: this.gameState.inventory.maxPotion },
       { key: 'antidote' as keyof Inventory, count: this.gameState.inventory.antidote },
       { key: 'fullHeal' as keyof Inventory, count: this.gameState.inventory.fullHeal },
       { key: 'revive' as keyof Inventory, count: this.gameState.inventory.revive },
@@ -1013,7 +1018,7 @@ export class BattleScene implements Scene {
 
       const item = this.bagItems[this.cursor];
       SFX.menuConfirm();
-      if (item.key === 'pokeball' || item.key === 'greatBall' || item.key === 'ultraBall') {
+      if (item.key === 'pokeball' || item.key === 'greatBall' || item.key === 'ultraBall' || item.key === 'masterBall') {
         this.usePokeball(item.key);
       } else if (item.key === 'antidote' || item.key === 'fullHeal') {
         this.useStatusHeal(item.key);
@@ -1233,6 +1238,11 @@ export class BattleScene implements Scene {
               caught.status = this.enemyMon.status;
               // Track caught in pokedex
               this.gameState.pokedexCaught.add(this.enemyMon.speciesKey);
+              // Mark legendary as defeated
+              const species = SPECIES[this.enemyMon.speciesKey];
+              if (species?.isLegendary) {
+                this.gameState.defeatLegendary(this.enemyMon.speciesKey);
+              }
               if (this.gameState.addToTeam(caught)) {
                 this.queueMessages(
                   [`${caught.name} was added to your team!`],
@@ -1913,6 +1923,12 @@ export class BattleScene implements Scene {
       const msgs: string[] = [];
       msgs.push(`${this.isTrainerBattle ? 'Foe ' : 'Wild '}${fainted.name} fainted!`);
 
+      // Mark legendary as defeated
+      const species = SPECIES[this.enemyMon.speciesKey];
+      if (species?.isLegendary) {
+        this.gameState.defeatLegendary(this.enemyMon.speciesKey);
+      }
+
       const expGain = calculateExpGain(this.enemyMon.speciesKey, this.enemyMon.level);
       msgs.push(`${this.playerMon.name} gained ${expGain} EXP!`);
 
@@ -1930,6 +1946,16 @@ export class BattleScene implements Scene {
             msgs.push('You have collected all 8 BADGES!');
             msgs.push('You are now ready for the POKéMON LEAGUE!');
             msgs.push('Congratulations, POKéMON MASTER!');
+          }
+        }
+        // Champion post-game unlock
+        if (this.trainerData.isChampion) {
+          if (!this.gameState.isPostGame()) {
+            this.gameState.unlockPostGame();
+            this.gameState.inventory.masterBall = 1;
+            msgs.push('You are now the POKéMON LEAGUE CHAMPION!');
+            msgs.push('CERULEAN CAVE is now accessible!');
+            msgs.push('You received a MASTER BALL!');
           }
         }
         if (this.trainerData.defeatMessage) {

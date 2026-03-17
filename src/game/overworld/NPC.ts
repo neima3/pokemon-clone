@@ -9,6 +9,7 @@ export interface NPCData {
   dialogue: string[];
   isTrainer?: boolean;
   trainerId?: string;  // maps to TRAINERS key in data.ts
+  blocksCave?: boolean; // NPC blocks cave entrance until post-game
 }
 
 export class NPC {

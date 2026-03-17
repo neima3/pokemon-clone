@@ -795,6 +795,45 @@ function buildChampionBass(): MusicPattern {
   };
 }
 
+function buildLegendaryBattlePattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 8,
+    notes: [
+      { freq: n.E4, dur: 0.25 }, { freq: n.E4, dur: 0.25 }, { freq: n.E4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.A4, dur: 0.25 }, { freq: n.G4, dur: 0.25 },
+      { freq: n.E4, dur: 0.25 }, { freq: n.E4, dur: 0.25 }, { freq: n.E4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.B4, dur: 0.5 }, { freq: n.A4, dur: 0.25 }, { freq: n.G4, dur: 0.25 },
+      { freq: n.E4, dur: 0.5 }, { freq: n.C5, dur: 0.25 }, { freq: n.B4, dur: 0.25 },
+      { freq: n.A4, dur: 0.5 }, { freq: n.G4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.D4, dur: 0.5 }, { freq: n.E4, dur: 0.5 }, { freq: n.G4, dur: 0.5 },
+      { freq: n.A4, dur: 0.25 }, { freq: n.A4, dur: 0.25 }, { freq: n.A4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.C5, dur: 0.5 }, { freq: n.B4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.G4, dur: 0.25 }, { freq: n.A4, dur: 0.25 }, { freq: n.B4, dur: 0.25 }, { freq: n.C5, dur: 0.25 },
+      { freq: n.D5, dur: 0.5 }, { freq: n.C5, dur: 0.25 }, { freq: n.B4, dur: 0.25 },
+      { freq: n.A4, dur: 0.5 }, { freq: n.G4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.D4, dur: 0.5 }, { freq: n.E4, dur: 0.5 }, { freq: n.G4, dur: 0.5 },
+    ],
+  };
+}
+
+function buildLegendaryBattleBass(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 4,
+    notes: [
+      { freq: n.E3, dur: 0.25 }, { freq: n.E3, dur: 0.25 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.C3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.A3, dur: 0.25 }, { freq: n.A3, dur: 0.25 }, { freq: n.A3, dur: 0.5 },
+      { freq: n.E3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+      { freq: n.G3, dur: 0.25 }, { freq: n.G3, dur: 0.25 }, { freq: n.G3, dur: 0.5 },
+      { freq: n.E3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+      { freq: n.D3, dur: 0.25 }, { freq: n.D3, dur: 0.25 }, { freq: n.D3, dur: 0.5 },
+      { freq: n.E3, dur: 0.5 }, { freq: n.G3, dur: 0.5 },
+    ],
+  };
+}
+
 function buildTitlePattern(): MusicPattern {
   const n = NOTE;
   return {
@@ -980,6 +1019,14 @@ export const Music = {
     currentMusic = playMusicLoop([
       { pattern: buildChampionPattern(), type: 'square', gainVal: 0.16 },
       { pattern: buildChampionBass(), type: 'triangle', gainVal: 0.14 },
+    ]);
+  },
+
+  legendaryBattle() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildLegendaryBattlePattern(), type: 'square', gainVal: 0.18 },
+      { pattern: buildLegendaryBattleBass(), type: 'sawtooth', gainVal: 0.12 },
     ]);
   },
 
