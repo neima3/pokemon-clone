@@ -798,9 +798,7 @@ export class OverworldScene implements Scene {
       if (Math.random() >= encounterRate) return;
 
       this.frozen = true;
-      if (this.gameState) {
-        this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
-      }
+      this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
       Music.stop();
       SFX.encounter();
       const zone = getRouteZone(this.player.gx, this.player.gy);
@@ -841,8 +839,6 @@ export class OverworldScene implements Scene {
 
   private spawnParticles() {
     const timeOfDay = getTimeOfDay();
-    const camX = this.camera.x;
-    const camY = this.camera.y;
     const playerTile = MAP_DATA[this.player.gy * MAP_WIDTH + this.player.gx];
     
     // Check nearby tiles for particle sources

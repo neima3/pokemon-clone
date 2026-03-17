@@ -2378,5 +2378,5 @@ export class BattleScene implements Scene {
 import { SPECIES } from './data';
 const SPECIES_LOOKUP: Record<string, number> = {};
 for (const [key, data] of Object.entries(SPECIES)) {
-  SPECIES_LOOKUP[key] = data.id;
+  SPECIES_LOOKUP[key] = (data as { id: number }).id;
 }
