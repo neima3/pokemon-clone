@@ -407,6 +407,24 @@ export function attemptCatch(mon: Pokemon, catchMultiplier: number = 1): CatchRe
   };
 }
 
+export interface EntryResult {
+  message?: string;
+}
+
+export function checkEntryAbilities(entering: Pokemon, opponent: Pokemon): EntryResult | null {
+  const ability = entering.ability;
+  if (!ability || ability.trigger !== 'on_entry') return null;
+  
+  if (ability.effect === 'lower_atk') {
+    if (opponent.atkStage > -6 && opponent.ability?.effect !== 'no_atk_down' && opponent.ability?.effect !== 'no_stat_down') {
+      opponent.atkStage = Math.max(-6, opponent.atkStage - 1);
+      return { message: `${entering.name}'s INTIMIDATE cut ${opponent.name}'s attack!` };
+    }
+  }
+  
+  return null;
+}
+
 export function checkTurnEndAbilities(mon: Pokemon): TurnEndResult | null {
   if (!mon.status || mon.hp <= 0) return null;
   

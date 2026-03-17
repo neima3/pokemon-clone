@@ -8,7 +8,7 @@
 - Implement turn-end abilities (Shed Skin may cure status)
 - Improve battle depth and authenticity
 
-## Status: IN_PROGRESS
+## Status: COMPLETED
 
 ## Implementation Plan
 

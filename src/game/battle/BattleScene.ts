@@ -4,7 +4,7 @@ import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
-import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage } from './BattleEngine';
+import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType } from './data';
 import { GameState, Inventory } from '../GameState';
 
@@ -302,8 +302,16 @@ export class BattleScene implements Scene {
 
     if (this.introTimer >= 1.8) {
       const enemyPrefix = this.isTrainerBattle ? `${this.trainerData!.name} sent out` : 'Wild';
+      const msgs: string[] = [`${enemyPrefix} ${this.enemyMon.name}!`, `Go! ${this.playerMon.name}!`];
+      
+      const enemyEntry = checkEntryAbilities(this.enemyMon, this.playerMon);
+      if (enemyEntry?.message) msgs.push(enemyEntry.message);
+      
+      const playerEntry = checkEntryAbilities(this.playerMon, this.enemyMon);
+      if (playerEntry?.message) msgs.push(playerEntry.message);
+      
       this.queueMessages(
-        [`${enemyPrefix} ${this.enemyMon.name}!`, `Go! ${this.playerMon.name}!`],
+        msgs,
         () => {
           this.phase = 'action';
           this.cursor = 0;
@@ -626,8 +634,12 @@ export class BattleScene implements Scene {
       this.playerDisplayHp = this.playerMon.hp;
       this.playerDisplayExp = this.playerMon.expPercent;
 
+      const msgs: string[] = [`Come back, ${oldMon.name}!`, `Go! ${this.playerMon.name}!`];
+      const playerEntry = checkEntryAbilities(this.playerMon, this.enemyMon);
+      if (playerEntry?.message) msgs.push(playerEntry.message);
+
       this.queueMessages(
-        [`Come back, ${oldMon.name}!`, `Go! ${this.playerMon.name}!`],
+        msgs,
         () => {
           this.doEnemyTurn();
         },
@@ -903,17 +915,20 @@ export class BattleScene implements Scene {
   private applyEndOfTurnStatus(then: () => void) {
     const msgs: string[] = [];
 
-    // Player status damage
     const playerStatus = applyStatusDamage(this.playerMon);
     if (playerStatus?.message) msgs.push(playerStatus.message);
 
-    // Enemy status damage
     const enemyStatus = applyStatusDamage(this.enemyMon);
     if (enemyStatus?.message) msgs.push(enemyStatus.message);
 
+    const playerAbility = checkTurnEndAbilities(this.playerMon);
+    if (playerAbility?.message) msgs.push(playerAbility.message);
+
+    const enemyAbility = checkTurnEndAbilities(this.enemyMon);
+    if (enemyAbility?.message) msgs.push(enemyAbility.message);
+
     if (msgs.length > 0) {
       this.queueMessages(msgs, () => {
-        // Check for faints from status damage
         if (!this.playerMon.isAlive) {
           this.handleFaint(this.playerMon);
           return;
@@ -1059,10 +1074,14 @@ export class BattleScene implements Scene {
               const next = this.trainerTeam[this.trainerTeamIndex];
               this.enemyMon = next;
               this.enemyDisplayHp = next.hp;
-              // Track in pokedex
               this.gameState.pokedexSeen.add(next.speciesKey);
+              
+              const entryMsgs: string[] = [`${this.trainerData!.name} sent out ${next.name}!`];
+              const enemyEntry = checkEntryAbilities(next, this.playerMon);
+              if (enemyEntry?.message) entryMsgs.push(enemyEntry.message);
+              
               this.queueMessages(
-                [`${this.trainerData!.name} sent out ${next.name}!`],
+                entryMsgs,
                 () => {
                   this.phase = 'action';
                   this.cursor = 0;
