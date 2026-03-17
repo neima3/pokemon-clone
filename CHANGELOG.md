@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2026-03-17
+
+### Added
+- Sprint 022: Bug Fixes, Smarter AI & Battle Enhancements
+- Smarter enemy AI: considers type effectiveness, STAB, and move accuracy when selecting moves
+- Weather visual effects in battles: rain, hail, sandstorm, sunny, and fog particles
+- Multi-hit moves: Double Slap, Fury Swipes, Fury Attack, Pin Missile, Bullet Seed, Rock Blast (2-5 hits)
+- Multi-hit damage display showing number of hits
+
+### Fixed
+- Fixed contact abilities (Static, Poison Point, Flame Body, Effect Spore) not triggering correctly
+- Fixed duplicate TurnEndResult interface definition in BattleEngine
+
+### Technical
+- Added `hits` field to MoveData interface for multi-hit moves (e.g., [2, 5] for 2-5 hits)
+- Extended TurnResult with `hits` field for multi-hit tracking
+- Added weather particle system to BattleScene with setWeather method
+- Improved getEnemyMove AI with scoring system based on effectiveness and STAB
+- Added multi-hit damage calculation with individual critical hit checks per hit
+
 ## [0.20.0] - 2026-03-17
 
 ### Added
