@@ -130,7 +130,9 @@ export class BattleScene implements Scene {
     this.input.clear();
     this.phase = 'intro';
     this.introTimer = 0;
-    if (this.trainerData?.isGymLeader) {
+    if (this.trainerData?.isChampion) {
+      Music.champion();
+    } else if (this.trainerData?.isGymLeader) {
       Music.gymBattle();
     } else {
       Music.battle();

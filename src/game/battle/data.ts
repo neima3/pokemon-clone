@@ -1335,6 +1335,7 @@ export interface TrainerData {
   isGymLeader?: boolean;
   badgeName?: string;
   isEliteFour?: boolean;
+  isChampion?: boolean;
 }
 
 export const TRAINERS: Record<string, TrainerData> = {
@@ -1628,5 +1629,6 @@ export const TRAINERS: Record<string, TrainerData> = {
     reward: 15000,
     defeatMessage: "NO! I was so close! You... you truly are a POKéMON MASTER!",
     sprite: 'gymLeader8',
+    isChampion: true,
   },
 };

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-03-17
+
+### Added
+- Sprint 016: Champion Battle Music & Bug Fixes
+- Champion battle now plays epic champion theme music instead of regular battle music
+- Added `isChampion` flag to TrainerData interface for proper champion detection
+
+### Fixed
+- Fixed Champion Gary battle not using the champion music theme
+- Fixed Elite Four and Champion trainer data structure consistency
+
 ## [0.15.0] - 2026-03-17
 
 ### Added
