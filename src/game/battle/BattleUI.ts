@@ -479,25 +479,186 @@ export const BattleUI = {
     ctx.restore();
   },
 
-  /** Draw type-colored attack flash effect */
+  /** Draw type-colored attack flash + particle effects */
   drawAttackFlash(ctx: CanvasRenderingContext2D, moveType: PokemonType, timer: number, isPlayerAttacking: boolean) {
-    if (timer < 0.15 || timer > 0.4) return;
-    const color = TYPE_COLORS[moveType] ?? '#f8f8f0';
-    const alpha = 0.4 * (1 - (timer - 0.15) / 0.25);
+    if (timer < 0.1 || timer > 0.45) return;
 
-    if (isPlayerAttacking) {
-      // Flash on enemy side
+    const color = TYPE_COLORS[moveType] ?? '#f8f8f0';
+    const targetCx = isPlayerAttacking ? 240 : 80;
+    const targetCy = isPlayerAttacking ? 50 : 110;
+
+    // Base flash
+    if (timer >= 0.15 && timer < 0.4) {
+      const alpha = 0.35 * (1 - (timer - 0.15) / 0.25);
       ctx.fillStyle = color;
       ctx.globalAlpha = alpha;
-      ctx.fillRect(160, 0, 160, 90);
-      ctx.globalAlpha = 1;
-    } else {
-      // Flash on player side
-      ctx.fillStyle = color;
-      ctx.globalAlpha = alpha;
-      ctx.fillRect(0, 60, 160, 96);
+      if (isPlayerAttacking) ctx.fillRect(160, 0, 160, 90);
+      else ctx.fillRect(0, 60, 160, 96);
       ctx.globalAlpha = 1;
     }
+
+    // Type-specific particle effects
+    const t = (timer - 0.1) / 0.35; // 0→1 normalized
+    ctx.save();
+    switch (moveType) {
+      case 'fire': {
+        // Rising flame particles
+        for (let i = 0; i < 8; i++) {
+          const seed = i * 137.5;
+          const px = targetCx + Math.sin(seed) * 20 * t;
+          const py = targetCy - t * 40 - Math.sin(seed * 0.7) * 15;
+          const sz = 6 * (1 - t * 0.5);
+          ctx.globalAlpha = 1 - t;
+          ctx.fillStyle = i % 3 === 0 ? '#f8d030' : i % 3 === 1 ? '#f08030' : '#e04040';
+          ctx.fillRect(px - sz / 2, py - sz / 2, sz, sz);
+        }
+        break;
+      }
+      case 'water': {
+        // Splash droplets
+        for (let i = 0; i < 10; i++) {
+          const angle = (i / 10) * Math.PI * 2;
+          const dist = t * 30 + Math.sin(i * 2) * 8;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.6 - t * 10;
+          const sz = 4 * (1 - t * 0.6);
+          ctx.globalAlpha = 1 - t;
+          ctx.fillStyle = i % 2 === 0 ? '#6890f0' : '#98c8f8';
+          ctx.fillRect(px - sz / 2, py - sz / 2, sz, sz);
+        }
+        break;
+      }
+      case 'electric': {
+        // Lightning bolts / sparks
+        ctx.globalAlpha = (1 - t) * 0.9;
+        ctx.strokeStyle = '#f8d030';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 5; i++) {
+          const ang = (i / 5) * Math.PI * 2 + t * 4;
+          const len = 16 + Math.sin(i * 3 + t * 10) * 8;
+          ctx.beginPath();
+          ctx.moveTo(targetCx, targetCy);
+          const mx = targetCx + Math.cos(ang) * len * 0.5 + Math.sin(t * 20 + i) * 6;
+          const my = targetCy + Math.sin(ang) * len * 0.5 + Math.cos(t * 20 + i) * 6;
+          ctx.lineTo(mx, my);
+          ctx.lineTo(targetCx + Math.cos(ang) * len, targetCy + Math.sin(ang) * len);
+          ctx.stroke();
+        }
+        // Bright center flash
+        ctx.fillStyle = '#f8f8d0';
+        const flashSz = 8 * (1 - t);
+        ctx.fillRect(targetCx - flashSz / 2, targetCy - flashSz / 2, flashSz, flashSz);
+        break;
+      }
+      case 'grass': {
+        // Spinning leaves
+        for (let i = 0; i < 7; i++) {
+          const angle = (i / 7) * Math.PI * 2 + t * 6;
+          const dist = t * 25;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.7;
+          ctx.globalAlpha = 1 - t;
+          ctx.fillStyle = i % 2 === 0 ? '#78c850' : '#48a030';
+          ctx.save();
+          ctx.translate(px, py);
+          ctx.rotate(angle + t * 4);
+          ctx.fillRect(-3, -1, 6, 2);
+          ctx.fillRect(-1, -3, 2, 6);
+          ctx.restore();
+        }
+        break;
+      }
+      case 'poison': {
+        // Bubbling poison droplets
+        for (let i = 0; i < 6; i++) {
+          const px = targetCx + Math.sin(i * 2.5 + t * 3) * 18;
+          const py = targetCy - t * 25 - i * 4 + Math.sin(t * 8 + i) * 5;
+          const sz = 4 + Math.sin(i + t * 5) * 2;
+          ctx.globalAlpha = (1 - t) * 0.8;
+          ctx.fillStyle = i % 2 === 0 ? '#a040a0' : '#c060c0';
+          ctx.beginPath();
+          ctx.arc(px, py, sz, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        break;
+      }
+      case 'ground':
+      case 'rock': {
+        // Flying debris
+        for (let i = 0; i < 8; i++) {
+          const angle = (i / 8) * Math.PI * 2 + 0.5;
+          const dist = t * 28;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.5 + t * t * 30;
+          const sz = 3 + (i % 3);
+          ctx.globalAlpha = 1 - t;
+          ctx.fillStyle = moveType === 'rock' ? (i % 2 === 0 ? '#b8a038' : '#906820') : (i % 2 === 0 ? '#e0c068' : '#c09838');
+          ctx.fillRect(px - sz / 2, py - sz / 2, sz, sz);
+        }
+        break;
+      }
+      case 'psychic': {
+        // Pulsing rings
+        for (let ring = 0; ring < 3; ring++) {
+          const rt = Math.max(0, t - ring * 0.12);
+          if (rt <= 0) continue;
+          const radius = rt * 28;
+          ctx.globalAlpha = (1 - rt) * 0.6;
+          ctx.strokeStyle = ring % 2 === 0 ? '#f85888' : '#f898b8';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(targetCx, targetCy, radius, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        break;
+      }
+      case 'flying': {
+        // Wind slashes
+        ctx.globalAlpha = (1 - t) * 0.7;
+        ctx.strokeStyle = '#a890f0';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 4; i++) {
+          const offset = (i - 1.5) * 10;
+          const startX = targetCx - 20 + t * 15;
+          const startY = targetCy + offset - t * 5;
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.quadraticCurveTo(targetCx, startY - 8, startX + 40, startY + 4);
+          ctx.stroke();
+        }
+        break;
+      }
+      case 'bug': {
+        // Tiny swarming dots
+        for (let i = 0; i < 8; i++) {
+          const angle = t * 8 + (i / 8) * Math.PI * 2;
+          const dist = 10 + Math.sin(t * 6 + i * 2) * 12;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.7;
+          ctx.globalAlpha = 1 - t;
+          ctx.fillStyle = i % 2 === 0 ? '#a8b820' : '#c8d840';
+          ctx.fillRect(px - 2, py - 2, 4, 4);
+        }
+        break;
+      }
+      default: {
+        // Normal type: impact lines
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2;
+          const len = t * 24;
+          ctx.globalAlpha = (1 - t) * 0.6;
+          ctx.strokeStyle = '#f8f8f0';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(targetCx + Math.cos(angle) * 4, targetCy + Math.sin(angle) * 4);
+          ctx.lineTo(targetCx + Math.cos(angle) * len, targetCy + Math.sin(angle) * len);
+          ctx.stroke();
+        }
+        break;
+      }
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
   },
 
   /** Draw screen-wide impact flash for powerful moves */
@@ -517,8 +678,8 @@ export const BattleUI = {
     ctx.fillStyle = '#f8d830';
     ctx.globalAlpha = 1 - (timer - 0.2) / 0.2;
     // Star pattern
-    for (let i = 0; i < 4; i++) {
-      const angle = (i * Math.PI) / 4;
+    for (let i = 0; i < 8; i++) {
+      const angle = (i * Math.PI) / 4 + (timer - 0.2) * 4;
       ctx.fillRect(
         cx + Math.cos(angle) * size - 2,
         cy + Math.sin(angle) * size - 2,

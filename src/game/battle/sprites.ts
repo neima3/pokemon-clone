@@ -2071,6 +2071,574 @@ SPRITES[67] = {
   },
 };
 
+// ── Sprint 008 Pokemon Sprites ──
+
+// Color palette additions
+const C8 = {
+  bellGreen: '#58a838', bellYellow: '#f8d830', bellBrown: '#906020',
+  growlOrange: '#f08838', growlCream: '#f8d870', growlStripe: '#181818',
+  vulpRed: '#c85038', vulpCream: '#f8c878', vulpTails: '#e87050',
+  ponytaCream: '#f8d870', ponytaFlame: '#f85830', ponytaFlameY: '#f8d030',
+  tangGreen: '#3090a0', tangVine: '#206870',
+  gastPurple: '#7060a0', gastDark: '#483868', gastGas: '#a090c0',
+  snorlCream: '#e8d8a0', snorlDark: '#386048', snorlBelly: '#f8f0c8',
+};
+
+// Bellsprout (69)
+SPRITES[69] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.bellBrown;
+    ctx.fillRect(x + 24, y + 30, 4, 20); // stem
+    ctx.fillStyle = C8.bellGreen;
+    ctx.fillRect(x + 18, y + 46, 16, 6); // leaves
+    ctx.fillRect(x + 14, y + 44, 8, 4);
+    ctx.fillRect(x + 30, y + 44, 8, 4);
+    ctx.fillStyle = C8.bellYellow;
+    ctx.fillRect(x + 16, y + 6, 20, 24); // bell head
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 18, y + 2, 16, 8); // lips
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 14, 4, 4); // eyes
+    ctx.fillRect(x + 28, y + 14, 4, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.bellBrown;
+    ctx.fillRect(x + 24, y + 20, 6, 24);
+    ctx.fillStyle = C8.bellGreen;
+    ctx.fillRect(x + 16, y + 40, 22, 8);
+    ctx.fillStyle = C8.bellYellow;
+    ctx.fillRect(x + 16, y + 2, 22, 22);
+    ctx.fillStyle = C8.bellGreen;
+    ctx.fillRect(x + 18, y + 0, 18, 6);
+  },
+};
+
+// Weepinbell (70)
+SPRITES[70] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.bellYellow;
+    ctx.fillRect(x + 12, y + 4, 28, 32); // body
+    ctx.fillStyle = C8.bellGreen;
+    ctx.fillRect(x + 10, y + 0, 32, 8); // top leaves
+    ctx.fillRect(x + 8, y + 4, 6, 12);
+    ctx.fillRect(x + 38, y + 4, 6, 12);
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 16, y + 32, 20, 8); // mouth
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 14, 5, 5);
+    ctx.fillRect(x + 29, y + 14, 5, 5);
+    ctx.fillStyle = C8.bellBrown;
+    ctx.fillRect(x + 24, y + 38, 4, 12); // vine
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.bellYellow;
+    ctx.fillRect(x + 12, y + 2, 28, 30);
+    ctx.fillStyle = C8.bellGreen;
+    ctx.fillRect(x + 8, y + 0, 36, 8);
+    ctx.fillRect(x + 6, y + 4, 8, 10);
+    ctx.fillRect(x + 38, y + 4, 8, 10);
+    ctx.fillStyle = C8.bellBrown;
+    ctx.fillRect(x + 24, y + 30, 6, 16);
+  },
+};
+
+// Victreebel (71)
+SPRITES[71] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.bellYellow;
+    ctx.fillRect(x + 8, y + 4, 36, 36); // body
+    ctx.fillStyle = C8.bellGreen;
+    ctx.fillRect(x + 4, y + 0, 44, 10); // top leafy crown
+    ctx.fillRect(x + 2, y + 4, 8, 16);
+    ctx.fillRect(x + 42, y + 4, 8, 16);
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 14, y + 36, 24, 10); // mouth
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 16, 6, 6);
+    ctx.fillRect(x + 28, y + 16, 6, 6);
+    ctx.fillStyle = C8.bellBrown;
+    ctx.fillRect(x + 24, y + 44, 4, 8); // vine
+    // Spots
+    ctx.fillStyle = '#c0a020';
+    ctx.fillRect(x + 16, y + 26, 4, 4);
+    ctx.fillRect(x + 32, y + 22, 4, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.bellYellow;
+    ctx.fillRect(x + 8, y + 2, 36, 34);
+    ctx.fillStyle = C8.bellGreen;
+    ctx.fillRect(x + 4, y + 0, 44, 10);
+    ctx.fillRect(x + 0, y + 4, 10, 14);
+    ctx.fillRect(x + 42, y + 4, 10, 14);
+    ctx.fillStyle = C8.bellBrown;
+    ctx.fillRect(x + 24, y + 34, 6, 12);
+  },
+};
+
+// Growlithe (58)
+SPRITES[58] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.growlOrange;
+    ctx.fillRect(x + 14, y + 4, 24, 20); // body
+    ctx.fillRect(x + 10, y + 0, 14, 12); // head
+    ctx.fillStyle = C8.growlCream;
+    ctx.fillRect(x + 14, y + 18, 16, 10); // belly
+    ctx.fillRect(x + 12, y + 6, 8, 6); // muzzle
+    ctx.fillStyle = C8.growlStripe;
+    ctx.fillRect(x + 22, y + 6, 6, 3); // stripes
+    ctx.fillRect(x + 26, y + 12, 6, 3);
+    ctx.fillRect(x + 30, y + 18, 6, 3);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 12, y + 3, 3, 3); // eyes
+    ctx.fillRect(x + 18, y + 3, 3, 3);
+    // Legs
+    ctx.fillStyle = C8.growlOrange;
+    ctx.fillRect(x + 16, y + 24, 6, 10);
+    ctx.fillRect(x + 28, y + 24, 6, 10);
+    // Tail
+    ctx.fillRect(x + 36, y + 6, 8, 6);
+    ctx.fillStyle = C8.growlCream;
+    ctx.fillRect(x + 40, y + 4, 6, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.growlOrange;
+    ctx.fillRect(x + 12, y + 4, 28, 24);
+    ctx.fillRect(x + 8, y + 0, 16, 10);
+    ctx.fillStyle = C8.growlCream;
+    ctx.fillRect(x + 16, y + 20, 18, 8);
+    ctx.fillStyle = C8.growlOrange;
+    ctx.fillRect(x + 14, y + 28, 8, 12);
+    ctx.fillRect(x + 30, y + 28, 8, 12);
+    ctx.fillRect(x + 36, y + 2, 10, 8); // tail
+    ctx.fillStyle = C8.growlCream;
+    ctx.fillRect(x + 42, y + 0, 8, 8);
+  },
+};
+
+// Arcanine (59)
+SPRITES[59] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.growlOrange;
+    ctx.fillRect(x + 8, y + 2, 36, 28); // body
+    ctx.fillRect(x + 4, y + -2, 18, 14); // head
+    ctx.fillStyle = C8.growlCream;
+    ctx.fillRect(x + 14, y + 22, 22, 12); // belly
+    ctx.fillRect(x + 6, y + 4, 10, 8); // mane
+    ctx.fillStyle = '#f8d030';
+    ctx.fillRect(x + 2, y + -4, 8, 12); // mane floof
+    ctx.fillRect(x + 8, y + -6, 10, 6);
+    ctx.fillStyle = C8.growlStripe;
+    ctx.fillRect(x + 24, y + 6, 8, 3);
+    ctx.fillRect(x + 28, y + 14, 8, 3);
+    ctx.fillRect(x + 32, y + 22, 8, 3);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 8, y + 2, 4, 4);
+    ctx.fillRect(x + 16, y + 2, 4, 4);
+    // Legs
+    ctx.fillStyle = C8.growlOrange;
+    ctx.fillRect(x + 12, y + 30, 8, 14);
+    ctx.fillRect(x + 32, y + 30, 8, 14);
+    // Tail
+    ctx.fillRect(x + 42, y + 0, 10, 10);
+    ctx.fillStyle = C8.growlCream;
+    ctx.fillRect(x + 46, y + -2, 8, 10);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.growlOrange;
+    ctx.fillRect(x + 6, y + 0, 40, 30);
+    ctx.fillStyle = C8.growlCream;
+    ctx.fillRect(x + 14, y + 22, 24, 10);
+    ctx.fillStyle = '#f8d030';
+    ctx.fillRect(x + 2, y + -4, 14, 10);
+    ctx.fillStyle = C8.growlOrange;
+    ctx.fillRect(x + 10, y + 30, 10, 16);
+    ctx.fillRect(x + 32, y + 30, 10, 16);
+    ctx.fillRect(x + 42, y + 2, 12, 10);
+    ctx.fillStyle = C8.growlCream;
+    ctx.fillRect(x + 48, y + 0, 8, 10);
+  },
+};
+
+// Vulpix (37)
+SPRITES[37] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.vulpRed;
+    ctx.fillRect(x + 16, y + 8, 18, 18); // body
+    ctx.fillRect(x + 14, y + 2, 12, 10); // head
+    ctx.fillStyle = C8.vulpCream;
+    ctx.fillRect(x + 18, y + 20, 12, 8); // belly
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 16, y + 4, 3, 3);
+    ctx.fillRect(x + 22, y + 4, 3, 3);
+    // Ears
+    ctx.fillStyle = C8.vulpRed;
+    ctx.fillRect(x + 12, y + -2, 5, 6);
+    ctx.fillRect(x + 23, y + -2, 5, 6);
+    // Tails (curled)
+    ctx.fillStyle = C8.vulpTails;
+    ctx.fillRect(x + 32, y + 4, 10, 6);
+    ctx.fillRect(x + 34, y + 10, 8, 6);
+    ctx.fillRect(x + 36, y + 0, 8, 6);
+    // Legs
+    ctx.fillStyle = C8.vulpRed;
+    ctx.fillRect(x + 18, y + 26, 5, 8);
+    ctx.fillRect(x + 27, y + 26, 5, 8);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.vulpRed;
+    ctx.fillRect(x + 14, y + 6, 22, 20);
+    ctx.fillStyle = C8.vulpTails;
+    ctx.fillRect(x + 34, y + 2, 12, 8);
+    ctx.fillRect(x + 36, y + 10, 10, 8);
+    ctx.fillRect(x + 32, y + -2, 10, 8);
+    ctx.fillStyle = C8.vulpRed;
+    ctx.fillRect(x + 16, y + 26, 8, 10);
+    ctx.fillRect(x + 28, y + 26, 8, 10);
+  },
+};
+
+// Ninetales (38)
+SPRITES[38] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.vulpCream;
+    ctx.fillRect(x + 12, y + 6, 24, 24); // body
+    ctx.fillRect(x + 10, y + 0, 14, 12); // head
+    ctx.fillStyle = '#f8f0d0';
+    ctx.fillRect(x + 16, y + 24, 16, 8); // belly
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 12, y + 4, 3, 3);
+    ctx.fillRect(x + 20, y + 4, 3, 3);
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 13, y + 4, 2, 2); // red eyes
+    ctx.fillRect(x + 21, y + 4, 2, 2);
+    // Ears
+    ctx.fillStyle = C8.vulpCream;
+    ctx.fillRect(x + 8, y + -4, 5, 6);
+    ctx.fillRect(x + 21, y + -4, 5, 6);
+    // Many tails
+    ctx.fillStyle = C8.vulpCream;
+    for (let i = 0; i < 5; i++) {
+      ctx.fillRect(x + 34 + i * 2, y + i * 4, 8, 6);
+    }
+    // Legs
+    ctx.fillRect(x + 14, y + 30, 6, 12);
+    ctx.fillRect(x + 28, y + 30, 6, 12);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.vulpCream;
+    ctx.fillRect(x + 10, y + 4, 28, 26);
+    for (let i = 0; i < 5; i++) {
+      ctx.fillRect(x + 36 + i * 2, y + i * 4 - 2, 8, 8);
+    }
+    ctx.fillRect(x + 14, y + 30, 8, 14);
+    ctx.fillRect(x + 28, y + 30, 8, 14);
+  },
+};
+
+// Ponyta (77)
+SPRITES[77] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.ponytaCream;
+    ctx.fillRect(x + 14, y + 14, 24, 18); // body
+    ctx.fillRect(x + 8, y + 2, 12, 14); // head/neck
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 10, y + 6, 3, 3); // eye
+    // Mane (fire)
+    ctx.fillStyle = C8.ponytaFlame;
+    ctx.fillRect(x + 6, y + -2, 8, 8);
+    ctx.fillRect(x + 10, y + -4, 6, 6);
+    ctx.fillStyle = C8.ponytaFlameY;
+    ctx.fillRect(x + 8, y + 0, 4, 4);
+    // Tail (fire)
+    ctx.fillStyle = C8.ponytaFlame;
+    ctx.fillRect(x + 36, y + 10, 8, 8);
+    ctx.fillRect(x + 40, y + 6, 6, 8);
+    ctx.fillStyle = C8.ponytaFlameY;
+    ctx.fillRect(x + 38, y + 12, 4, 4);
+    // Legs
+    ctx.fillStyle = C8.ponytaCream;
+    ctx.fillRect(x + 16, y + 32, 5, 14);
+    ctx.fillRect(x + 31, y + 32, 5, 14);
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(x + 16, y + 42, 5, 4);
+    ctx.fillRect(x + 31, y + 42, 5, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.ponytaCream;
+    ctx.fillRect(x + 12, y + 10, 28, 20);
+    ctx.fillRect(x + 8, y + 2, 14, 14);
+    ctx.fillStyle = C8.ponytaFlame;
+    ctx.fillRect(x + 4, y + -4, 10, 10);
+    ctx.fillRect(x + 38, y + 6, 10, 10);
+    ctx.fillStyle = C8.ponytaFlameY;
+    ctx.fillRect(x + 6, y + -2, 6, 6);
+    ctx.fillRect(x + 40, y + 8, 6, 6);
+    ctx.fillStyle = C8.ponytaCream;
+    ctx.fillRect(x + 14, y + 30, 8, 14);
+    ctx.fillRect(x + 30, y + 30, 8, 14);
+  },
+};
+
+// Rapidash (78)
+SPRITES[78] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.ponytaCream;
+    ctx.fillRect(x + 10, y + 12, 30, 22); // body
+    ctx.fillRect(x + 4, y + 0, 14, 16); // head/neck
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 6, y + 4, 4, 4);
+    // Horn
+    ctx.fillStyle = '#d0d0d0';
+    ctx.fillRect(x + 10, y + -6, 3, 8);
+    // Mane (bigger fire)
+    ctx.fillStyle = C8.ponytaFlame;
+    ctx.fillRect(x + 2, y + -4, 10, 10);
+    ctx.fillRect(x + 6, y + -8, 8, 8);
+    ctx.fillStyle = C8.ponytaFlameY;
+    ctx.fillRect(x + 4, y + -2, 6, 6);
+    // Tail
+    ctx.fillStyle = C8.ponytaFlame;
+    ctx.fillRect(x + 38, y + 8, 12, 10);
+    ctx.fillRect(x + 42, y + 4, 8, 10);
+    ctx.fillStyle = C8.ponytaFlameY;
+    ctx.fillRect(x + 40, y + 10, 6, 6);
+    // Legs
+    ctx.fillStyle = C8.ponytaCream;
+    ctx.fillRect(x + 14, y + 34, 6, 14);
+    ctx.fillRect(x + 32, y + 34, 6, 14);
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(x + 14, y + 44, 6, 4);
+    ctx.fillRect(x + 32, y + 44, 6, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.ponytaCream;
+    ctx.fillRect(x + 8, y + 8, 34, 24);
+    ctx.fillRect(x + 2, y + 0, 16, 14);
+    ctx.fillStyle = '#d0d0d0';
+    ctx.fillRect(x + 10, y + -8, 4, 10);
+    ctx.fillStyle = C8.ponytaFlame;
+    ctx.fillRect(x + 0, y + -6, 12, 12);
+    ctx.fillRect(x + 40, y + 4, 14, 12);
+    ctx.fillStyle = C8.ponytaFlameY;
+    ctx.fillRect(x + 2, y + -4, 8, 8);
+    ctx.fillRect(x + 42, y + 6, 8, 8);
+    ctx.fillStyle = C8.ponytaCream;
+    ctx.fillRect(x + 12, y + 32, 8, 16);
+    ctx.fillRect(x + 32, y + 32, 8, 16);
+  },
+};
+
+// Tangela (114)
+SPRITES[114] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.tangGreen;
+    // Tangled vines body
+    for (let i = 0; i < 8; i++) {
+      const vx = x + 10 + (i % 4) * 8;
+      const vy = y + 6 + Math.floor(i / 4) * 12;
+      ctx.fillRect(vx, vy, 8, 14);
+    }
+    ctx.fillStyle = C8.tangVine;
+    for (let i = 0; i < 6; i++) {
+      ctx.fillRect(x + 12 + i * 6, y + 10 + (i % 3) * 4, 4, 10);
+    }
+    // Eyes peeking out
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 18, y + 12, 6, 6);
+    ctx.fillRect(x + 28, y + 12, 6, 6);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 14, 3, 3);
+    ctx.fillRect(x + 30, y + 14, 3, 3);
+    // Feet
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 16, y + 38, 8, 6);
+    ctx.fillRect(x + 28, y + 38, 8, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.tangGreen;
+    for (let i = 0; i < 10; i++) {
+      ctx.fillRect(x + 8 + (i % 5) * 7, y + 4 + Math.floor(i / 5) * 14, 8, 16);
+    }
+    ctx.fillStyle = C8.tangVine;
+    for (let i = 0; i < 6; i++) {
+      ctx.fillRect(x + 10 + i * 7, y + 8 + (i % 3) * 6, 4, 12);
+    }
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 16, y + 36, 10, 8);
+    ctx.fillRect(x + 28, y + 36, 10, 8);
+  },
+};
+
+// Vileplume (45)
+SPRITES[45] = {
+  front: (ctx, x, y) => {
+    // Giant flower on top
+    ctx.fillStyle = '#e04060';
+    ctx.fillRect(x + 6, y + 0, 40, 16); // flower petals
+    ctx.fillRect(x + 10, y + -4, 32, 8);
+    ctx.fillStyle = '#c03050';
+    ctx.fillRect(x + 14, y + 4, 24, 8);
+    // Yellow center
+    ctx.fillStyle = '#f8d830';
+    ctx.fillRect(x + 20, y + 2, 12, 8);
+    // Body
+    ctx.fillStyle = '#4870a0';
+    ctx.fillRect(x + 14, y + 14, 24, 20);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 20, 4, 4);
+    ctx.fillRect(x + 28, y + 20, 4, 4);
+    ctx.fillStyle = '#e04060';
+    ctx.fillRect(x + 23, y + 28, 6, 3); // mouth
+    // Feet
+    ctx.fillStyle = '#4870a0';
+    ctx.fillRect(x + 16, y + 34, 8, 6);
+    ctx.fillRect(x + 28, y + 34, 8, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#e04060';
+    ctx.fillRect(x + 4, y + -2, 44, 18);
+    ctx.fillRect(x + 8, y + -6, 36, 8);
+    ctx.fillStyle = '#c03050';
+    ctx.fillRect(x + 12, y + 2, 28, 10);
+    ctx.fillStyle = '#f8d830';
+    ctx.fillRect(x + 18, y + 0, 16, 10);
+    ctx.fillStyle = '#4870a0';
+    ctx.fillRect(x + 12, y + 14, 28, 22);
+    ctx.fillRect(x + 16, y + 36, 10, 8);
+    ctx.fillRect(x + 28, y + 36, 10, 8);
+  },
+};
+
+// Gastly (92)
+SPRITES[92] = {
+  front: (ctx, x, y) => {
+    // Gas cloud
+    ctx.fillStyle = C8.gastGas;
+    ctx.fillRect(x + 6, y + 12, 40, 28);
+    ctx.fillRect(x + 10, y + 8, 32, 4);
+    ctx.fillRect(x + 10, y + 40, 32, 4);
+    ctx.fillRect(x + 2, y + 18, 8, 16);
+    ctx.fillRect(x + 42, y + 18, 8, 16);
+    // Core
+    ctx.fillStyle = C8.gastPurple;
+    ctx.fillRect(x + 14, y + 14, 24, 22);
+    ctx.fillStyle = C8.gastDark;
+    ctx.fillRect(x + 18, y + 18, 16, 14);
+    // Eyes
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 18, y + 18, 8, 8);
+    ctx.fillRect(x + 28, y + 18, 8, 8);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 22, y + 22, 4, 4);
+    ctx.fillRect(x + 32, y + 22, 4, 4);
+    // Mouth
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 22, y + 30, 8, 3);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.gastGas;
+    ctx.fillRect(x + 8, y + 10, 36, 28);
+    ctx.fillRect(x + 12, y + 6, 28, 6);
+    ctx.fillRect(x + 4, y + 16, 8, 16);
+    ctx.fillRect(x + 40, y + 16, 8, 16);
+    ctx.fillStyle = C8.gastPurple;
+    ctx.fillRect(x + 14, y + 12, 24, 22);
+    ctx.fillStyle = C8.gastDark;
+    ctx.fillRect(x + 18, y + 16, 16, 14);
+  },
+};
+
+// Haunter (93)
+SPRITES[93] = {
+  front: (ctx, x, y) => {
+    // Body
+    ctx.fillStyle = C8.gastPurple;
+    ctx.fillRect(x + 12, y + 6, 28, 26);
+    ctx.fillRect(x + 16, y + 2, 20, 6);
+    // Spiky head
+    ctx.fillRect(x + 14, y + 0, 6, 6);
+    ctx.fillRect(x + 32, y + 0, 6, 6);
+    ctx.fillStyle = C8.gastDark;
+    ctx.fillRect(x + 16, y + 10, 20, 18);
+    // Eyes
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 16, y + 12, 10, 8);
+    ctx.fillRect(x + 28, y + 12, 10, 8);
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 20, y + 14, 5, 5);
+    ctx.fillRect(x + 32, y + 14, 5, 5);
+    // Mouth
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 20, y + 24, 12, 4);
+    // Floating hands
+    ctx.fillStyle = C8.gastPurple;
+    ctx.fillRect(x + 0, y + 16, 10, 10);
+    ctx.fillRect(x + 42, y + 16, 10, 10);
+    ctx.fillStyle = C8.gastDark;
+    ctx.fillRect(x + 2, y + 24, 4, 6);
+    ctx.fillRect(x + 6, y + 24, 4, 6);
+    ctx.fillRect(x + 44, y + 24, 4, 6);
+    ctx.fillRect(x + 48, y + 24, 4, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.gastPurple;
+    ctx.fillRect(x + 10, y + 4, 32, 28);
+    ctx.fillRect(x + 14, y + 0, 24, 6);
+    ctx.fillRect(x + 12, y + -2, 8, 6);
+    ctx.fillRect(x + 32, y + -2, 8, 6);
+    ctx.fillStyle = C8.gastDark;
+    ctx.fillRect(x + 14, y + 8, 24, 20);
+    ctx.fillStyle = C8.gastPurple;
+    ctx.fillRect(x + 0, y + 14, 12, 12);
+    ctx.fillRect(x + 40, y + 14, 12, 12);
+  },
+};
+
+// Snorlax (143)
+SPRITES[143] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.snorlDark;
+    ctx.fillRect(x + 6, y + 4, 40, 38); // body
+    ctx.fillRect(x + 14, y + 0, 24, 8); // head
+    ctx.fillStyle = C8.snorlBelly;
+    ctx.fillRect(x + 14, y + 14, 24, 24); // belly
+    ctx.fillStyle = C8.snorlCream;
+    ctx.fillRect(x + 16, y + 2, 20, 8); // face
+    // Closed eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 4, 6, 2);
+    ctx.fillRect(x + 28, y + 4, 6, 2);
+    // Open mouth
+    ctx.fillRect(x + 22, y + 8, 8, 3);
+    // Arms
+    ctx.fillStyle = C8.snorlDark;
+    ctx.fillRect(x + 0, y + 16, 10, 14);
+    ctx.fillRect(x + 42, y + 16, 10, 14);
+    // Claws
+    ctx.fillStyle = C8.snorlCream;
+    ctx.fillRect(x + 0, y + 28, 4, 4);
+    ctx.fillRect(x + 5, y + 28, 4, 4);
+    ctx.fillRect(x + 43, y + 28, 4, 4);
+    ctx.fillRect(x + 48, y + 28, 4, 4);
+    // Feet
+    ctx.fillStyle = C8.snorlCream;
+    ctx.fillRect(x + 12, y + 40, 10, 6);
+    ctx.fillRect(x + 30, y + 40, 10, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.snorlDark;
+    ctx.fillRect(x + 4, y + 2, 44, 40);
+    ctx.fillRect(x + 12, y + -2, 28, 8);
+    ctx.fillStyle = C8.snorlCream;
+    ctx.fillRect(x + 14, y + 0, 24, 6);
+    ctx.fillStyle = C8.snorlDark;
+    ctx.fillRect(x + 0, y + 14, 10, 16);
+    ctx.fillRect(x + 42, y + 14, 10, 16);
+    ctx.fillRect(x + 10, y + 42, 12, 8);
+    ctx.fillRect(x + 30, y + 42, 12, 8);
+  },
+};
+
 export function drawPokemonFront(ctx: CanvasRenderingContext2D, speciesId: number, x: number, y: number, visible = true) {
   if (!visible) return;
   SPRITES[speciesId]?.front(ctx, x, y);
@@ -2242,6 +2810,31 @@ export function drawNPCSprite(ctx: CanvasRenderingContext2D, type: string, x: nu
         ctx.fillRect(x + 5, y + 5, 3, 2);
         ctx.fillRect(x + 9, y + 5, 3, 2);
       }
+      break;
+    case 'gymLeader4':
+      // Erika: elegant, black hair, kimono/nature theme
+      ctx.fillStyle = '#181830';
+      ctx.fillRect(x + 3, y + 0, 10, 6); // black hair
+      ctx.fillRect(x + 2, y + 2, 2, 4); // side hair
+      ctx.fillRect(x + 12, y + 2, 2, 4);
+      ctx.fillStyle = '#f8d8b0';
+      ctx.fillRect(x + 4, y + 3, 8, 5); // face
+      ctx.fillStyle = '#48a830';
+      ctx.fillRect(x + 3, y + 8, 10, 5); // green kimono top
+      ctx.fillStyle = '#f85888';
+      ctx.fillRect(x + 6, y + 8, 4, 2); // pink sash
+      ctx.fillStyle = '#306828';
+      ctx.fillRect(x + 3, y + 13, 10, 3); // darker green bottom
+      if (facing === 'down') {
+        ctx.fillStyle = '#081820';
+        ctx.fillRect(x + 5, y + 5, 2, 2);
+        ctx.fillRect(x + 9, y + 5, 2, 2);
+      }
+      // Flower in hair
+      ctx.fillStyle = '#f85888';
+      ctx.fillRect(x + 10, y + 1, 3, 3);
+      ctx.fillStyle = '#f8d830';
+      ctx.fillRect(x + 11, y + 2, 1, 1);
       break;
     default:
       // Generic NPC

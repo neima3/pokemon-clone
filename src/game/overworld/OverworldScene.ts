@@ -108,6 +108,8 @@ export class OverworldScene implements Scene {
     const zone = getRouteZone(this.player.gx, this.player.gy);
     if (zone === 'route4') {
       Music.route4();
+    } else if (zone === 'route5') {
+      Music.route5();
     } else {
       Music.overworld();
     }
@@ -178,6 +180,7 @@ export class OverworldScene implements Scene {
 
     // Check for encounter when player finishes a step
     if (wasMoving && !this.player.isMoving) {
+      this.checkPoisonDamage();
       this.checkEncounter();
     }
 
@@ -228,6 +231,20 @@ export class OverworldScene implements Scene {
         return true;
       }
 
+      // Fisherman gives OLD ROD
+      if (npc.id === 'fisherman') {
+        if (this.gameState.hasOldRod) {
+          this.startDialogue(['Caught anything good yet?', 'Face water and press Z to fish!']);
+        } else {
+          this.startDialogue(npc.data.dialogue, () => {
+            this.gameState.hasOldRod = true;
+            this.gameState.save();
+            this.startDialogue(['You received the OLD ROD!', 'Face water and press Z to fish!']);
+          });
+        }
+        return true;
+      }
+
       // Trainer NPC
       if (npc.data.isTrainer && npc.data.trainerId && !npc.defeated) {
         this.startDialogue(npc.data.dialogue, () => {
@@ -262,6 +279,8 @@ export class OverworldScene implements Scene {
           this.startDialogue(['ROUTE 3', 'The path to CERULEAN GYM.']);
         } else if (zone === 'route4') {
           this.startDialogue(['ROUTE 4', 'Electric currents fill the air!']);
+        } else if (zone === 'route5') {
+          this.startDialogue(['ROUTE 5', 'A path through fiery meadows.']);
         } else {
           this.startDialogue(['ROUTE 2', 'Stronger POKéMON live here.']);
         }
@@ -288,7 +307,14 @@ export class OverworldScene implements Scene {
       if (tile === Tile.GymDoor) {
         SFX.menuConfirm();
         // Determine which gym based on position
-        if (fx >= 38) {
+        if (fy >= 36) {
+          // Erika's Gym (Route 5 area)
+          if (this.gameState.hasBadge('RAINBOW BADGE')) {
+            this.startDialogue(['CELADON GYM', 'LEADER: ERIKA', 'You already have the RAINBOW BADGE!']);
+          } else {
+            this.startDialogue(['CELADON GYM', 'LEADER: ERIKA', 'Specializes in Grass-type POKéMON.']);
+          }
+        } else if (fx >= 38) {
           // Lt. Surge's Gym
           if (this.gameState.hasBadge('THUNDER BADGE')) {
             this.startDialogue(['VERMILION GYM', 'LEADER: LT. SURGE', 'You already have the THUNDER BADGE!']);
@@ -308,6 +334,22 @@ export class OverworldScene implements Scene {
             this.startDialogue(['PEWTER GYM', 'LEADER: BROCK', 'Specializes in Rock-type POKéMON.']);
           }
         }
+        return true;
+      }
+
+      // Fishing: interact with water while holding OLD ROD
+      if (tile === Tile.Water && this.gameState.hasOldRod) {
+        SFX.menuConfirm();
+        this.startDialogue(['...', '...', 'Oh! A bite!'], () => {
+          this.frozen = true;
+          this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
+          Music.stop();
+          SFX.encounter();
+          const encounter = rollEncounter('fishing');
+          setTimeout(() => {
+            this.onEncounter?.(encounter.species, encounter.level);
+          }, 400);
+        });
         return true;
       }
     }
@@ -576,6 +618,23 @@ export class OverworldScene implements Scene {
     }
   }
 
+  private poisonStepCounter = 0;
+
+  private checkPoisonDamage() {
+    const lead = this.gameState.leadPokemon;
+    if (!lead || lead.status !== 'poison' || !lead.isAlive) return;
+
+    this.poisonStepCounter++;
+    if (this.poisonStepCounter >= 4) {
+      this.poisonStepCounter = 0;
+      lead.hp = Math.max(1, lead.hp - 1);
+      // Flash screen briefly to indicate poison damage
+      if (lead.hp <= 1) {
+        this.startDialogue([`${lead.name} is about to faint from poison!`]);
+      }
+    }
+  }
+
   private checkEncounter() {
     const tile = MAP_DATA[this.player.gy * MAP_WIDTH + this.player.gx];
     if (tile === Tile.TallGrass) {
@@ -657,6 +716,9 @@ export class OverworldScene implements Scene {
     this.player.draw(ctx);
     ctx.restore();
 
+    // Day/night tint overlay
+    this.drawDayNightOverlay(ctx);
+
     // Draw HUD
     this.drawHUD(ctx);
 
@@ -676,6 +738,31 @@ export class OverworldScene implements Scene {
     }
   }
 
+  private drawDayNightOverlay(ctx: CanvasRenderingContext2D) {
+    const hour = new Date().getHours();
+    let tintColor = '';
+    let alpha = 0;
+
+    if (hour >= 20 || hour < 5) {
+      // Night: dark blue overlay
+      tintColor = '16, 24, 64';
+      alpha = hour >= 22 || hour < 4 ? 0.35 : 0.2;
+    } else if (hour >= 5 && hour < 7) {
+      // Dawn: warm orange
+      tintColor = '255, 160, 64';
+      alpha = 0.12;
+    } else if (hour >= 17 && hour < 20) {
+      // Dusk: warm amber
+      tintColor = '255, 128, 48';
+      alpha = 0.08 + (hour - 17) * 0.04;
+    }
+
+    if (alpha > 0) {
+      ctx.fillStyle = `rgba(${tintColor}, ${alpha})`;
+      ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+    }
+  }
+
   private drawHUD(ctx: CanvasRenderingContext2D) {
     if (!this.showMiniStatus || this.phase !== 'explore') return;
 
@@ -684,7 +771,7 @@ export class OverworldScene implements Scene {
 
     // Zone indicator
     const zone = getRouteZone(this.player.gx, this.player.gy);
-    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3', route4: 'ROUTE 4' };
+    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3', route4: 'ROUTE 4', route5: 'ROUTE 5' };
     const zoneName = zoneNames[zone] ?? zone.toUpperCase();
 
     ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';

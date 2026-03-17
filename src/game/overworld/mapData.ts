@@ -1,9 +1,9 @@
 import { Tile } from './tiles';
 import { NPCData } from './NPC';
 
-/** 50×30 overworld map — expanded with a town, routes, and buildings */
+/** 50×40 overworld map — expanded with a town, routes, and buildings */
 export const MAP_WIDTH = 50;
-export const MAP_HEIGHT = 30;
+export const MAP_HEIGHT = 40;
 
 const T = Tile.Tree;
 const G = Tile.Grass;
@@ -54,13 +54,25 @@ export const MAP_DATA: Tile[] = [
   T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 26
   T, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T,  // 27
   T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, T,  // 28
-  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 29
+  T, T, T, T, P, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 29
+  T, G, G, G, P, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 30
+  T, G, G, G, P, G, g, g, g, g, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 31
+  T, G, F, G, P, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, g, g, G, G, G, F, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 32
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 33
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 34
+  T, G, G, G, P, P, P, P, P, P, P, P, S, P, P, P, P, P, W, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 35
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, P, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 36
+  T, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, P, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 37
+  T, G, G, G, G, G, g, g, g, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, E, E, P, E, E, G, P, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 38
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 39
 ];
 
 /** Get the route zone for a given grid position */
 export function getRouteZone(gx: number, gy: number): string {
   // Town area: roughly rows 4-15, cols 8-22
   if (gy >= 4 && gy <= 15 && gx >= 8 && gx <= 22) return 'town';
+  // Route 5: bottom section rows 29+
+  if (gy >= 29) return 'route5';
   // Route 4: far east section
   if (gx >= 38) return 'route4';
   // Route 3: far south-east section (near Misty's gym)
@@ -239,5 +251,61 @@ export const MAP_NPCS: NPCData[] = [
     dialogue: ['I\'m LT. SURGE, the Lightning American!', 'My Electric POKéMON will zap you!', 'Let\'s battle, soldier!'],
     isTrainer: true,
     trainerId: 'gym_surge',
+  },
+  // Route 5 trainers
+  {
+    id: 'trainer_lily',
+    gx: 8, gy: 32,
+    sprite: 'lass',
+    facing: 'right',
+    dialogue: ['Flowers and grass go together!', 'Let me show you!'],
+    isTrainer: true,
+    trainerId: 'lass_lily',
+  },
+  {
+    id: 'trainer_sam',
+    gx: 24, gy: 31,
+    sprite: 'youngster',
+    facing: 'left',
+    dialogue: ['Fire types are the hottest!', 'Literally!'],
+    isTrainer: true,
+    trainerId: 'youngster_sam',
+  },
+  {
+    id: 'trainer_greg',
+    gx: 16, gy: 34,
+    sprite: 'hiker',
+    facing: 'down',
+    dialogue: ['I\'ve been training in these mountains!', 'Let\'s see what you\'ve got!'],
+    isTrainer: true,
+    trainerId: 'hiker_greg',
+  },
+  // Route 5 helper
+  {
+    id: 'route5_helper',
+    gx: 4, gy: 33,
+    sprite: 'lass',
+    facing: 'right',
+    dialogue: ['ERIKA\'s GYM is to the east.', 'She uses Grass-type POKéMON.', 'Fire or Flying types work great!'],
+    isTrainer: false,
+  },
+  // Fisherman NPC — gives OLD ROD
+  {
+    id: 'fisherman',
+    gx: 17, gy: 33,
+    sprite: 'hiker',
+    facing: 'down',
+    dialogue: ['I love fishing!', 'Here, take this OLD ROD!', 'Use it near water to catch POKéMON!'],
+    isTrainer: false,
+  },
+  // Gym Leader — Erika
+  {
+    id: 'gym_leader_erika',
+    gx: 31, gy: 37,
+    sprite: 'gymLeader4',
+    facing: 'down',
+    dialogue: ['I am ERIKA, the nature-loving princess.', 'My Grass-type POKéMON are elegant and strong.', 'Let us battle gracefully!'],
+    isTrainer: true,
+    trainerId: 'gym_erika',
   },
 ];

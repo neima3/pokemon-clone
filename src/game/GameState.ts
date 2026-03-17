@@ -24,6 +24,7 @@ interface SaveData {
   pokedexSeen: string[];
   pokedexCaught: string[];
   repelSteps?: number;
+  hasOldRod?: boolean;
 }
 
 export class GameState {
@@ -37,6 +38,7 @@ export class GameState {
   pokedexSeen: Set<string> = new Set();
   pokedexCaught: Set<string> = new Set();
   repelSteps = 0;
+  hasOldRod = false;
 
   get hasStarter() {
     return this.team.length > 0;
@@ -147,6 +149,7 @@ export class GameState {
       pokedexSeen: [...this.pokedexSeen],
       pokedexCaught: [...this.pokedexCaught],
       repelSteps: this.repelSteps,
+      hasOldRod: this.hasOldRod,
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -178,6 +181,7 @@ export class GameState {
       this.defeatedTrainers = new Set(data.defeatedTrainers ?? []);
       this.badges = new Set(data.badges ?? []);
       this.repelSteps = data.repelSteps ?? 0;
+      this.hasOldRod = data.hasOldRod ?? false;
       this.pokedexSeen = new Set(data.pokedexSeen ?? []);
       this.pokedexCaught = new Set(data.pokedexCaught ?? []);
       return this.team.length > 0;

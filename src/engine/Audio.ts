@@ -359,6 +359,33 @@ function buildRoute4Pattern(): MusicPattern {
   };
 }
 
+function buildRoute5Pattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 4.5,
+    notes: [
+      // Mysterious, slightly dark — fire/grass theme
+      { freq: n.A3, dur: 0.5 }, { freq: n.C4, dur: 0.5 },
+      { freq: n.E4, dur: 0.25 }, { freq: n.F4, dur: 0.25 },
+      { freq: n.E4, dur: 0.5 }, { freq: n.D4, dur: 0.5 },
+      // Second phrase
+      { freq: n.C4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.G4, dur: 0.25 }, { freq: n.F4, dur: 0.5 },
+      { freq: n.E4, dur: 0.5 },
+      // Rising section
+      { freq: n.D4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.F4, dur: 0.5 }, { freq: n.G4, dur: 0.5 },
+      { freq: n.A4, dur: 0.5 }, { freq: n.G4, dur: 0.25 },
+      { freq: n.F4, dur: 0.25 }, { freq: n.E4, dur: 0.5 },
+      // Resolve
+      { freq: n.C4, dur: 0.5 }, { freq: n.D4, dur: 0.5 },
+      { freq: n.E4, dur: 0.5 }, { freq: n.C4, dur: 0.5 },
+      { freq: n.A3, dur: 1 },
+    ],
+  };
+}
+
 function playMusicLoop(patterns: Array<{ pattern: MusicPattern; type: WaveType; gainVal: number }>): { stop: () => void } {
   const c = getCtx();
   let running = true;
@@ -439,6 +466,13 @@ export const Music = {
     Music.stop();
     currentMusic = playMusicLoop([
       { pattern: buildRoute4Pattern(), type: 'square', gainVal: 0.12 },
+    ]);
+  },
+
+  route5() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildRoute5Pattern(), type: 'square', gainVal: 0.12 },
     ]);
   },
 
