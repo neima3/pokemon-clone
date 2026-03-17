@@ -17,6 +17,14 @@ export interface Inventory {
   revive: number;
   repel: number;
   expShare: number;
+  leftovers: number;
+  scopeLens: number;
+  lumBerry: number;
+  charcoal: number;
+  mysticWater: number;
+  miracleSeed: number;
+  magnet: number;
+  vsSeeker: number;
 }
 
 interface SaveData {
@@ -31,14 +39,17 @@ interface SaveData {
   pokedexCaught: string[];
   repelSteps?: number;
   hasOldRod?: boolean;
+  hasGoodRod?: boolean;
+  hasSuperRod?: boolean;
   postGame?: boolean;
   defeatedLegendaries?: string[];
+  vsSeekerSteps?: number;
 }
 
 export class GameState {
   team: Pokemon[] = [];
   pcBox: Pokemon[] = [];
-  inventory: Inventory = { pokeball: 5, greatBall: 0, ultraBall: 0, masterBall: 0, potion: 3, superPotion: 0, hyperPotion: 0, maxPotion: 0, antidote: 0, fullHeal: 0, revive: 0, repel: 0, expShare: 0 };
+  inventory: Inventory = { pokeball: 5, greatBall: 0, ultraBall: 0, masterBall: 0, potion: 3, superPotion: 0, hyperPotion: 0, maxPotion: 0, antidote: 0, fullHeal: 0, revive: 0, repel: 0, expShare: 0, leftovers: 0, scopeLens: 0, lumBerry: 0, charcoal: 0, mysticWater: 0, miracleSeed: 0, magnet: 0, vsSeeker: 0 };
   playerPosition = { x: 15, y: 13 };
   money = 1000;
   defeatedTrainers: Set<string> = new Set();
@@ -47,8 +58,11 @@ export class GameState {
   pokedexCaught: Set<string> = new Set();
   repelSteps = 0;
   hasOldRod = false;
+  hasGoodRod = false;
+  hasSuperRod = false;
   postGame = false;
   defeatedLegendaries: Set<string> = new Set();
+  vsSeekerSteps = 0;
 
   get hasStarter() {
     return this.team.length > 0;
@@ -161,6 +175,36 @@ export class GameState {
     return false;
   }
 
+  /** Get best fishing rod available */
+  getBestRod(): 'super' | 'good' | 'old' | null {
+    if (this.hasSuperRod) return 'super';
+    if (this.hasGoodRod) return 'good';
+    if (this.hasOldRod) return 'old';
+    return null;
+  }
+
+  /** Charge VS Seeker while walking */
+  chargeVsSeeker(): boolean {
+    if (this.inventory.vsSeeker <= 0) return false;
+    if (this.vsSeekerSteps < 100) {
+      this.vsSeekerSteps++;
+      return false;
+    }
+    return true; // fully charged
+  }
+
+  /** Use VS Seeker to reset defeated trainers for rematches */
+  useVsSeeker(): boolean {
+    if (this.inventory.vsSeeker <= 0 || this.vsSeekerSteps < 100) return false;
+    this.vsSeekerSteps = 0;
+    return true;
+  }
+
+  /** Check if VS Seeker is ready to use */
+  isVsSeekerReady(): boolean {
+    return this.inventory.vsSeeker > 0 && this.vsSeekerSteps >= 100;
+  }
+
   /** Heal all team Pokemon */
   healTeam() {
     for (const p of this.team) p.heal();
@@ -180,8 +224,11 @@ export class GameState {
       pokedexCaught: [...this.pokedexCaught],
       repelSteps: this.repelSteps,
       hasOldRod: this.hasOldRod,
+      hasGoodRod: this.hasGoodRod,
+      hasSuperRod: this.hasSuperRod,
       postGame: this.postGame,
       defeatedLegendaries: [...this.defeatedLegendaries],
+      vsSeekerSteps: this.vsSeekerSteps,
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -200,7 +247,7 @@ export class GameState {
       this.team = data.team.map((d) => Pokemon.fromJSON(d));
       this.pcBox = (data.pcBox ?? []).map((d) => Pokemon.fromJSON(d));
       const inv = data.inventory as unknown as Record<string, number>;
-      const defaultInventory: Inventory = { pokeball: 5, greatBall: 0, ultraBall: 0, masterBall: 0, potion: 3, superPotion: 0, hyperPotion: 0, maxPotion: 0, antidote: 0, fullHeal: 0, revive: 0, repel: 0, expShare: 0 };
+      const defaultInventory: Inventory = { pokeball: 5, greatBall: 0, ultraBall: 0, masterBall: 0, potion: 3, superPotion: 0, hyperPotion: 0, maxPotion: 0, antidote: 0, fullHeal: 0, revive: 0, repel: 0, expShare: 0, leftovers: 0, scopeLens: 0, lumBerry: 0, charcoal: 0, mysticWater: 0, miracleSeed: 0, magnet: 0, vsSeeker: 0 };
       this.inventory = { ...defaultInventory };
       for (const key of Object.keys(defaultInventory) as Array<keyof Inventory>) {
         if (inv[key] !== undefined) {
@@ -213,10 +260,13 @@ export class GameState {
       this.badges = new Set(data.badges ?? []);
       this.repelSteps = data.repelSteps ?? 0;
       this.hasOldRod = data.hasOldRod ?? false;
+      this.hasGoodRod = data.hasGoodRod ?? false;
+      this.hasSuperRod = data.hasSuperRod ?? false;
       this.pokedexSeen = new Set(data.pokedexSeen ?? []);
       this.pokedexCaught = new Set(data.pokedexCaught ?? []);
       this.postGame = data.postGame ?? false;
       this.defeatedLegendaries = new Set(data.defeatedLegendaries ?? []);
+      this.vsSeekerSteps = data.vsSeekerSteps ?? 0;
       return this.team.length > 0;
     } catch {
       return false;

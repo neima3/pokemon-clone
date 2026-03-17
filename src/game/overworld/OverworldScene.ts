@@ -87,6 +87,15 @@ export class OverworldScene implements Scene {
     { key: 'fullHeal', name: 'FULL HEAL', price: 600 },
     { key: 'revive', name: 'REVIVE', price: 1500 },
     { key: 'repel', name: 'REPEL', price: 350 },
+    { key: 'expShare', name: 'EXP. SHARE', price: 3000 },
+    { key: 'leftovers', name: 'LEFTOVERS', price: 5000 },
+    { key: 'scopeLens', name: 'SCOPE LENS', price: 3000 },
+    { key: 'lumBerry', name: 'LUM BERRY', price: 500 },
+    { key: 'charcoal', name: 'CHARCOAL', price: 1000 },
+    { key: 'mysticWater', name: 'MYSTIC WATER', price: 1000 },
+    { key: 'miracleSeed', name: 'MIRACLE SEED', price: 1000 },
+    { key: 'magnet', name: 'MAGNET', price: 1000 },
+    { key: 'vsSeeker', name: 'VS SEEKER', price: 1000 },
   ];
 
   // Heal animation
@@ -258,6 +267,13 @@ export class OverworldScene implements Scene {
       }
       this.checkPoisonDamage();
       this.checkEncounter();
+      
+      // Charge VS Seeker
+      const wasCharged = this.gameState.isVsSeekerReady();
+      const nowCharged = this.gameState.chargeVsSeeker();
+      if (!wasCharged && nowCharged) {
+        SFX.badgeGet();
+      }
     }
 
     this.camera.follow(this.player.px, this.player.py);
@@ -482,20 +498,25 @@ export class OverworldScene implements Scene {
         return true;
       }
 
-      // Fishing: interact with water while holding OLD ROD
-      if (tile === Tile.Water && this.gameState.hasOldRod) {
-        SFX.menuConfirm();
-        this.startDialogue(['...', '...', 'Oh! A bite!'], () => {
-          this.frozen = true;
-          this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
-          Music.stop();
-          SFX.encounter();
-          const encounter = rollEncounter('fishing');
-          setTimeout(() => {
-            this.onEncounter?.(encounter.species, encounter.level);
-          }, 400);
-        });
-        return true;
+      // Fishing: interact with water while holding a fishing rod
+      if (tile === Tile.Water) {
+        const rod = this.gameState.getBestRod();
+        if (rod) {
+          SFX.fishing();
+          const rodName = rod === 'super' ? 'SUPER ROD' : rod === 'good' ? 'GOOD ROD' : 'OLD ROD';
+          this.startDialogue([`Used ${rodName}!`, '...', 'Oh! A bite!'], () => {
+            this.frozen = true;
+            this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
+            Music.stop();
+            SFX.fishingBite();
+            const encounterTable = rod === 'super' ? 'fishingSuper' : rod === 'good' ? 'fishingGood' : 'fishing';
+            const encounter = rollEncounter(encounterTable);
+            setTimeout(() => {
+              this.onEncounter?.(encounter.species, encounter.level);
+            }, 400);
+          });
+          return true;
+        }
       }
     }
 
@@ -697,6 +718,25 @@ export class OverworldScene implements Scene {
         } else {
           SFX.bump();
         }
+      } else if (item.key === 'vsSeeker') {
+        // VS Seeker: rematch trainers
+        if (this.gameState.isVsSeekerReady()) {
+          this.gameState.useVsSeeker();
+          // Reset all defeated trainers for rematches
+          for (const npc of this.npcs) {
+            if (npc.data.trainerId) {
+              npc.defeated = false;
+            }
+          }
+          SFX.badgeGet();
+          this.phase = 'explore';
+          this.startDialogue(['Used VS SEEKER!', 'Nearby TRAINERS want to battle!']);
+        } else {
+          SFX.bump();
+          const stepsLeft = 100 - this.gameState.vsSeekerSteps;
+          this.phase = 'explore';
+          this.startDialogue([`VS SEEKER needs charging!`, `${stepsLeft} more steps needed.`]);
+        }
       } else {
         SFX.bump();
       }
@@ -716,6 +756,7 @@ export class OverworldScene implements Scene {
       { key: 'fullHeal', name: 'FULL HEAL', count: this.gameState.inventory.fullHeal },
       { key: 'revive', name: 'REVIVE', count: this.gameState.inventory.revive },
       { key: 'repel', name: 'REPEL', count: this.gameState.inventory.repel },
+      { key: 'vsSeeker', name: 'VS SEEKER', count: this.gameState.inventory.vsSeeker },
     ];
     return all.filter(i => i.count > 0);
   }

@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.0] - 2026-03-17
+
+### Added
+- Sprint 037: Quality of Life & Equipment Expansion
+- VS Seeker item for trainer rematches (charges while walking, use to reset defeated trainers)
+- Good Rod and Super Rod for better fishing encounters
+- New fishing encounter tables: fishingGood (mid-tier water Pokemon), fishingSuper (rare water Pokemon)
+- New water-type Pokemon species: Poliwag, Poliwhirl, Shellder, Cloyster, Horsea, Seadra, Krabby, Kingler
+- New abilities: Skill Link (max hits on multi-hit moves), Sniper (2.25x crit damage)
+- New moves: Ice Shard (priority ice), Smokescreen (lower accuracy), Spike Cannon (multi-hit), Crabhammer (water power)
+- New sound effects: fishing(), fishingBite(), vsSeeker()
+- Shop now sells held items: Leftovers, Scope Lens, Lum Berry, type-boosting items, EXP Share, VS Seeker
+
+### New Pokemon Details
+- Poliwag: Water-type tadpole with Water Absorb/Swift Swim
+- Poliwhirl: Poliwag evolution with higher stats
+- Shellder: Water-type bivalve with Shell Armor/Skill Link
+- Cloyster: Shellder evolution (Water/Ice) with massive Defense
+- Horsea: Water-type seahorse with Swift Swim/Sniper
+- Seadra: Horsea evolution with Poison Point/Sniper
+- Krabby: Water-type crab with Hyper Cutter/Shell Armor
+- Kingler: Krabby evolution with massive Attack
+
+### Gameplay Changes
+- Fishing now uses best available rod (Super > Good > Old)
+- VS Seeker charges over 100 steps and resets all trainers for rematches
+- Held items purchasable from Poke Mart for battle strategy
+
 ## [0.34.0] - 2026-03-17
 
 ### Added

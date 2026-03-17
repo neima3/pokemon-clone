@@ -476,6 +476,18 @@ export const ABILITIES: Record<string, AbilityData> = {
     trigger: 'on_damage',
     effect: 'flinch_speed',
   },
+  skillLink: {
+    name: 'SKILL LINK',
+    description: 'Multi-hit moves always hit max times.',
+    trigger: 'passive',
+    effect: 'max_hits',
+  },
+  sniper: {
+    name: 'SNIPER',
+    description: 'Critical hits deal 2.25x damage.',
+    trigger: 'passive',
+    effect: 'crit_boost',
+  },
 };
 
 const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
@@ -770,6 +782,11 @@ export const MOVES: Record<string, MoveData> = {
   leechLife:    { name: 'LEECH LIFE',  type: 'bug',      power: 80,  accuracy: 100, maxPp: 10, category: 'physical', drain: 50 },
   spore:        { name: 'SPORE',       type: 'grass',    power: 0,   accuracy: 100, maxPp: 15, category: 'status', effect: 'sleep' },
   hyperVoice:   { name: 'HYPER VOICE', type: 'normal',   power: 90,  accuracy: 100, maxPp: 10, category: 'physical' },
+  // Sprint 037: Fishing rod Pokemon moves
+  iceShard:     { name: 'ICE SHARD',   type: 'ice',      power: 40,  accuracy: 100, maxPp: 30, category: 'physical', priority: 1 },
+  smokescreen:  { name: 'SMOKESCREEN', type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'lower_attack' },
+  spikeCannon:  { name: 'SPIKE CANNON',type: 'normal',   power: 20,  accuracy: 100, maxPp: 15, category: 'physical', hits: [2, 5] },
+  crabhammer:   { name: 'CRABHAMMER',  type: 'water',    power: 100, accuracy: 90,  maxPp: 10, category: 'physical' },
 };
 
 // ── Species ──
@@ -1395,6 +1412,81 @@ export const SPECIES: Record<string, SpeciesData> = {
     levelUpMoves: [{ level: 7, moveKey: 'waterGun' }, { level: 13, moveKey: 'iceBeam' }, { level: 18, moveKey: 'bodySlam' }, { level: 25, moveKey: 'surf' }, { level: 31, moveKey: 'iceBeam' }, { level: 37, moveKey: 'blizzard' }, { level: 43, moveKey: 'hydroPump' }],
   },
 
+  // Poliwag + Poliwhirl
+  poliwag: {
+    id: 60, name: 'POLIWAG', types: ['water'],
+    baseHp: 40, baseAtk: 50, baseDef: 40, baseSpd: 90,
+    learnedMoves: ['bubbleBeam', 'waterGun', 'hypnosis'],
+    baseExpYield: 60, catchRate: 255,
+    levelUpMoves: [{ level: 5, moveKey: 'waterGun' }, { level: 8, moveKey: 'hypnosis' }, { level: 13, moveKey: 'bubbleBeam' }],
+    evolution: { level: 25, into: 'poliwhirl' },
+    abilities: ['waterAbsorb', 'swiftSwim'],
+  },
+  poliwhirl: {
+    id: 61, name: 'POLIWHIRL', types: ['water'],
+    baseHp: 65, baseAtk: 65, baseDef: 65, baseSpd: 90,
+    learnedMoves: ['bubbleBeam', 'waterGun', 'hypnosis', 'bodySlam'],
+    baseExpYield: 135, catchRate: 120,
+    levelUpMoves: [{ level: 28, moveKey: 'bodySlam' }, { level: 35, moveKey: 'surf' }],
+    abilities: ['waterAbsorb', 'swiftSwim'],
+  },
+
+  // Shellder + Cloyster
+  shellder: {
+    id: 90, name: 'SHELLDER', types: ['water'],
+    baseHp: 30, baseAtk: 65, baseDef: 100, baseSpd: 40,
+    learnedMoves: ['tackle', 'waterGun', 'iceShard'],
+    baseExpYield: 61, catchRate: 190,
+    levelUpMoves: [{ level: 7, moveKey: 'waterGun' }, { level: 13, moveKey: 'icyWind' }, { level: 19, moveKey: 'auroraBeam' }, { level: 25, moveKey: 'iceBeam' }],
+    abilities: ['shellArmor', 'skillLink'],
+  },
+  cloyster: {
+    id: 91, name: 'CLOYSTER', types: ['water', 'ice'],
+    baseHp: 50, baseAtk: 95, baseDef: 180, baseSpd: 70,
+    learnedMoves: ['auroraBeam', 'iceBeam', 'hydroPump', 'spikeCannon'],
+    baseExpYield: 184, catchRate: 60,
+    levelUpMoves: [{ level: 28, moveKey: 'spikeCannon' }, { level: 35, moveKey: 'blizzard' }],
+    abilities: ['shellArmor', 'skillLink'],
+  },
+
+  // Horsea + Seadra
+  horsea: {
+    id: 116, name: 'HORSEA', types: ['water'],
+    baseHp: 30, baseAtk: 40, baseDef: 70, baseSpd: 60,
+    learnedMoves: ['bubbleBeam', 'waterGun', 'smokescreen'],
+    baseExpYield: 59, catchRate: 225,
+    levelUpMoves: [{ level: 5, moveKey: 'waterGun' }, { level: 10, moveKey: 'smokescreen' }, { level: 15, moveKey: 'bubbleBeam' }],
+    evolution: { level: 32, into: 'seadra' },
+    abilities: ['swiftSwim', 'sniper'],
+  },
+  seadra: {
+    id: 117, name: 'SEADRA', types: ['water'],
+    baseHp: 55, baseAtk: 65, baseDef: 95, baseSpd: 85,
+    learnedMoves: ['bubbleBeam', 'waterGun', 'hydroPump', 'dragonBreath'],
+    baseExpYield: 154, catchRate: 75,
+    levelUpMoves: [{ level: 35, moveKey: 'hydroPump' }, { level: 42, moveKey: 'dragonPulse' }],
+    abilities: ['poisonPoint', 'sniper'],
+  },
+
+  // Krabby + Kingler
+  krabby: {
+    id: 98, name: 'KRABBY', types: ['water'],
+    baseHp: 30, baseAtk: 105, baseDef: 90, baseSpd: 50,
+    learnedMoves: ['viceGrip', 'waterGun', 'bubbleBeam'],
+    baseExpYield: 65, catchRate: 225,
+    levelUpMoves: [{ level: 5, moveKey: 'waterGun' }, { level: 12, moveKey: 'bubbleBeam' }, { level: 18, moveKey: 'viceGrip' }],
+    evolution: { level: 28, into: 'kingler' },
+    abilities: ['hyperCutter', 'shellArmor'],
+  },
+  kingler: {
+    id: 99, name: 'KINGLER', types: ['water'],
+    baseHp: 55, baseAtk: 130, baseDef: 115, baseSpd: 75,
+    learnedMoves: ['viceGrip', 'bubbleBeam', 'surf', 'crabhammer'],
+    baseExpYield: 166, catchRate: 60,
+    levelUpMoves: [{ level: 30, moveKey: 'surf' }, { level: 38, moveKey: 'guillotine' }],
+    abilities: ['hyperCutter', 'shellArmor'],
+  },
+
   // Eevee
   eevee: {
     id: 133, name: 'EEVEE', types: ['normal'],
@@ -1886,6 +1978,28 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
     { species: 'gyarados', minLevel: 20, maxLevel: 25, weight: 2 },
     { species: 'rattata', minLevel: 8, maxLevel: 12, weight: 3 },
   ],
+  fishingGood: [
+    { species: 'magikarp', minLevel: 10, maxLevel: 20, weight: 30 },
+    { species: 'staryu', minLevel: 15, maxLevel: 25, weight: 20 },
+    { species: 'tentacool', minLevel: 15, maxLevel: 22, weight: 15 },
+    { species: 'squirtle', minLevel: 15, maxLevel: 20, weight: 10 },
+    { species: 'seel', minLevel: 18, maxLevel: 25, weight: 8 },
+    { species: 'gyarados', minLevel: 25, maxLevel: 32, weight: 8 },
+    { species: 'poliwag', minLevel: 15, maxLevel: 22, weight: 5 },
+    { species: 'shellder', minLevel: 18, maxLevel: 25, weight: 4 },
+  ],
+  fishingSuper: [
+    { species: 'gyarados', minLevel: 30, maxLevel: 40, weight: 25 },
+    { species: 'starmie', minLevel: 28, maxLevel: 35, weight: 15 },
+    { species: 'tentacruel', minLevel: 30, maxLevel: 38, weight: 12 },
+    { species: 'seadra', minLevel: 28, maxLevel: 35, weight: 10 },
+    { species: 'dewgong', minLevel: 32, maxLevel: 40, weight: 10 },
+    { species: 'cloyster', minLevel: 32, maxLevel: 40, weight: 8 },
+    { species: 'poliwhirl', minLevel: 25, maxLevel: 32, weight: 8 },
+    { species: 'lapras', minLevel: 35, maxLevel: 42, weight: 5 },
+    { species: 'dratini', minLevel: 25, maxLevel: 35, weight: 4 },
+    { species: 'kingler', minLevel: 30, maxLevel: 38, weight: 3 },
+  ],
   ceruleanCave: [
     { species: 'mewtwo', minLevel: 70, maxLevel: 70, weight: 3 },
     { species: 'gastly', minLevel: 45, maxLevel: 55, weight: 20 },
@@ -1966,6 +2080,8 @@ export const ITEMS: Record<string, ItemData> = {
   maxPotion:   { name: 'MAX POTION',  type: 'medicine', description: 'Fully restores HP.', healAmount: 9999, price: 2500 },
   repel:       { name: 'REPEL',       type: 'repel',    description: 'Prevents encounters (100 steps).', price: 350 },
   oldRod:      { name: 'OLD ROD',    type: 'key',      description: 'Fish in water for POKéMON.', price: 0 },
+  goodRod:     { name: 'GOOD ROD',   type: 'key',      description: 'Catch better water POKéMON.', price: 0 },
+  superRod:    { name: 'SUPER ROD',  type: 'key',      description: 'Catch rare water POKéMON.', price: 0 },
   expShare:    { name: 'EXP. SHARE', type: 'key',     description: 'Party POKéMON get 50% EXP from battle.', price: 3000 },
 };
 

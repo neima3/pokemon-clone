@@ -383,6 +383,30 @@ export const SFX = {
     
     setTimeout(() => returnGain(gain), (duration + 0.1) * 1000);
   },
+
+  fishing() {
+    // Water splash and tug sound
+    playNoise(0.1, 0);
+    playTone(NOTE.G3, 0.08, 'sine');
+    playTone(NOTE.C4, 0.1, 'sine', sfxGain!, 0.08);
+    playTone(NOTE.E4, 0.12, 'sine', sfxGain!, 0.18);
+  },
+
+  fishingBite() {
+    // Exciting bite sound
+    playTone(NOTE.C5, 0.06, 'square');
+    playTone(NOTE.E5, 0.06, 'square', sfxGain!, 0.06);
+    playTone(NOTE.G5, 0.1, 'square', sfxGain!, 0.12);
+    playNoise(0.05, 0.08);
+  },
+
+  vsSeeker() {
+    // Electronic seeking sound
+    const notes = [NOTE.C5, NOTE.E5, NOTE.G5, NOTE.B5, NOTE.C6];
+    notes.forEach((n, i) => {
+      playTone(n, 0.08, 'square', sfxGain!, i * 0.06);
+    });
+  },
 };
 
 // ── Music ──
