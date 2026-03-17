@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.0] - 2026-03-17
+
+### Added
+- Sprint 029: Infatuation, Phazing & Delayed Effects
+- Infatuation system: Attract move causes 50% skip chance when in love
+- Phazing moves: Roar, Whirlwind force opponent to switch out
+- Damaging phazing: Dragon Tail, Circle Throw deal damage and force switch
+- Yawn delayed sleep: Target falls asleep after 1 turn
+- Wish delayed heal: Heals 50% HP after 2 turns
+- Mean Look/Block: Prevents target from switching
+- Heal Bell/Aromatherapy: Cures status conditions for entire team
+
+### Technical
+- Added infatuated, drowsy, wishTurns, wishHealAmount, cantSwitch states to Pokemon class
+- Extended TurnResult with infatuated, infatuatedTarget, phazed, yawned, wishActivated, preventedSwitch, teamCured fields
+- Added checkDrowsy(), checkWish() functions to BattleEngine
+- Updated canAct() to handle infatuation 50% skip chance
+- Oblivious ability now prevents infatuation
+- Added new move effects: attract, phaze, yawn, wish, prevent_switch, team_cure
+
 ## [0.27.0] - 2026-03-17
 
 ### Added

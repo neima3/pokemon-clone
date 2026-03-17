@@ -106,6 +106,14 @@ export interface TurnResult {
   disabled?: string;
   encored?: string;
   taunted?: boolean;
+  infatuated?: boolean;
+  infatuatedTarget?: string;
+  phazed?: boolean;
+  yawned?: boolean;
+  wishActivated?: boolean;
+  wishHeal?: number;
+  preventedSwitch?: boolean;
+  teamCured?: boolean;
 }
 
   
@@ -159,6 +167,12 @@ export function canAct(mon: Pokemon): ActResult {
       return { canAct: false, message: `${mon.name} is confused! It hurt itself in confusion!`, confusionHit: true, confusionDamage: damage };
     }
     return { canAct: true, message: `${mon.name} is confused!` };
+  }
+  
+  if (mon.infatuated) {
+    if (Math.random() < 0.5) {
+      return { canAct: false, message: `${mon.name} is in love and can't move!` };
+    }
   }
   
   return { canAct: true };
@@ -525,6 +539,40 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
       defender.tauntTurns = 3;
       result.taunted = true;
       result.statusMessage = `${defender.name} fell for the TAUNT!`;
+    } else if (effect === 'attract') {
+      if (defender.ability?.effect === 'no_attract') {
+        result.statusMessage = `${defender.name}'s OBLIVIOUS prevented infatuation!`;
+      } else if (!defender.infatuated) {
+        defender.infatuated = true;
+        defender.infatuatedTarget = attacker.speciesKey;
+        result.infatuated = true;
+        result.infatuatedTarget = attacker.name;
+        result.statusMessage = `${defender.name} fell in love with ${attacker.name}!`;
+      } else {
+        result.statusMessage = `${defender.name} is already in love!`;
+      }
+    } else if (effect === 'phaze') {
+      result.phazed = true;
+      result.statusMessage = `${defender.name} was blown away!`;
+    } else if (effect === 'yawn') {
+      if (!defender.status && !defender.drowsy) {
+        defender.drowsy = true;
+        result.yawned = true;
+        result.statusMessage = `${defender.name} grew drowsy!`;
+      } else {
+        result.statusMessage = `But it failed!`;
+      }
+    } else if (effect === 'wish') {
+      attacker.wishTurns = 2;
+      attacker.wishHealAmount = Math.floor(attacker.maxHp * 0.5);
+      result.statusMessage = `${attacker.name} made a wish!`;
+    } else if (effect === 'prevent_switch') {
+      defender.cantSwitch = true;
+      result.preventedSwitch = true;
+      result.statusMessage = `${defender.name} can no longer escape!`;
+    } else if (effect === 'team_cure') {
+      result.teamCured = true;
+      result.statusMessage = `A bell chimed! The team's status conditions were cured!`;
     }
     return result;
   }
@@ -980,4 +1028,38 @@ export function decrementTurnCounters(mon: Pokemon): void {
       mon.taunted = false;
     }
   }
+  
+  if (mon.wishTurns > 0) {
+    mon.wishTurns--;
+  }
+}
+
+export interface DrowsyResult {
+  fellAsleep: boolean;
+  message?: string;
+}
+
+export function checkDrowsy(mon: Pokemon): DrowsyResult {
+  if (mon.drowsy && !mon.status) {
+    mon.drowsy = false;
+    mon.status = 'sleep';
+    mon.sleepTurns = 2 + Math.floor(Math.random() * 2);
+    return { fellAsleep: true, message: `${mon.name} fell asleep!` };
+  }
+  return { fellAsleep: false };
+}
+
+export interface WishResult {
+  healed: number;
+  message?: string;
+}
+
+export function checkWish(mon: Pokemon): WishResult {
+  if (mon.wishTurns === 0 && mon.wishHealAmount > 0) {
+    const healAmount = Math.min(mon.wishHealAmount, mon.maxHp - mon.hp);
+    mon.hp = Math.min(mon.maxHp, mon.hp + healAmount);
+    mon.wishHealAmount = 0;
+    return { healed: healAmount, message: `${mon.name}'s wish came true!` };
+  }
+  return { healed: 0 };
 }

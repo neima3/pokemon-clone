@@ -80,6 +80,16 @@ export class Pokemon {
   taunted = false;
   tauntTurns = 0;
 
+  infatuated = false;
+  infatuatedTarget: string | null = null;
+  
+  drowsy = false;
+  
+  wishTurns = 0;
+  wishHealAmount = 0;
+  
+  cantSwitch = false;
+
   constructor(speciesKey: string, level: number, badgeCount: number = 0) {
     const species = SPECIES[speciesKey];
     if (!species) throw new Error(`Unknown species: ${speciesKey}`);
@@ -215,6 +225,12 @@ export class Pokemon {
     this.encoreTurns = 0;
     this.taunted = false;
     this.tauntTurns = 0;
+    this.infatuated = false;
+    this.infatuatedTarget = null;
+    this.drowsy = false;
+    this.wishTurns = 0;
+    this.wishHealAmount = 0;
+    this.cantSwitch = false;
   }
 
   heal() {
@@ -241,6 +257,12 @@ export class Pokemon {
     this.encoreTurns = 0;
     this.taunted = false;
     this.tauntTurns = 0;
+    this.infatuated = false;
+    this.infatuatedTarget = null;
+    this.drowsy = false;
+    this.wishTurns = 0;
+    this.wishHealAmount = 0;
+    this.cantSwitch = false;
     for (const m of this.moves) m.pp = m.data.maxPp;
   }
 

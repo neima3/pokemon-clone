@@ -444,7 +444,7 @@ export interface MoveData {
   accuracy: number;
   maxPp: number;
   category: 'physical' | 'status';
-  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect' | 'spikes' | 'stealth_rock' | 'toxic_spikes' | 'clear_hazards' | 'baton_pass' | 'u_turn' | 'substitute' | 'trap' | 'disable' | 'encore' | 'taunt';
+  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect' | 'spikes' | 'stealth_rock' | 'toxic_spikes' | 'clear_hazards' | 'baton_pass' | 'u_turn' | 'substitute' | 'trap' | 'disable' | 'encore' | 'taunt' | 'attract' | 'phaze' | 'yawn' | 'wish' | 'prevent_switch' | 'team_cure';
   statusEffect?: StatusCondition;
   statusChance?: number;
   confuseChance?: number;
@@ -568,7 +568,7 @@ export const MOVES: Record<string, MoveData> = {
   flareBlitz:   { name: 'FLARE BLITZ', type: 'fire',     power: 120, accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'burn', statusChance: 10, recoil: 33 },
   takeDown:     { name: 'TAKE DOWN',   type: 'normal',   power: 90,  accuracy: 85,  maxPp: 20, category: 'physical', recoil: 25 },
   crunch:       { name: 'CRUNCH',      type: 'normal',   power: 80,  accuracy: 100, maxPp: 15, category: 'physical', effect: 'lower_defense' },
-  roar:         { name: 'ROAR',        type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'lower_attack' },
+  roar:         { name: 'ROAR',        type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'phaze', priority: -6 },
   willOWisp:    { name: 'WILL-O-WISP',type: 'fire',     power: 0,   accuracy: 85,  maxPp: 15, category: 'status', effect: 'burn' },
   quickAttack2: { name: 'QUICK ATK',   type: 'normal',   power: 40,  accuracy: 100, maxPp: 30, category: 'physical' },
   wrapMove:     { name: 'WRAP',        type: 'normal',   power: 15,  accuracy: 90,  maxPp: 20, category: 'physical', effect: 'trap', trapTurns: [4, 5] },
@@ -673,6 +673,17 @@ export const MOVES: Record<string, MoveData> = {
   disableMove:  { name: 'DISABLE',     type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'disable' },
   encoreMove:   { name: 'ENCORE',      type: 'normal',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'encore' },
   tauntMove:    { name: 'TAUNT',       type: 'dark',     power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'taunt' },
+  // Sprint 029: Infatuation, Phazing, Delayed Effects
+  attract:      { name: 'ATTRACT',     type: 'normal',   power: 0,   accuracy: 100, maxPp: 15, category: 'status', effect: 'attract' },
+  whirlwind:    { name: 'WHIRLWIND',   type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'phaze', priority: -6 },
+  dragonTail:   { name: 'DRAGON TAIL', type: 'dragon',   power: 60,  accuracy: 90,  maxPp: 10, category: 'physical', effect: 'phaze', priority: -6 },
+  circleThrow:  { name: 'CIRCLE THRW', type: 'fighting', power: 60,  accuracy: 90,  maxPp: 10, category: 'physical', effect: 'phaze', priority: -6 },
+  yawnMove:     { name: 'YAWN',        type: 'normal',   power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'yawn' },
+  wishMove:     { name: 'WISH',        type: 'normal',   power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'wish' },
+  meanLook:     { name: 'MEAN LOOK',   type: 'normal',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'prevent_switch' },
+  block:        { name: 'BLOCK',       type: 'normal',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'prevent_switch' },
+  healBell:     { name: 'HEAL BELL',   type: 'normal',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'team_cure' },
+  aromatherapy: { name: 'AROMATHERPY', type: 'grass',    power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'team_cure' },
 };
 
 // ── Species ──

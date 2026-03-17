@@ -4,7 +4,7 @@ import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
-import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters } from './BattleEngine';
+import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters, checkDrowsy, checkWish } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition } from './data';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
@@ -1164,6 +1164,32 @@ export class BattleScene implements Scene {
     if (enemyTrap?.message) msgs.push(enemyTrap.message);
     if (enemyTrap?.damage && enemyTrap.damage > 0) {
       this.enemyDisplayHp = this.enemyMon.hp;
+    }
+
+    // Check for drowsy (Yawn effect)
+    const playerDrowsy = checkDrowsy(this.playerMon);
+    if (playerDrowsy.message) msgs.push(playerDrowsy.message);
+    
+    const enemyDrowsy = checkDrowsy(this.enemyMon);
+    if (enemyDrowsy.message) msgs.push(enemyDrowsy.message);
+
+    // Check for Wish healing
+    const playerWish = checkWish(this.playerMon);
+    if (playerWish.message) {
+      msgs.push(playerWish.message);
+      if (playerWish.healed > 0) {
+        this.healParticles.push(...HealParticles.create(this.playerSpriteX + 20, 100, 12));
+        this.playerDisplayHp = this.playerMon.hp;
+      }
+    }
+    
+    const enemyWish = checkWish(this.enemyMon);
+    if (enemyWish.message) {
+      msgs.push(enemyWish.message);
+      if (enemyWish.healed > 0) {
+        this.healParticles.push(...HealParticles.create(this.enemySpriteX + 20, 40, 12));
+        this.enemyDisplayHp = this.enemyMon.hp;
+      }
     }
 
     decrementTurnCounters(this.playerMon);
