@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-03-17
+
+### Added
+- Sprint 014: Pokemon League & Endgame Content
+- Pokemon League area added to map (Victory Road entrance path)
+- Elite Four and Champion NPCs: Lorelei (Ice), Bruno (Fighting), Agatha (Ghost), Lance (Dragon), Champion Gary
+- New Pokémon: Ekans (#23), Arbok (#24), Aerodactyl (#142)
+- Status condition visual effects in battles (particles for poison, burn, paralyze, sleep)
+- Sprites for Arbok and Aerodactyl
+
+### Fixed
+- Fixed syntax error in TitleScene.ts import statement
+- Fixed malformed code in BattleUI.ts status particles implementation
+- Restored missing DamageNumbers export in BattleUI.ts
+
 ## [0.13.1] - 2026-03-17
 
 ### Added

@@ -780,55 +780,115 @@ export interface DamageNumber {
   critical: boolean;
 }
 
+export interface StatusParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  color: string;
+  type: 'poison' | 'burn' | 'paralyze' | 'sleep';
+}
+
+export const StatusParticles = {
+  create(type: StatusCondition): StatusParticle[] {
+    const particles: StatusParticle[] = []
+    const count = type === 'sleep' ? 2 : 5
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * 320,
+        y: Math.random() * 240,
+        vx: (Math.random() - 0.5) * 40,
+        vy: type === 'sleep' ? -15 : -20 - Math.random() * 30,
+        life: 0.8 + Math.random() * 0.4,
+        maxLife: 0.8 + Math.random() * 0.4,
+        size: 2 + Math.random() * 4,
+        color: type === 'poison' ? '#a040a0' : type === 'burn' ? '#f08030' : type === 'paralyze' ? '#f8d030' : '#a8a878',
+        type,
+      })
+    }
+    return particles
+  },
+
+  update(particles: StatusParticle[], dt: number): void {
+    for (const p of particles) {
+      p.x += p.vx * dt
+      p.y += p.vy * dt
+      p.life -= dt
+    }
+  },
+
+  render(ctx: CanvasRenderingContext2D, particles: StatusParticle[]): void {
+    for (const p of particles) {
+      if (p.life <= 0) continue
+      const alpha = Math.max(0, p.life / p.maxLife)
+      ctx.globalAlpha = alpha
+      ctx.fillStyle = p.color
+
+      switch (p.type) {
+        case 'poison':
+          ctx.beginPath()
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+          ctx.fill()
+          break
+        case 'burn':
+          ctx.beginPath()
+          ctx.moveTo(p.x, p.y - p.size * 2)
+          ctx.lineTo(p.x + p.size, p.y + p.size)
+          ctx.lineTo(p.x - p.size, p.y + p.size)
+          ctx.closePath()
+          ctx.fill()
+          break
+        case 'paralyze':
+          ctx.fillRect(p.x - p.size / 2, p.y, p.size, 2)
+          ctx.fillRect(p.x, p.y - p.size / 2, 2, p.size)
+          break
+        case 'sleep':
+          ctx.font = `bold ${Math.floor(p.size * 2)}px monospace`
+          ctx.fillText('z', p.x, p.y)
+          break
+      }
+    }
+    ctx.globalAlpha = 1
+  },
+};
+
 export const DamageNumbers = {
-  create(value: number, isPlayer: boolean, isHeal: boolean = false, critical: boolean = false): DamageNumber {
+  create(value: number, isPlayer: boolean, isHeal: boolean, critical: boolean): DamageNumber {
     return {
-      x: isPlayer ? 80 : 230,
-      y: isPlayer ? 100 : 50,
+      x: isPlayer ? 80 : 200,
+      y: isPlayer ? 60 : 30,
       value,
       timer: 0,
-      maxTimer: 1.2,
+      maxTimer: 1,
       isPlayer,
       isHeal,
       critical,
-    };
-  },
-
-  update(dn: DamageNumber, dt: number) {
-    dn.timer += dt;
-    dn.y -= dt * 30;
-  },
-
-  render(ctx: CanvasRenderingContext2D, dn: DamageNumber) {
-    const progress = dn.timer / dn.maxTimer;
-    if (progress >= 1) return;
-
-    const alpha = progress > 0.7 ? 1 - (progress - 0.7) / 0.3 : 1;
-    const scale = dn.critical ? 1.3 : 1;
-    const offsetY = Math.sin(progress * Math.PI) * 10;
-
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.font = `bold ${Math.floor(12 * scale)}px monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    let color = dn.isHeal ? '#48b048' : (dn.critical ? '#f8d830' : '#f85888');
-    if (dn.value === 0 && !dn.isHeal) color = '#808080';
-
-    ctx.fillStyle = '#000000';
-    ctx.fillText(dn.isHeal ? `+${dn.value}` : `${dn.value}`, dn.x + 1, dn.y + offsetY + 1);
-
-    ctx.fillStyle = color;
-    ctx.fillText(dn.isHeal ? `+${dn.value}` : `${dn.value}`, dn.x, dn.y + offsetY);
-
-    if (dn.critical) {
-      ctx.font = 'bold 8px monospace';
-      ctx.fillStyle = '#f8d830';
-      ctx.fillText('CRITICAL!', dn.x, dn.y + offsetY - 16);
     }
+  },
 
-    ctx.restore();
-    ctx.textAlign = 'left';
+  update(dn: DamageNumber, dt: number): void {
+    dn.timer += dt
+    dn.y -= dt * 15
+  },
+
+  render(ctx: CanvasRenderingContext2D, dn: DamageNumber): void {
+    if (dn.timer >= dn.maxTimer) return
+    const alpha = 1 - (dn.timer / dn.maxTimer)
+    ctx.globalAlpha = alpha
+    ctx.font = `bold ${dn.critical ? 14 : 12}px monospace`
+    ctx.textAlign = 'center'
+    if (dn.isHeal) {
+      ctx.fillStyle = '#40c040'
+    } else if (dn.critical) {
+      ctx.fillStyle = '#f8d830'
+    } else {
+      ctx.fillStyle = '#f8f8f8'
+    }
+    ctx.fillText((dn.isHeal ? '+' : '') + dn.value.toString(), dn.x, dn.y)
+    ctx.textAlign = 'left'
+    ctx.globalAlpha = 1
   },
 };

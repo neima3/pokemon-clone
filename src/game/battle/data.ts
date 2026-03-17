@@ -1091,10 +1091,38 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 211, catchRate: 45,
     levelUpMoves: [{ level: 16, moveKey: 'stomp' }, { level: 22, moveKey: 'bodySlam' }, { level: 30, moveKey: 'takeDown' }, { level: 38, moveKey: 'hyperBeam' }],
   },
+
+  // ── Sprint 014 Pokemon ──
+
+  // Arbok (Ekans evolution)
+  ekans: {
+    id: 23, name: 'EKANS', types: ['poison'],
+    baseHp: 35, baseAtk: 60, baseDef: 44, baseSpd: 55,
+    learnedMoves: ['poisonSting', 'leer', 'bite'],
+    baseExpYield: 58, catchRate: 255,
+    levelUpMoves: [{ level: 7, moveKey: 'bite' }, { level: 12, moveKey: 'acid' }, { level: 18, moveKey: 'wrapMove' }, { level: 24, moveKey: 'sludgeBomb' }],
+    evolution: { level: 22, into: 'arbok' },
+  },
+  arbok: {
+    id: 24, name: 'ARBOK', types: ['poison'],
+    baseHp: 60, baseAtk: 85, baseDef: 69, baseSpd: 80,
+    learnedMoves: ['bite', 'acid', 'wrapMove', 'sludgeBomb'],
+    baseExpYield: 157, catchRate: 90,
+    levelUpMoves: [{ level: 26, moveKey: 'crunch' }, { level: 32, moveKey: 'sludgeWave' }, { level: 38, moveKey: 'gigaDrain' }],
+  },
+
+  // Aerodactyl (fossil Pokemon)
+  aerodactyl: {
+    id: 142, name: 'AERODACTYL', types: ['rock', 'flying'],
+    baseHp: 80, baseAtk: 105, baseDef: 65, baseSpd: 130,
+    learnedMoves: ['tackle', 'wingAttack', 'bite', 'rockSlide'],
+    baseExpYield: 202, catchRate: 45,
+    levelUpMoves: [{ level: 20, moveKey: 'wingAttack' }, { level: 26, moveKey: 'bite' }, { level: 32, moveKey: 'rockSlide' }, { level: 38, moveKey: 'hyperBeam' }, { level: 44, moveKey: 'gigaDrain' }],
+  },
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon', 'raichu', 'meowth', 'persian', 'nidoking', 'kangaskhan', 'tauros'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon', 'raichu', 'meowth', 'persian', 'nidoking', 'kangaskhan', 'tauros', 'ekans', 'aerodactyl'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
@@ -1301,11 +1329,12 @@ export function calculateExpGain(defeatedSpeciesKey: string, defeatedLevel: numb
 export interface TrainerData {
   name: string;
   team: Array<{ species: string; level: number }>;
-  reward: number; // money
+  reward: number;
   defeatMessage: string;
   sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3' | 'gymLeader4' | 'gymLeader5' | 'gymLeader6' | 'gymLeader7' | 'gymLeader8';
   isGymLeader?: boolean;
   badgeName?: string;
+  isEliteFour?: boolean;
 }
 
 export const TRAINERS: Record<string, TrainerData> = {
@@ -1555,5 +1584,49 @@ export const TRAINERS: Record<string, TrainerData> = {
     sprite: 'gymLeader8',
     isGymLeader: true,
     badgeName: 'EARTH BADGE',
+  },
+  // Elite Four — Lorelei (Ice type specialist)
+  elite_lorelei: {
+    name: 'ELITE LORELEI',
+    team: [{ species: 'dewgong', level: 54 }, { species: 'lapras', level: 53 }, { species: 'jynx', level: 56 }],
+    reward: 5700,
+    defeatMessage: "Your skills are impressive... but not enough for the Elite Four!",
+    sprite: 'gymLeader7',
+    isEliteFour: true,
+  },
+  // Elite Four — Agatha (Ghost type specialist)
+  elite_agatha: {
+    name: 'ELITE AGATHA',
+    team: [{ species: 'haunter', level: 54 }, { species: 'gengar', level: 53 }, { species: 'gengar', level: 56 }],
+    reward: 5700,
+    defeatMessage: "Your spirit is strong... but can you withstand the darkness?",
+    sprite: 'gymLeader6',
+    isEliteFour: true,
+  },
+  // Elite Four — Bruno (Fighting type specialist)
+  elite_bruno: {
+    name: 'ELITE BRUNO',
+    team: [{ species: 'hitmonlee', level: 55 }, { species: 'hitmonchan', level: 55 }, { species: 'machamp', level: 58 }],
+    reward: 5800,
+    defeatMessage: "Your fighting spirit is admirable! But you need more power!",
+    sprite: 'gymLeader5',
+    isEliteFour: true,
+  },
+  // Elite Four — Lance (Dragon type specialist)
+  elite_lance: {
+    name: 'ELITE LANCE',
+    team: [{ species: 'dragonair', level: 55 }, { species: 'gyarados', level: 56 }, { species: 'dragonite', level: 60 }],
+    reward: 6000,
+    defeatMessage: "Magnificent battle! But you must face the Champion next!",
+    sprite: 'gymLeader4',
+    isEliteFour: true,
+  },
+  // Champion — Gary (Mixed type master)
+  champion_gary: {
+    name: 'CHAMPION GARY',
+    team: [{ species: 'gengar', level: 54 }, { species: 'haunter', level: 53 }, { species: 'arbok', level: 55 }, { species: 'alakazam', level: 57 }, { species: 'rhydon', level: 59 }, { species: 'gyarados', level: 61 }],
+    reward: 15000,
+    defeatMessage: "NO! I was so close! You... you truly are a POKéMON MASTER!",
+    sprite: 'gymLeader8',
   },
 };

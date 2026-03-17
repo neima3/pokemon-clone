@@ -2,7 +2,7 @@ import type { Scene } from '@/engine/Scene';
 import { Input } from '@/engine/Input';
 import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
-import { BattleUI, DamageNumber, DamageNumbers } from './BattleUI';
+import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
 import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType } from './data';
@@ -71,6 +71,11 @@ export class BattleScene implements Scene {
 
   // Damage numbers
   private damageNumbers: DamageNumber[] = [];
+  
+  // Status particles
+  private statusParticles: StatusParticle[] = [];
+
+  // Catch animation state
 
   // Catch animation state
   private catchTimer = 0;
@@ -182,6 +187,28 @@ export class BattleScene implements Scene {
       DamageNumbers.update(dn, dt);
     }
     this.damageNumbers = this.damageNumbers.filter(dn => dn.timer < dn.maxTimer);
+
+    // Update status particles
+    StatusParticles.update(this.statusParticles, dt);
+    this.statusParticles = this.statusParticles.filter(p => p.life > 0);
+
+    // Spawn status particles for Pokemon with status conditions
+    if (this.playerMon.status && this.phase !== 'intro' && Math.random() < dt * 2) {
+      const particles = StatusParticles.create(this.playerMon.status);
+      for (const p of particles) {
+        p.x = this.playerSpriteX + 20 + Math.random() * 40;
+        p.y = 80 + Math.random() * 30;
+      }
+      this.statusParticles.push(...particles);
+    }
+    if (this.enemyMon.status && this.phase !== 'intro' && Math.random() < dt * 2) {
+      const particles = StatusParticles.create(this.enemyMon.status);
+      for (const p of particles) {
+        p.x = this.enemySpriteX + Math.random() * 50;
+        p.y = 20 + Math.random() * 30;
+      }
+      this.statusParticles.push(...particles);
+    }
 
     switch (this.phase) {
       case 'intro': this.updateIntro(dt); break;
@@ -1363,6 +1390,9 @@ export class BattleScene implements Scene {
     for (const dn of this.damageNumbers) {
       DamageNumbers.render(ctx, dn);
     }
+
+    // Render status particles
+    StatusParticles.render(ctx, this.statusParticles);
 
     // Restore screen shake transform
     if (this.screenShake > 0) {

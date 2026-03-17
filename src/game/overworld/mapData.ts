@@ -1,9 +1,9 @@
 import { Tile } from './tiles';
 import { NPCData } from './NPC';
 
-/** 50×66 overworld map — expanded with a town, routes, and buildings */
+/** 50×76 overworld map — expanded with Pokemon League area */
 export const MAP_WIDTH = 50;
-export const MAP_HEIGHT = 66;
+export const MAP_HEIGHT = 76;
 
 const T = Tile.Tree;
 const G = Tile.Grass;
@@ -93,10 +93,23 @@ export const MAP_DATA: Tile[] = [
   T, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 63
   T, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, P, g, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 64
   T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 65
+// ── Victory Road entrance path ──
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 66
+  T, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, G, G, T,  // 67
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, T,  // 68
+  T, G, G, G, P, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, T,  // 69
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, T,  // 70
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, T,  // 71
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, T,  // 72
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, T,  // 73
+  T, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, G, G, T,  // 74
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 75
 ];
 
 /** Get the route zone for a given grid position */
 export function getRouteZone(gx: number, gy: number): string {
+  // Pokemon League: rows 66+
+  if (gy >= 66) return 'pokemonLeague';
   // Town area: roughly rows 4-15, cols 8-22
   if (gy >= 4 && gy <= 15 && gx >= 8 && gx <= 22) return 'town';
   // Route 9: rows 56+ (Viridian City / Giovanni's Gym)
@@ -540,5 +553,65 @@ export const MAP_NPCS: NPCData[] = [
     dialogue: ['Hmph! So you made it this far.', 'I am GIOVANNI, the final GYM LEADER!', 'My Ground-type POKéMON will bury you!', 'Now face the true power of TEAM ROCKET!'],
     isTrainer: true,
     trainerId: 'gym_giovanni',
+  },
+  // ── Pokemon League — Elite Four ──
+  // Elite Four — Lorelei (Ice type)
+  {
+    id: 'elite_lorelei',
+    gx: 10, gy: 68,
+    sprite: 'gymLeader7',
+    facing: 'down',
+    dialogue: ['Welcome to the POKéMON LEAGUE!', 'I am LORELEI of the ELITE FOUR!', 'No one can beat my ICE POKéMON!', 'Prepare to freeze!'],
+    isTrainer: true,
+    trainerId: 'elite_lorelei',
+  },
+  // Elite Four — Agatha (Ghost type)
+  {
+    id: 'elite_agatha',
+    gx: 40, gy: 68,
+    sprite: 'gymLeader6',
+    facing: 'down',
+    dialogue: ['I am AGATHA of the ELITE FOUR!', 'POKéMON and I have grown old together...', 'But my GHOST POKéMON are ageless!', 'Let me show you their power!'],
+    isTrainer: true,
+    trainerId: 'elite_agatha',
+  },
+  // Elite Four — Bruno (Fighting type)
+  {
+    id: 'elite_bruno',
+    gx: 10, gy: 72,
+    sprite: 'gymLeader5',
+    facing: 'down',
+    dialogue: ['I am BRUNO of the ELITE FOUR!', 'Through rigorous training...', 'My FIGHTING POKéMON have become unstoppable!', 'Have you got what it takes?!'],
+    isTrainer: true,
+    trainerId: 'elite_bruno',
+  },
+  // Elite Four — Lance (Dragon type)
+  {
+    id: 'elite_lance',
+    gx: 40, gy: 72,
+    sprite: 'gymLeader4',
+    facing: 'down',
+    dialogue: ['I am LANCE, the DRAGON MASTER!', 'For years I have trained DRAGON POKéMON...', 'They are nearly indestructible!', 'Show me your spirit!'],
+    isTrainer: true,
+    trainerId: 'elite_lance',
+  },
+  // Champion — Gary
+  {
+    id: 'champion_gary',
+    gx: 25, gy: 70,
+    sprite: 'gymLeader8',
+    facing: 'down',
+    dialogue: ['So you made it this far...', 'I am the POKéMON LEAGUE CHAMPION!', 'I\'ve been waiting for this moment!', 'Let\'s see who the real master is!'],
+    isTrainer: true,
+    trainerId: 'champion_gary',
+  },
+  // Pokemon League helper NPC
+  {
+    id: 'league_helper',
+    gx: 25, gy: 67,
+    sprite: 'shopkeeper',
+    facing: 'down',
+    dialogue: ['Welcome to the POKéMON LEAGUE!', 'Defeat the ELITE FOUR and CHAMPION to become a POKéMON MASTER!', 'Good luck, trainer!'],
+    isTrainer: false,
   },
 ];

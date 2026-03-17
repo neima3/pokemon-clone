@@ -4784,6 +4784,120 @@ SPRITES[107] = {
   },
 };
 
+// ── Sprint 014 Pokemon Sprites ──
+
+// ── Arbok (24) ──
+SPRITES[24] = {
+  front: (ctx, x, y) => {
+    // Body (large cobra)
+    ctx.fillStyle = '#602878';
+    ctx.fillRect(x + 10, y + 18, 32, 24); // coiled body
+    ctx.fillRect(x + 14, y + 36, 8, 10); // tail left
+    ctx.fillRect(x + 30, y + 36, 8, 10); // tail right
+    // Hood (flared cobra hood)
+    ctx.fillStyle = '#783090';
+    ctx.fillRect(x + 4, y + 4, 14, 16); // left hood
+    ctx.fillRect(x + 34, y + 4, 14, 16); // right hood
+    // Head
+    ctx.fillStyle = '#602878';
+    ctx.fillRect(x + 14, y + 6, 22, 14);
+    // Face pattern (intimidating)
+    ctx.fillStyle = '#f8c030';
+    ctx.fillRect(x + 6, y + 8, 6, 8); // left hood pattern
+    ctx.fillRect(x + 40, y + 8, 6, 8); // right hood pattern
+    // Belly stripes
+    ctx.fillStyle = '#d88030';
+    ctx.fillRect(x + 16, y + 22, 6, 16);
+    ctx.fillRect(x + 26, y + 22, 6, 16);
+    // Eyes (menacing)
+    ctx.fillStyle = '#f8f8f8';
+    ctx.fillRect(x + 18, y + 10, 6, 5);
+    ctx.fillRect(x + 28, y + 10, 6, 5);
+    ctx.fillStyle = '#081820';
+    ctx.fillRect(x + 20, y + 11, 3, 3);
+    ctx.fillRect(x + 30, y + 11, 3, 3);
+    // Mouth
+    ctx.fillStyle = '#c02050';
+    ctx.fillRect(x + 22, y + 16, 8, 3);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#602878';
+    ctx.fillRect(x + 10, y + 18, 32, 24);
+    ctx.fillRect(x + 14, y + 36, 8, 10);
+    ctx.fillRect(x + 30, y + 36, 8, 10);
+    ctx.fillStyle = '#783090';
+    ctx.fillRect(x + 4, y + 4, 14, 16);
+    ctx.fillRect(x + 34, y + 4, 14, 16);
+    ctx.fillStyle = '#602878';
+    ctx.fillRect(x + 14, y + 6, 22, 14);
+    ctx.fillStyle = '#d88030';
+    ctx.fillRect(x + 16, y + 22, 6, 16);
+    ctx.fillRect(x + 26, y + 22, 6, 16);
+  },
+};
+
+// ── Aerodactyl (142) ──
+SPRITES[142] = {
+  front: (ctx, x, y) => {
+    // Wings (large pterodactyl wings)
+    ctx.fillStyle = '#6078a0';
+    ctx.fillRect(x + 0, y + 8, 18, 20); // left wing
+    ctx.fillRect(x + 34, y + 8, 18, 20); // right wing
+    ctx.fillStyle = '#405878';
+    ctx.fillRect(x + 2, y + 12, 12, 12);
+    ctx.fillRect(x + 38, y + 12, 12, 12);
+    // Body (gray dinosaur)
+    ctx.fillStyle = '#807878';
+    ctx.fillRect(x + 14, y + 12, 24, 20); // body
+    ctx.fillRect(x + 18, y + 30, 8, 8); // left leg
+    ctx.fillRect(x + 28, y + 30, 8, 8); // right leg
+    // Head (pointed, dinosaur)
+    ctx.fillStyle = '#807878';
+    ctx.fillRect(x + 16, y + 0, 20, 14);
+    ctx.fillRect(x + 10, y + 2, 8, 10); // jaw
+    // Horn/crest
+    ctx.fillStyle = '#605858';
+    ctx.fillRect(x + 32, y + 0, 6, 8);
+    // Eyes (fierce)
+    ctx.fillStyle = '#f8f8f8';
+    ctx.fillRect(x + 20, y + 4, 6, 5);
+    ctx.fillStyle = '#c02020';
+    ctx.fillRect(x + 22, y + 5, 3, 3);
+    // Mouth with teeth
+    ctx.fillStyle = '#c0a890';
+    ctx.fillRect(x + 12, y + 10, 12, 3);
+    ctx.fillStyle = '#f8f8f8';
+    ctx.fillRect(x + 14, y + 10, 2, 2);
+    ctx.fillRect(x + 18, y + 10, 2, 2);
+    // Claws
+    ctx.fillStyle = '#f0e0d0';
+    ctx.fillRect(x + 18, y + 38, 3, 4);
+    ctx.fillRect(x + 23, y + 38, 3, 4);
+    ctx.fillRect(x + 31, y + 38, 3, 4);
+    ctx.fillRect(x + 36, y + 38, 3, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#6078a0';
+    ctx.fillRect(x + 0, y + 8, 18, 20);
+    ctx.fillRect(x + 34, y + 8, 18, 20);
+    ctx.fillStyle = '#405878';
+    ctx.fillRect(x + 2, y + 12, 12, 12);
+    ctx.fillRect(x + 38, y + 12, 12, 12);
+    ctx.fillStyle = '#807878';
+    ctx.fillRect(x + 14, y + 12, 24, 20);
+    ctx.fillRect(x + 16, y + 0, 20, 14);
+    ctx.fillStyle = '#605858';
+    ctx.fillRect(x + 32, y + 0, 6, 8);
+    ctx.fillRect(x + 18, y + 30, 8, 8);
+    ctx.fillRect(x + 28, y + 30, 8, 8);
+    ctx.fillStyle = '#f0e0d0';
+    ctx.fillRect(x + 18, y + 38, 3, 4);
+    ctx.fillRect(x + 23, y + 38, 3, 4);
+    ctx.fillRect(x + 31, y + 38, 3, 4);
+    ctx.fillRect(x + 36, y + 38, 3, 4);
+  },
+};
+
 export function drawPokemonFront(ctx: CanvasRenderingContext2D, speciesId: number, x: number, y: number, visible = true) {
   if (!visible) return;
   SPRITES[speciesId]?.front(ctx, x, y);

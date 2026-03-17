@@ -1,6 +1,6 @@
 import type { Scene } from '@/engine/Scene';
 import { Input } from '@/engine/Input';
-import { SFX } from '@/engine/Audio';
+import { SFX, Music } from '@/engine/Audio';
 import { COLORS } from './overworld/tiles';
 import { drawPokemonFront } from './battle/sprites';
 
@@ -80,6 +80,7 @@ export class TitleScene implements Scene {
   onEnter() {
     this.input.clear();
     this.fadeInAlpha = 0;
+    Music.title();
   }
 
   update(dt: number) {
