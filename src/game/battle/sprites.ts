@@ -2082,6 +2082,30 @@ const C8 = {
   tangGreen: '#3090a0', tangVine: '#206870',
   gastPurple: '#7060a0', gastDark: '#483868', gastGas: '#a090c0',
   snorlCream: '#e8d8a0', snorlDark: '#386048', snorlBelly: '#f8f0c8',
+  // Gengar
+  genPurple: '#705898', genDark: '#483870', genLight: '#9878c0',
+  // Alakazam
+  alakYellow: '#d8b040', alakBrown: '#b08820', alakArmor: '#8b6914',
+  // Hypno
+  hypYellow: '#e8c860', hypBrown: '#a07030', hypWhite: '#f8f0d0',
+  // Clefairy
+  clefPink: '#f8a0b0', clefDark: '#d07888', clefEar: '#905848',
+  // Seel
+  seelWhite: '#e8e8f0', seelLight: '#c8c8d8', seelCream: '#f0e8d0',
+  // Dewgong
+  dewWhite: '#f0f0f8', dewLight: '#d0d0e0', dewHorn: '#e8d8b0',
+  // Jynx
+  jynxPurple: '#9060a0', jynxBlonde: '#f8d860', jynxRed: '#e05050', jynxSkin: '#c080a0',
+  // Lapras
+  lapBlue: '#5888c0', lapCream: '#f0e0b8', lapShell: '#808898', lapDark: '#386098',
+  // Eevee
+  eevBrown: '#c08848', eevCream: '#f8e8c0', eevDark: '#906830', eevFluff: '#f0d898',
+  // Mr. Mime
+  mimePink: '#f0a0b0', mimeBlue: '#6888c0', mimeSkin: '#f8d8b0',
+  // Dratini
+  dratBlue: '#7098c8', dratLight: '#a0c0e0', dratWhite: '#f0f0f8',
+  // Dragonair
+  dragBlue: '#5080b8', dragLight: '#88b0d8', dragOrb: '#5858c8', dragWing: '#e0e8f0',
 };
 
 // Bellsprout (69)
@@ -2639,6 +2663,798 @@ SPRITES[143] = {
   },
 };
 
+// ── Clefairy (35) ──
+SPRITES[35] = {
+  front: (ctx, x, y) => {
+    // Body (round, pink)
+    ctx.fillStyle = C8.clefPink;
+    ctx.fillRect(x + 12, y + 18, 28, 26);
+    ctx.fillRect(x + 16, y + 14, 20, 6);
+    // Ears (pointed with brown tips)
+    ctx.fillRect(x + 8, y + 8, 8, 14);
+    ctx.fillRect(x + 36, y + 8, 8, 14);
+    ctx.fillStyle = C8.clefEar;
+    ctx.fillRect(x + 8, y + 8, 4, 6);
+    ctx.fillRect(x + 40, y + 8, 4, 6);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 22, 6, 6);
+    ctx.fillRect(x + 28, y + 22, 6, 6);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 19, y + 23, 3, 3);
+    ctx.fillRect(x + 29, y + 23, 3, 3);
+    // Mouth
+    ctx.fillStyle = C8.clefDark;
+    ctx.fillRect(x + 22, y + 32, 8, 2);
+    // Curled tuft on forehead
+    ctx.fillStyle = C8.clefPink;
+    ctx.fillRect(x + 22, y + 10, 8, 6);
+    ctx.fillRect(x + 24, y + 7, 4, 5);
+    // Wings/arms
+    ctx.fillRect(x + 4, y + 22, 10, 10);
+    ctx.fillRect(x + 38, y + 22, 10, 10);
+    // Fingers
+    ctx.fillStyle = C8.clefDark;
+    ctx.fillRect(x + 4, y + 30, 3, 4);
+    ctx.fillRect(x + 7, y + 30, 3, 4);
+    ctx.fillRect(x + 42, y + 30, 3, 4);
+    ctx.fillRect(x + 45, y + 30, 3, 4);
+    // Feet
+    ctx.fillStyle = C8.clefPink;
+    ctx.fillRect(x + 16, y + 42, 10, 6);
+    ctx.fillRect(x + 28, y + 42, 10, 6);
+    // Tail (curly)
+    ctx.fillRect(x + 38, y + 36, 8, 3);
+    ctx.fillRect(x + 44, y + 32, 4, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.clefPink;
+    ctx.fillRect(x + 12, y + 18, 28, 26);
+    ctx.fillRect(x + 16, y + 14, 20, 6);
+    ctx.fillRect(x + 8, y + 8, 8, 14);
+    ctx.fillRect(x + 36, y + 8, 8, 14);
+    ctx.fillStyle = C8.clefEar;
+    ctx.fillRect(x + 8, y + 8, 4, 6);
+    ctx.fillRect(x + 40, y + 8, 4, 6);
+    ctx.fillStyle = C8.clefPink;
+    ctx.fillRect(x + 22, y + 10, 8, 6);
+    ctx.fillRect(x + 4, y + 22, 10, 10);
+    ctx.fillRect(x + 38, y + 22, 10, 10);
+    ctx.fillRect(x + 16, y + 42, 10, 6);
+    ctx.fillRect(x + 28, y + 42, 10, 6);
+    // Tail (curly, prominent from behind)
+    ctx.fillRect(x + 38, y + 34, 10, 4);
+    ctx.fillRect(x + 46, y + 28, 4, 10);
+    ctx.fillRect(x + 42, y + 26, 6, 4);
+  },
+};
+
+// ── Alakazam (65) ──
+SPRITES[65] = {
+  front: (ctx, x, y) => {
+    // Body (slim, yellow)
+    ctx.fillStyle = C8.alakYellow;
+    ctx.fillRect(x + 18, y + 24, 20, 18);
+    ctx.fillStyle = C8.alakBrown;
+    ctx.fillRect(x + 22, y + 28, 12, 10);
+    // Head (large, angular)
+    ctx.fillStyle = C8.alakYellow;
+    ctx.fillRect(x + 12, y + 2, 28, 24);
+    ctx.fillRect(x + 16, y + 0, 20, 4);
+    // Ears (very large, pointed)
+    ctx.fillRect(x + 4, y + -4, 12, 16);
+    ctx.fillRect(x + 38, y + -4, 12, 16);
+    ctx.fillStyle = C8.alakBrown;
+    ctx.fillRect(x + 6, y + -2, 8, 12);
+    ctx.fillRect(x + 40, y + -2, 8, 12);
+    // Eyes (intense)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 16, y + 10, 8, 6);
+    ctx.fillRect(x + 30, y + 10, 8, 6);
+    ctx.fillStyle = '#58a8f8';
+    ctx.fillRect(x + 17, y + 11, 6, 4);
+    ctx.fillRect(x + 31, y + 11, 6, 4);
+    // Large mustache
+    ctx.fillStyle = C8.alakArmor;
+    ctx.fillRect(x + 10, y + 20, 12, 4);
+    ctx.fillRect(x + 32, y + 20, 12, 4);
+    ctx.fillRect(x + 8, y + 22, 6, 3);
+    ctx.fillRect(x + 40, y + 22, 6, 3);
+    // Star on forehead
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 22, y + 4, 8, 6);
+    // Two spoons
+    ctx.fillStyle = '#c0c0c0';
+    ctx.fillRect(x + 0, y + 24, 3, 18);
+    ctx.fillRect(x + 49, y + 24, 3, 18);
+    ctx.fillStyle = '#e0e0e0';
+    ctx.fillRect(x + -2, y + 20, 7, 6);
+    ctx.fillRect(x + 47, y + 20, 7, 6);
+    // Arms
+    ctx.fillStyle = C8.alakYellow;
+    ctx.fillRect(x + 6, y + 28, 12, 4);
+    ctx.fillRect(x + 38, y + 28, 12, 4);
+    // Legs
+    ctx.fillRect(x + 20, y + 42, 8, 8);
+    ctx.fillRect(x + 30, y + 42, 8, 8);
+    // Tail
+    ctx.fillRect(x + 4, y + 36, 14, 3);
+    ctx.fillRect(x + 0, y + 32, 8, 8);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.alakYellow;
+    ctx.fillRect(x + 18, y + 24, 20, 18);
+    ctx.fillRect(x + 12, y + 2, 28, 24);
+    ctx.fillRect(x + 4, y + -4, 12, 16);
+    ctx.fillRect(x + 38, y + -4, 12, 16);
+    ctx.fillStyle = C8.alakBrown;
+    ctx.fillRect(x + 6, y + -2, 8, 12);
+    ctx.fillRect(x + 40, y + -2, 8, 12);
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 22, y + 4, 8, 6);
+    ctx.fillStyle = C8.alakYellow;
+    ctx.fillRect(x + 6, y + 28, 12, 4);
+    ctx.fillRect(x + 38, y + 28, 12, 4);
+    ctx.fillRect(x + 20, y + 42, 8, 8);
+    ctx.fillRect(x + 30, y + 42, 8, 8);
+    ctx.fillRect(x + 4, y + 36, 14, 3);
+    ctx.fillRect(x + 0, y + 32, 8, 8);
+    // Spoons visible from behind
+    ctx.fillStyle = '#c0c0c0';
+    ctx.fillRect(x + 2, y + 24, 3, 16);
+    ctx.fillRect(x + 47, y + 24, 3, 16);
+  },
+};
+
+// ── Seel (86) ──
+SPRITES[86] = {
+  front: (ctx, x, y) => {
+    // Body (round, white seal)
+    ctx.fillStyle = C8.seelWhite;
+    ctx.fillRect(x + 8, y + 22, 36, 22);
+    ctx.fillRect(x + 12, y + 18, 28, 6);
+    // Head
+    ctx.fillRect(x + 14, y + 6, 24, 18);
+    ctx.fillRect(x + 18, y + 4, 16, 4);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 12, 5, 5);
+    ctx.fillRect(x + 30, y + 12, 5, 5);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 19, y + 13, 2, 2);
+    ctx.fillRect(x + 31, y + 13, 2, 2);
+    // Nose
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 24, y + 18, 4, 3);
+    // Horn on head
+    ctx.fillStyle = C8.seelCream;
+    ctx.fillRect(x + 24, y + 0, 4, 6);
+    ctx.fillRect(x + 23, y + 2, 6, 3);
+    // Mouth
+    ctx.fillStyle = C8.seelLight;
+    ctx.fillRect(x + 20, y + 20, 12, 2);
+    // Flippers
+    ctx.fillStyle = C8.seelWhite;
+    ctx.fillRect(x + 2, y + 28, 10, 6);
+    ctx.fillRect(x + 40, y + 28, 10, 6);
+    ctx.fillStyle = C8.seelLight;
+    ctx.fillRect(x + 2, y + 32, 4, 4);
+    ctx.fillRect(x + 46, y + 32, 4, 4);
+    // Tail
+    ctx.fillStyle = C8.seelWhite;
+    ctx.fillRect(x + 16, y + 42, 20, 6);
+    ctx.fillStyle = C8.seelLight;
+    ctx.fillRect(x + 12, y + 44, 8, 6);
+    ctx.fillRect(x + 32, y + 44, 8, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.seelWhite;
+    ctx.fillRect(x + 8, y + 22, 36, 22);
+    ctx.fillRect(x + 14, y + 6, 24, 18);
+    ctx.fillRect(x + 18, y + 4, 16, 4);
+    ctx.fillStyle = C8.seelCream;
+    ctx.fillRect(x + 24, y + 0, 4, 6);
+    ctx.fillStyle = C8.seelWhite;
+    ctx.fillRect(x + 2, y + 28, 10, 6);
+    ctx.fillRect(x + 40, y + 28, 10, 6);
+    ctx.fillRect(x + 16, y + 42, 20, 6);
+    ctx.fillStyle = C8.seelLight;
+    ctx.fillRect(x + 12, y + 44, 8, 6);
+    ctx.fillRect(x + 32, y + 44, 8, 6);
+  },
+};
+
+// ── Dewgong (87) ──
+SPRITES[87] = {
+  front: (ctx, x, y) => {
+    // Body (larger, sleek white seal)
+    ctx.fillStyle = C8.dewWhite;
+    ctx.fillRect(x + 6, y + 20, 40, 26);
+    ctx.fillRect(x + 10, y + 16, 32, 6);
+    // Head
+    ctx.fillRect(x + 12, y + 2, 28, 18);
+    ctx.fillRect(x + 16, y + 0, 20, 4);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 16, y + 8, 6, 6);
+    ctx.fillRect(x + 30, y + 8, 6, 6);
+    ctx.fillStyle = '#4070b0';
+    ctx.fillRect(x + 17, y + 9, 4, 4);
+    ctx.fillRect(x + 31, y + 9, 4, 4);
+    // Horn
+    ctx.fillStyle = C8.dewHorn;
+    ctx.fillRect(x + 23, y + -4, 6, 6);
+    ctx.fillRect(x + 24, y + -6, 4, 4);
+    // Mouth
+    ctx.fillStyle = C8.dewLight;
+    ctx.fillRect(x + 20, y + 16, 12, 2);
+    // Flippers
+    ctx.fillStyle = C8.dewWhite;
+    ctx.fillRect(x + 0, y + 24, 10, 8);
+    ctx.fillRect(x + 42, y + 24, 10, 8);
+    ctx.fillStyle = C8.dewLight;
+    ctx.fillRect(x + 0, y + 30, 4, 4);
+    ctx.fillRect(x + 48, y + 30, 4, 4);
+    // Tail (elegant, forked)
+    ctx.fillStyle = C8.dewWhite;
+    ctx.fillRect(x + 16, y + 44, 20, 4);
+    ctx.fillStyle = C8.dewLight;
+    ctx.fillRect(x + 10, y + 46, 10, 6);
+    ctx.fillRect(x + 32, y + 46, 10, 6);
+    ctx.fillRect(x + 8, y + 48, 6, 4);
+    ctx.fillRect(x + 38, y + 48, 6, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.dewWhite;
+    ctx.fillRect(x + 6, y + 18, 40, 26);
+    ctx.fillRect(x + 12, y + 2, 28, 18);
+    ctx.fillRect(x + 16, y + 0, 20, 4);
+    ctx.fillStyle = C8.dewHorn;
+    ctx.fillRect(x + 23, y + -4, 6, 6);
+    ctx.fillRect(x + 24, y + -6, 4, 4);
+    ctx.fillStyle = C8.dewWhite;
+    ctx.fillRect(x + 0, y + 24, 10, 8);
+    ctx.fillRect(x + 42, y + 24, 10, 8);
+    ctx.fillRect(x + 16, y + 44, 20, 4);
+    ctx.fillStyle = C8.dewLight;
+    ctx.fillRect(x + 10, y + 46, 10, 6);
+    ctx.fillRect(x + 32, y + 46, 10, 6);
+  },
+};
+
+// ── Gengar (94) ──
+SPRITES[94] = {
+  front: (ctx, x, y) => {
+    // Body (round, dark purple ghost)
+    ctx.fillStyle = C8.genPurple;
+    ctx.fillRect(x + 6, y + 14, 40, 30);
+    ctx.fillRect(x + 10, y + 10, 32, 6);
+    ctx.fillRect(x + 10, y + 42, 32, 4);
+    // Spiky ears/points
+    ctx.fillRect(x + 4, y + 6, 10, 12);
+    ctx.fillRect(x + 38, y + 6, 10, 12);
+    ctx.fillRect(x + 6, y + 2, 6, 8);
+    ctx.fillRect(x + 40, y + 2, 6, 8);
+    // Eyes (large, red, menacing)
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 12, y + 18, 10, 8);
+    ctx.fillRect(x + 30, y + 18, 10, 8);
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 16, y + 20, 5, 5);
+    ctx.fillRect(x + 34, y + 20, 5, 5);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 22, 2, 2);
+    ctx.fillRect(x + 36, y + 22, 2, 2);
+    // Wide grin with teeth
+    ctx.fillStyle = C8.genDark;
+    ctx.fillRect(x + 12, y + 30, 28, 8);
+    ctx.fillStyle = C.white;
+    // Top teeth
+    ctx.fillRect(x + 14, y + 30, 4, 3);
+    ctx.fillRect(x + 20, y + 30, 4, 3);
+    ctx.fillRect(x + 26, y + 30, 4, 3);
+    ctx.fillRect(x + 32, y + 30, 4, 3);
+    // Bottom teeth
+    ctx.fillRect(x + 17, y + 35, 4, 3);
+    ctx.fillRect(x + 23, y + 35, 4, 3);
+    ctx.fillRect(x + 29, y + 35, 4, 3);
+    // Hands (stubby, clawed)
+    ctx.fillStyle = C8.genPurple;
+    ctx.fillRect(x + 0, y + 26, 8, 10);
+    ctx.fillRect(x + 44, y + 26, 8, 10);
+    ctx.fillStyle = C8.genDark;
+    ctx.fillRect(x + 0, y + 34, 3, 4);
+    ctx.fillRect(x + 4, y + 34, 3, 4);
+    ctx.fillRect(x + 45, y + 34, 3, 4);
+    ctx.fillRect(x + 49, y + 34, 3, 4);
+    // Feet
+    ctx.fillStyle = C8.genPurple;
+    ctx.fillRect(x + 14, y + 44, 10, 6);
+    ctx.fillRect(x + 28, y + 44, 10, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.genPurple;
+    ctx.fillRect(x + 6, y + 12, 40, 32);
+    ctx.fillRect(x + 10, y + 8, 32, 6);
+    ctx.fillRect(x + 4, y + 4, 10, 12);
+    ctx.fillRect(x + 38, y + 4, 10, 12);
+    ctx.fillRect(x + 6, y + 0, 6, 8);
+    ctx.fillRect(x + 40, y + 0, 6, 8);
+    ctx.fillStyle = C8.genDark;
+    ctx.fillRect(x + 14, y + 16, 24, 20);
+    ctx.fillStyle = C8.genPurple;
+    ctx.fillRect(x + 0, y + 24, 8, 10);
+    ctx.fillRect(x + 44, y + 24, 8, 10);
+    ctx.fillRect(x + 14, y + 42, 10, 6);
+    ctx.fillRect(x + 28, y + 42, 10, 6);
+  },
+};
+
+// ── Hypno (97) ──
+SPRITES[97] = {
+  front: (ctx, x, y) => {
+    // Body (yellow humanoid)
+    ctx.fillStyle = C8.hypYellow;
+    ctx.fillRect(x + 14, y + 22, 28, 24);
+    // White ruff/collar
+    ctx.fillStyle = C8.hypWhite;
+    ctx.fillRect(x + 12, y + 22, 32, 6);
+    // Head
+    ctx.fillStyle = C8.hypYellow;
+    ctx.fillRect(x + 14, y + 2, 26, 22);
+    ctx.fillRect(x + 18, y + 0, 18, 4);
+    // Pointed nose
+    ctx.fillRect(x + 36, y + 12, 8, 6);
+    ctx.fillRect(x + 42, y + 14, 4, 3);
+    // Eyes (sleepy, triangular)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 10, 8, 6);
+    ctx.fillRect(x + 28, y + 10, 8, 6);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 19, y + 11, 5, 4);
+    ctx.fillRect(x + 29, y + 11, 5, 4);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 21, y + 12, 2, 2);
+    ctx.fillRect(x + 31, y + 12, 2, 2);
+    // Ears
+    ctx.fillStyle = C8.hypYellow;
+    ctx.fillRect(x + 10, y + 6, 6, 10);
+    // Pendulum (held in hand)
+    ctx.fillStyle = '#c0c0c0';
+    ctx.fillRect(x + 6, y + 30, 2, 18);
+    ctx.fillStyle = C8.hypYellow;
+    ctx.fillRect(x + 2, y + 46, 10, 6);
+    ctx.fillRect(x + 4, y + 44, 6, 3);
+    // Arms
+    ctx.fillStyle = C8.hypBrown;
+    ctx.fillRect(x + 6, y + 26, 10, 6);
+    ctx.fillRect(x + 40, y + 26, 10, 6);
+    // Legs
+    ctx.fillStyle = C8.hypBrown;
+    ctx.fillRect(x + 18, y + 44, 10, 8);
+    ctx.fillRect(x + 30, y + 44, 10, 8);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.hypYellow;
+    ctx.fillRect(x + 14, y + 22, 28, 24);
+    ctx.fillStyle = C8.hypWhite;
+    ctx.fillRect(x + 12, y + 22, 32, 6);
+    ctx.fillStyle = C8.hypYellow;
+    ctx.fillRect(x + 14, y + 2, 26, 22);
+    ctx.fillRect(x + 18, y + 0, 18, 4);
+    ctx.fillRect(x + 10, y + 6, 6, 10);
+    ctx.fillStyle = C8.hypBrown;
+    ctx.fillRect(x + 6, y + 26, 10, 6);
+    ctx.fillRect(x + 40, y + 26, 10, 6);
+    ctx.fillRect(x + 18, y + 44, 10, 8);
+    ctx.fillRect(x + 30, y + 44, 10, 8);
+  },
+};
+
+// ── Mr. Mime (122) ──
+SPRITES[122] = {
+  front: (ctx, x, y) => {
+    // Body
+    ctx.fillStyle = C8.mimePink;
+    ctx.fillRect(x + 16, y + 22, 20, 20);
+    // Blue spots on body
+    ctx.fillStyle = C8.mimeBlue;
+    ctx.fillRect(x + 18, y + 26, 6, 6);
+    ctx.fillRect(x + 28, y + 26, 6, 6);
+    // Head (round)
+    ctx.fillStyle = C8.mimeSkin;
+    ctx.fillRect(x + 12, y + 2, 28, 22);
+    // Pink cheeks/horns
+    ctx.fillStyle = C8.mimePink;
+    ctx.fillRect(x + 8, y + 4, 6, 10);
+    ctx.fillRect(x + 38, y + 4, 6, 10);
+    ctx.fillRect(x + 10, y + 0, 4, 6);
+    ctx.fillRect(x + 38, y + 0, 4, 6);
+    // Eyes (large)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 16, y + 10, 7, 7);
+    ctx.fillRect(x + 29, y + 10, 7, 7);
+    ctx.fillStyle = '#4080c0';
+    ctx.fillRect(x + 18, y + 12, 4, 4);
+    ctx.fillRect(x + 31, y + 12, 4, 4);
+    // Mouth
+    ctx.fillStyle = C8.mimePink;
+    ctx.fillRect(x + 22, y + 20, 8, 3);
+    // Mime hands (spread out, barrier pose)
+    ctx.fillStyle = C8.mimeSkin;
+    ctx.fillRect(x + 0, y + 20, 14, 6);
+    ctx.fillRect(x + 38, y + 20, 14, 6);
+    // Fingers spread
+    ctx.fillStyle = C8.mimePink;
+    ctx.fillRect(x + 0, y + 18, 3, 4);
+    ctx.fillRect(x + 4, y + 16, 3, 4);
+    ctx.fillRect(x + 8, y + 18, 3, 4);
+    ctx.fillRect(x + 41, y + 18, 3, 4);
+    ctx.fillRect(x + 45, y + 16, 3, 4);
+    ctx.fillRect(x + 49, y + 18, 3, 4);
+    // Legs
+    ctx.fillStyle = C8.mimePink;
+    ctx.fillRect(x + 18, y + 42, 6, 10);
+    ctx.fillRect(x + 28, y + 42, 6, 10);
+    // Blue shoes
+    ctx.fillStyle = C8.mimeBlue;
+    ctx.fillRect(x + 16, y + 48, 10, 4);
+    ctx.fillRect(x + 26, y + 48, 10, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.mimePink;
+    ctx.fillRect(x + 16, y + 22, 20, 20);
+    ctx.fillStyle = C8.mimeSkin;
+    ctx.fillRect(x + 12, y + 2, 28, 22);
+    ctx.fillStyle = C8.mimePink;
+    ctx.fillRect(x + 8, y + 4, 6, 10);
+    ctx.fillRect(x + 38, y + 4, 6, 10);
+    ctx.fillRect(x + 10, y + 0, 4, 6);
+    ctx.fillRect(x + 38, y + 0, 4, 6);
+    ctx.fillStyle = C8.mimeSkin;
+    ctx.fillRect(x + 0, y + 20, 14, 6);
+    ctx.fillRect(x + 38, y + 20, 14, 6);
+    ctx.fillStyle = C8.mimePink;
+    ctx.fillRect(x + 18, y + 42, 6, 10);
+    ctx.fillRect(x + 28, y + 42, 6, 10);
+    ctx.fillStyle = C8.mimeBlue;
+    ctx.fillRect(x + 16, y + 48, 10, 4);
+    ctx.fillRect(x + 26, y + 48, 10, 4);
+  },
+};
+
+// ── Jynx (124) ──
+SPRITES[124] = {
+  front: (ctx, x, y) => {
+    // Dress (red, wide)
+    ctx.fillStyle = C8.jynxRed;
+    ctx.fillRect(x + 6, y + 28, 40, 20);
+    ctx.fillRect(x + 10, y + 24, 32, 6);
+    // Body/torso
+    ctx.fillStyle = C8.jynxPurple;
+    ctx.fillRect(x + 16, y + 16, 20, 12);
+    // Head (purple face)
+    ctx.fillStyle = C8.jynxPurple;
+    ctx.fillRect(x + 14, y + 4, 24, 16);
+    // Blonde hair (big, flowing)
+    ctx.fillStyle = C8.jynxBlonde;
+    ctx.fillRect(x + 10, y + -2, 32, 10);
+    ctx.fillRect(x + 8, y + 4, 8, 14);
+    ctx.fillRect(x + 36, y + 4, 8, 14);
+    ctx.fillRect(x + 6, y + 14, 6, 10);
+    ctx.fillRect(x + 40, y + 14, 6, 10);
+    // Eyes
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 18, y + 8, 6, 5);
+    ctx.fillRect(x + 28, y + 8, 6, 5);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 9, 3, 3);
+    ctx.fillRect(x + 30, y + 9, 3, 3);
+    // Lips (big, red)
+    ctx.fillStyle = C8.jynxRed;
+    ctx.fillRect(x + 20, y + 16, 12, 4);
+    ctx.fillRect(x + 22, y + 14, 8, 2);
+    // Arms/hands
+    ctx.fillStyle = C8.jynxPurple;
+    ctx.fillRect(x + 4, y + 22, 12, 6);
+    ctx.fillRect(x + 36, y + 22, 12, 6);
+    // Feet (hidden by dress bottom)
+    ctx.fillStyle = C8.jynxRed;
+    ctx.fillRect(x + 12, y + 46, 12, 4);
+    ctx.fillRect(x + 28, y + 46, 12, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.jynxRed;
+    ctx.fillRect(x + 6, y + 28, 40, 20);
+    ctx.fillRect(x + 10, y + 24, 32, 6);
+    ctx.fillStyle = C8.jynxPurple;
+    ctx.fillRect(x + 16, y + 16, 20, 12);
+    ctx.fillRect(x + 14, y + 4, 24, 16);
+    // Hair (big, flowing from behind)
+    ctx.fillStyle = C8.jynxBlonde;
+    ctx.fillRect(x + 10, y + -2, 32, 10);
+    ctx.fillRect(x + 6, y + 4, 10, 18);
+    ctx.fillRect(x + 36, y + 4, 10, 18);
+    ctx.fillRect(x + 4, y + 16, 6, 10);
+    ctx.fillRect(x + 42, y + 16, 6, 10);
+    ctx.fillStyle = C8.jynxPurple;
+    ctx.fillRect(x + 4, y + 22, 12, 6);
+    ctx.fillRect(x + 36, y + 22, 12, 6);
+    ctx.fillStyle = C8.jynxRed;
+    ctx.fillRect(x + 12, y + 46, 12, 4);
+    ctx.fillRect(x + 28, y + 46, 12, 4);
+  },
+};
+
+// ── Lapras (131) ──
+SPRITES[131] = {
+  front: (ctx, x, y) => {
+    // Body (large, blue plesiosaur)
+    ctx.fillStyle = C8.lapBlue;
+    ctx.fillRect(x + 4, y + 24, 44, 22);
+    ctx.fillRect(x + 8, y + 20, 36, 6);
+    // Shell on back
+    ctx.fillStyle = C8.lapShell;
+    ctx.fillRect(x + 10, y + 20, 32, 14);
+    ctx.fillStyle = C8.lapDark;
+    ctx.fillRect(x + 14, y + 22, 6, 10);
+    ctx.fillRect(x + 22, y + 22, 8, 10);
+    ctx.fillRect(x + 32, y + 22, 6, 10);
+    // Belly (cream)
+    ctx.fillStyle = C8.lapCream;
+    ctx.fillRect(x + 12, y + 34, 28, 10);
+    // Long neck
+    ctx.fillStyle = C8.lapBlue;
+    ctx.fillRect(x + 18, y + 2, 14, 22);
+    ctx.fillRect(x + 20, y + 0, 10, 4);
+    // Head
+    ctx.fillRect(x + 14, y + -2, 22, 12);
+    // Horn/ear bumps
+    ctx.fillRect(x + 12, y + -6, 6, 6);
+    ctx.fillRect(x + 32, y + -6, 6, 6);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 16, y + 2, 6, 5);
+    ctx.fillRect(x + 28, y + 2, 6, 5);
+    ctx.fillStyle = '#4070b0';
+    ctx.fillRect(x + 17, y + 3, 4, 3);
+    ctx.fillRect(x + 29, y + 3, 4, 3);
+    // Mouth
+    ctx.fillStyle = C8.lapCream;
+    ctx.fillRect(x + 20, y + 8, 10, 2);
+    // Flippers
+    ctx.fillStyle = C8.lapBlue;
+    ctx.fillRect(x + 0, y + 30, 8, 10);
+    ctx.fillRect(x + 44, y + 30, 8, 10);
+    ctx.fillStyle = C8.lapDark;
+    ctx.fillRect(x + 0, y + 38, 4, 4);
+    ctx.fillRect(x + 48, y + 38, 4, 4);
+    // Tail
+    ctx.fillStyle = C8.lapBlue;
+    ctx.fillRect(x + 16, y + 44, 20, 4);
+    ctx.fillRect(x + 12, y + 46, 8, 4);
+    ctx.fillRect(x + 32, y + 46, 8, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.lapBlue;
+    ctx.fillRect(x + 4, y + 22, 44, 22);
+    ctx.fillStyle = C8.lapShell;
+    ctx.fillRect(x + 10, y + 18, 32, 14);
+    ctx.fillStyle = C8.lapDark;
+    ctx.fillRect(x + 14, y + 20, 6, 10);
+    ctx.fillRect(x + 22, y + 20, 8, 10);
+    ctx.fillRect(x + 32, y + 20, 6, 10);
+    ctx.fillStyle = C8.lapBlue;
+    ctx.fillRect(x + 18, y + 0, 14, 22);
+    ctx.fillRect(x + 14, y + -4, 22, 10);
+    ctx.fillRect(x + 12, y + -8, 6, 6);
+    ctx.fillRect(x + 32, y + -8, 6, 6);
+    ctx.fillRect(x + 0, y + 28, 8, 10);
+    ctx.fillRect(x + 44, y + 28, 8, 10);
+    ctx.fillRect(x + 16, y + 42, 20, 4);
+    ctx.fillRect(x + 12, y + 44, 8, 4);
+    ctx.fillRect(x + 32, y + 44, 8, 4);
+  },
+};
+
+// ── Eevee (133) ──
+SPRITES[133] = {
+  front: (ctx, x, y) => {
+    // Body (small, brown, fox-like)
+    ctx.fillStyle = C8.eevBrown;
+    ctx.fillRect(x + 14, y + 24, 24, 18);
+    // Fluffy collar/mane
+    ctx.fillStyle = C8.eevFluff;
+    ctx.fillRect(x + 10, y + 20, 32, 8);
+    ctx.fillRect(x + 12, y + 18, 28, 4);
+    // Head
+    ctx.fillStyle = C8.eevBrown;
+    ctx.fillRect(x + 14, y + 4, 24, 18);
+    ctx.fillRect(x + 18, y + 2, 16, 4);
+    // Large ears
+    ctx.fillRect(x + 8, y + -4, 10, 12);
+    ctx.fillRect(x + 34, y + -4, 10, 12);
+    ctx.fillStyle = C8.eevDark;
+    ctx.fillRect(x + 10, y + -2, 6, 8);
+    ctx.fillRect(x + 36, y + -2, 6, 8);
+    // Eyes (large, dark)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 10, 6, 6);
+    ctx.fillRect(x + 28, y + 10, 6, 6);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 19, y + 11, 3, 3);
+    ctx.fillRect(x + 29, y + 11, 3, 3);
+    // Nose
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 24, y + 16, 4, 3);
+    // Mouth
+    ctx.fillRect(x + 22, y + 18, 8, 1);
+    // Legs
+    ctx.fillStyle = C8.eevBrown;
+    ctx.fillRect(x + 16, y + 40, 8, 8);
+    ctx.fillRect(x + 28, y + 40, 8, 8);
+    // Paws (cream)
+    ctx.fillStyle = C8.eevCream;
+    ctx.fillRect(x + 16, y + 44, 8, 4);
+    ctx.fillRect(x + 28, y + 44, 8, 4);
+    // Bushy tail
+    ctx.fillStyle = C8.eevBrown;
+    ctx.fillRect(x + 36, y + 16, 10, 6);
+    ctx.fillRect(x + 40, y + 12, 8, 10);
+    ctx.fillStyle = C8.eevCream;
+    ctx.fillRect(x + 44, y + 14, 4, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.eevBrown;
+    ctx.fillRect(x + 14, y + 24, 24, 18);
+    ctx.fillStyle = C8.eevFluff;
+    ctx.fillRect(x + 10, y + 20, 32, 8);
+    ctx.fillRect(x + 12, y + 18, 28, 4);
+    ctx.fillStyle = C8.eevBrown;
+    ctx.fillRect(x + 14, y + 4, 24, 18);
+    ctx.fillRect(x + 8, y + -4, 10, 12);
+    ctx.fillRect(x + 34, y + -4, 10, 12);
+    ctx.fillStyle = C8.eevDark;
+    ctx.fillRect(x + 10, y + -2, 6, 8);
+    ctx.fillRect(x + 36, y + -2, 6, 8);
+    ctx.fillStyle = C8.eevBrown;
+    ctx.fillRect(x + 16, y + 40, 8, 8);
+    ctx.fillRect(x + 28, y + 40, 8, 8);
+    ctx.fillStyle = C8.eevCream;
+    ctx.fillRect(x + 16, y + 44, 8, 4);
+    ctx.fillRect(x + 28, y + 44, 8, 4);
+    // Big bushy tail (prominent from behind)
+    ctx.fillStyle = C8.eevBrown;
+    ctx.fillRect(x + 20, y + 14, 12, 10);
+    ctx.fillRect(x + 18, y + 10, 16, 6);
+    ctx.fillStyle = C8.eevCream;
+    ctx.fillRect(x + 22, y + 12, 8, 6);
+  },
+};
+
+// ── Dratini (147) ──
+SPRITES[147] = {
+  front: (ctx, x, y) => {
+    // Body (small blue serpent, coiled)
+    ctx.fillStyle = C8.dratBlue;
+    // Coiled body
+    ctx.fillRect(x + 12, y + 32, 28, 8);
+    ctx.fillRect(x + 8, y + 36, 8, 10);
+    ctx.fillRect(x + 36, y + 36, 8, 10);
+    ctx.fillRect(x + 12, y + 42, 28, 6);
+    // Neck rising up
+    ctx.fillRect(x + 20, y + 14, 12, 20);
+    // Head
+    ctx.fillRect(x + 16, y + 4, 20, 14);
+    ctx.fillRect(x + 20, y + 2, 12, 4);
+    // White belly stripe
+    ctx.fillStyle = C8.dratWhite;
+    ctx.fillRect(x + 22, y + 18, 8, 14);
+    ctx.fillRect(x + 14, y + 34, 24, 4);
+    // White belly on head
+    ctx.fillRect(x + 20, y + 12, 12, 6);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 6, 5, 5);
+    ctx.fillRect(x + 29, y + 6, 5, 5);
+    ctx.fillStyle = '#6060c0';
+    ctx.fillRect(x + 19, y + 7, 3, 3);
+    ctx.fillRect(x + 30, y + 7, 3, 3);
+    // Small horn/bump on forehead
+    ctx.fillStyle = C8.dratWhite;
+    ctx.fillRect(x + 24, y + 0, 4, 4);
+    // Tail tip
+    ctx.fillStyle = C8.dratLight;
+    ctx.fillRect(x + 10, y + 46, 6, 4);
+    ctx.fillRect(x + 36, y + 46, 6, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.dratBlue;
+    ctx.fillRect(x + 12, y + 32, 28, 8);
+    ctx.fillRect(x + 8, y + 36, 8, 10);
+    ctx.fillRect(x + 36, y + 36, 8, 10);
+    ctx.fillRect(x + 12, y + 42, 28, 6);
+    ctx.fillRect(x + 20, y + 14, 12, 20);
+    ctx.fillRect(x + 16, y + 4, 20, 14);
+    ctx.fillStyle = C8.dratWhite;
+    ctx.fillRect(x + 24, y + 0, 4, 4);
+    ctx.fillStyle = C8.dratLight;
+    ctx.fillRect(x + 10, y + 46, 6, 4);
+    ctx.fillRect(x + 36, y + 46, 6, 4);
+  },
+};
+
+// ── Dragonair (148) ──
+SPRITES[148] = {
+  front: (ctx, x, y) => {
+    // Body (elegant blue serpent, longer)
+    ctx.fillStyle = C8.dragBlue;
+    // Coiled lower body
+    ctx.fillRect(x + 10, y + 34, 32, 6);
+    ctx.fillRect(x + 6, y + 38, 10, 10);
+    ctx.fillRect(x + 36, y + 38, 10, 10);
+    ctx.fillRect(x + 10, y + 44, 32, 6);
+    // Long neck
+    ctx.fillRect(x + 20, y + 10, 12, 26);
+    // Head (elegant)
+    ctx.fillRect(x + 14, y + -2, 24, 16);
+    ctx.fillRect(x + 18, y + -4, 16, 4);
+    // White belly
+    ctx.fillStyle = C8.dragWing;
+    ctx.fillRect(x + 22, y + 16, 8, 18);
+    ctx.fillRect(x + 12, y + 36, 28, 4);
+    // Horn/crest on head
+    ctx.fillStyle = C8.dragWing;
+    ctx.fillRect(x + 22, y + -8, 8, 6);
+    ctx.fillRect(x + 24, y + -10, 4, 4);
+    // Wing-like ear fins
+    ctx.fillStyle = C8.dragBlue;
+    ctx.fillRect(x + 8, y + 0, 8, 10);
+    ctx.fillRect(x + 36, y + 0, 8, 10);
+    ctx.fillStyle = C8.dragLight;
+    ctx.fillRect(x + 10, y + 2, 4, 6);
+    ctx.fillRect(x + 38, y + 2, 4, 6);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 2, 6, 6);
+    ctx.fillRect(x + 28, y + 2, 6, 6);
+    ctx.fillStyle = '#4060c0';
+    ctx.fillRect(x + 19, y + 3, 4, 4);
+    ctx.fillRect(x + 29, y + 3, 4, 4);
+    // Crystal orbs on neck
+    ctx.fillStyle = C8.dragOrb;
+    ctx.fillRect(x + 22, y + 20, 8, 6);
+    ctx.fillStyle = '#7878e0';
+    ctx.fillRect(x + 24, y + 21, 4, 3);
+    // Tail orb
+    ctx.fillStyle = C8.dragOrb;
+    ctx.fillRect(x + 8, y + 46, 6, 6);
+    ctx.fillRect(x + 38, y + 46, 6, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.dragBlue;
+    ctx.fillRect(x + 10, y + 34, 32, 6);
+    ctx.fillRect(x + 6, y + 38, 10, 10);
+    ctx.fillRect(x + 36, y + 38, 10, 10);
+    ctx.fillRect(x + 10, y + 44, 32, 6);
+    ctx.fillRect(x + 20, y + 10, 12, 26);
+    ctx.fillRect(x + 14, y + -2, 24, 16);
+    ctx.fillStyle = C8.dragWing;
+    ctx.fillRect(x + 22, y + -8, 8, 6);
+    ctx.fillRect(x + 24, y + -10, 4, 4);
+    ctx.fillStyle = C8.dragBlue;
+    ctx.fillRect(x + 8, y + 0, 8, 10);
+    ctx.fillRect(x + 36, y + 0, 8, 10);
+    ctx.fillStyle = C8.dragLight;
+    ctx.fillRect(x + 10, y + 2, 4, 6);
+    ctx.fillRect(x + 38, y + 2, 4, 6);
+    ctx.fillStyle = C8.dragOrb;
+    ctx.fillRect(x + 22, y + 20, 8, 6);
+    ctx.fillRect(x + 8, y + 46, 6, 6);
+    ctx.fillRect(x + 38, y + 46, 6, 6);
+  },
+};
+
 export function drawPokemonFront(ctx: CanvasRenderingContext2D, speciesId: number, x: number, y: number, visible = true) {
   if (!visible) return;
   SPRITES[speciesId]?.front(ctx, x, y);
@@ -2835,6 +3651,30 @@ export function drawNPCSprite(ctx: CanvasRenderingContext2D, type: string, x: nu
       ctx.fillRect(x + 10, y + 1, 3, 3);
       ctx.fillStyle = '#f8d830';
       ctx.fillRect(x + 11, y + 2, 1, 1);
+      break;
+    case 'gymLeader5':
+      // Sabrina: long dark hair, psychic gym leader
+      ctx.fillStyle = '#181830';
+      ctx.fillRect(x + 3, y + 0, 10, 7); // dark hair top
+      ctx.fillRect(x + 2, y + 3, 3, 8); // long hair left
+      ctx.fillRect(x + 11, y + 3, 3, 8); // long hair right
+      ctx.fillStyle = '#282848';
+      ctx.fillRect(x + 4, y + -1, 8, 3); // hair bangs
+      ctx.fillStyle = '#f8d8b0';
+      ctx.fillRect(x + 5, y + 3, 6, 5); // face
+      // Eyes (intense, psychic)
+      ctx.fillStyle = '#8060c0';
+      ctx.fillRect(x + 5, y + 5, 2, 2);
+      ctx.fillRect(x + 9, y + 5, 2, 2);
+      // Red outfit
+      ctx.fillStyle = '#c03030';
+      ctx.fillRect(x + 4, y + 8, 8, 5); // top
+      ctx.fillStyle = '#a02828';
+      ctx.fillRect(x + 3, y + 13, 10, 3); // skirt
+      // Long hair flowing down sides
+      ctx.fillStyle = '#181830';
+      ctx.fillRect(x + 1, y + 8, 3, 8);
+      ctx.fillRect(x + 12, y + 8, 3, 8);
       break;
     default:
       // Generic NPC

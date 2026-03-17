@@ -13,7 +13,7 @@ type Phase =
   | 'animating' | 'result'
   | 'bag' | 'party'
   | 'catching' | 'exp'
-  | 'evolving';
+  | 'evolving' | 'learnMove';
 
 export class BattleScene implements Scene {
   private input: Input;
@@ -84,6 +84,12 @@ export class BattleScene implements Scene {
   // Evolution state
   private evolveTimer = 0;
   private evolvingMon: Pokemon | null = null;
+
+  // Move learning state
+  private learnMoveMon: Pokemon | null = null;
+  private learnMoveKey: string = '';
+  private learnMovePendingQueue: Array<{ mon: Pokemon; moveKey: string }> = [];
+  private learnMoveConfirm = false; // true = asking "forget which move?"
 
   constructor(input: Input, gameState: GameState, enemyMon: Pokemon, onEnd: (won: boolean) => void, trainerId?: string) {
     this.input = input;
@@ -177,6 +183,7 @@ export class BattleScene implements Scene {
       case 'party': this.updateParty(); break;
       case 'catching': this.updateCatching(dt); break;
       case 'evolving': this.updateEvolving(dt); break;
+      case 'learnMove': this.updateLearnMove(); break;
       case 'exp': break;
     }
   }
@@ -600,6 +607,98 @@ export class BattleScene implements Scene {
     }
   }
 
+  // ── Move Learning ──
+
+  private updateLearnMove() {
+    if (!this.learnMoveMon || !this.learnMoveKey) return;
+
+    const dir = this.input.getDirectionPressed();
+    const moveData = MOVES[this.learnMoveKey];
+    if (!moveData) { this.finishLearnMove(); return; }
+
+    if (!this.learnMoveConfirm) {
+      // Asking: "Want to learn X? Yes/No"
+      if (dir === 'left' || dir === 'right') {
+        this.cursor = this.cursor === 0 ? 1 : 0;
+        SFX.menuSelect();
+      }
+      if (this.input.getActionPressed()) {
+        SFX.menuConfirm();
+        if (this.cursor === 0) {
+          // Yes - show move selection
+          this.learnMoveConfirm = true;
+          this.cursor = 0;
+        } else {
+          // No - skip this move
+          this.queueMessages([`${this.learnMoveMon.name} did not learn ${moveData.name}.`], () => {
+            this.finishLearnMove();
+          });
+        }
+      }
+      if (this.input.getCancelPressed()) {
+        SFX.menuCancel();
+        this.queueMessages([`${this.learnMoveMon.name} did not learn ${moveData.name}.`], () => {
+          this.finishLearnMove();
+        });
+      }
+    } else {
+      // Selecting which move to forget
+      if (dir === 'up' && this.cursor > 0) { this.cursor--; SFX.menuSelect(); }
+      if (dir === 'down' && this.cursor < 4) { this.cursor++; SFX.menuSelect(); }
+
+      if (this.input.getCancelPressed()) {
+        SFX.menuCancel();
+        this.learnMoveConfirm = false;
+        this.cursor = 0;
+        return;
+      }
+
+      if (this.input.getActionPressed()) {
+        SFX.menuConfirm();
+        if (this.cursor === 4) {
+          // Cancel - don't learn
+          this.queueMessages([`${this.learnMoveMon.name} did not learn ${moveData.name}.`], () => {
+            this.finishLearnMove();
+          });
+        } else {
+          const oldMove = this.learnMoveMon.moves[this.cursor];
+          this.learnMoveMon.replaceMove(this.cursor, this.learnMoveKey);
+          this.queueMessages(
+            [`1, 2, and... Poof!`, `${this.learnMoveMon.name} forgot ${oldMove.data.name}!`, `And... ${this.learnMoveMon.name} learned ${moveData.name}!`],
+            () => { this.finishLearnMove(); },
+          );
+        }
+      }
+    }
+  }
+
+  private finishLearnMove() {
+    this.learnMoveMon = null;
+    this.learnMoveKey = '';
+    this.learnMoveConfirm = false;
+    // Check if there are more pending moves
+    if (this.learnMovePendingQueue.length > 0) {
+      const next = this.learnMovePendingQueue.shift()!;
+      this.startLearnMove(next.mon, next.moveKey);
+    } else {
+      // Continue to evolution check
+      this.checkTeamEvolution();
+    }
+  }
+
+  private startLearnMove(mon: Pokemon, moveKey: string) {
+    const moveData = MOVES[moveKey];
+    if (!moveData) { this.finishLearnMove(); return; }
+    this.learnMoveMon = mon;
+    this.learnMoveKey = moveKey;
+    this.learnMoveConfirm = false;
+    this.cursor = 0;
+    this.queueMessages(
+      [`${mon.name} wants to learn ${moveData.name}!`, `But ${mon.name} already knows 4 moves.`, `Forget a move to learn ${moveData.name}?`],
+      () => { this.phase = 'learnMove'; this.cursor = 0; },
+    );
+  }
+
   private checkTeamEvolution() {
     for (const mon of this.gameState.team) {
       if (mon.canEvolve) {
@@ -911,6 +1010,10 @@ export class BattleScene implements Scene {
           msgs.push(`${this.playerMon.name} learned ${moveData.name}!`);
         }
       }
+      // Queue pending moves for later
+      for (const moveKey of ev.pendingMoves) {
+        this.learnMovePendingQueue.push({ mon: this.playerMon, moveKey });
+      }
     }
     this.playerDisplayHp = this.playerMon.hp;
     this.queueMessages(msgs, then);
@@ -923,7 +1026,7 @@ export class BattleScene implements Scene {
     if (events.length === 0) {
       Music.victory();
       this.queueMessages(['You won!'], () => {
-        this.checkTeamEvolution();
+        this.checkPendingMoves();
       });
       return;
     }
@@ -938,6 +1041,10 @@ export class BattleScene implements Scene {
           msgs.push(`${this.playerMon.name} learned ${moveData.name}!`);
         }
       }
+      // Queue pending moves for move replacement
+      for (const moveKey of ev.pendingMoves) {
+        this.learnMovePendingQueue.push({ mon: this.playerMon, moveKey });
+      }
     }
     msgs.push('You won!');
 
@@ -945,8 +1052,18 @@ export class BattleScene implements Scene {
 
     Music.victory();
     this.queueMessages(msgs, () => {
-      this.checkTeamEvolution();
+      this.checkPendingMoves();
     });
+  }
+
+  /** Check for pending move learns before evolution */
+  private checkPendingMoves() {
+    if (this.learnMovePendingQueue.length > 0) {
+      const next = this.learnMovePendingQueue.shift()!;
+      this.startLearnMove(next.mon, next.moveKey);
+    } else {
+      this.checkTeamEvolution();
+    }
   }
 
   // ── Render ──
@@ -955,6 +1072,12 @@ export class BattleScene implements Scene {
     // Party screen is a full overlay
     if (this.phase === 'party') {
       BattleUI.drawPartyMenu(ctx, this.gameState.team, this.activeTeamIndex, this.cursor);
+      return;
+    }
+
+    // Move learning screen
+    if (this.phase === 'learnMove' && this.learnMoveMon) {
+      this.renderLearnMove(ctx);
       return;
     }
 
@@ -1110,6 +1233,106 @@ export class BattleScene implements Scene {
       ctx.fillText(`${this.evolvingMon.name} is evolving!`, 160, 190);
       ctx.textAlign = 'left';
     }
+  }
+
+  private renderLearnMove(ctx: CanvasRenderingContext2D) {
+    const FONT = 'bold 9px monospace';
+    const FONT_SM = 'bold 8px monospace';
+    const dark = '#081820';
+
+    ctx.fillStyle = '#e8e0d0';
+    ctx.fillRect(4, 4, 312, 232);
+    ctx.strokeStyle = dark;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(4, 4, 312, 232);
+
+    ctx.fillStyle = dark;
+    ctx.font = 'bold 11px monospace';
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
+
+    const moveData = MOVES[this.learnMoveKey];
+    if (!moveData || !this.learnMoveMon) return;
+
+    if (!this.learnMoveConfirm) {
+      // "Want to learn X?"
+      ctx.fillText(`${this.learnMoveMon.name} wants to learn`, 160, 20);
+      ctx.fillStyle = '#f08030';
+      ctx.fillText(moveData.name, 160, 40);
+      ctx.fillStyle = dark;
+      ctx.fillText('Forget a move to make room?', 160, 70);
+
+      // Yes / No
+      const options = ['YES', 'NO'];
+      for (let i = 0; i < 2; i++) {
+        const x = 110 + i * 100;
+        const y = 110;
+        if (i === this.cursor) {
+          ctx.fillStyle = '#c8d8a8';
+          ctx.fillRect(x - 30, y - 4, 60, 22);
+          ctx.fillStyle = dark;
+          ctx.font = FONT;
+          ctx.fillText('\u25b6', x - 26, y);
+        }
+        ctx.fillStyle = dark;
+        ctx.font = FONT;
+        ctx.textAlign = 'center';
+        ctx.fillText(options[i], x, y);
+      }
+
+      // New move info
+      ctx.textAlign = 'left';
+      ctx.font = FONT_SM;
+      ctx.fillStyle = '#606060';
+      ctx.fillText(`Type: ${moveData.type.toUpperCase()}  POW: ${moveData.power || '-'}  ACC: ${moveData.accuracy}`, 60, 150);
+    } else {
+      // Select which move to forget
+      ctx.fillText('Which move should be forgotten?', 160, 12);
+      ctx.textAlign = 'left';
+
+      for (let i = 0; i < this.learnMoveMon.moves.length; i++) {
+        const m = this.learnMoveMon.moves[i];
+        const y = 40 + i * 32;
+        if (i === this.cursor) {
+          ctx.fillStyle = '#c8d8a8';
+          ctx.fillRect(12, y - 2, 296, 28);
+          ctx.fillStyle = dark;
+          ctx.font = FONT;
+          ctx.fillText('\u25b6', 16, y + 4);
+        }
+        ctx.fillStyle = dark;
+        ctx.font = FONT;
+        ctx.fillText(m.data.name, 32, y + 4);
+        ctx.font = FONT_SM;
+        ctx.fillStyle = '#606060';
+        ctx.fillText(`${m.data.type.toUpperCase()}  POW:${m.data.power || '-'}  PP:${m.pp}/${m.data.maxPp}`, 32, y + 16);
+      }
+
+      // New move option (highlighted differently)
+      const newY = 40 + 4 * 32;
+      ctx.fillStyle = '#f0e0c0';
+      ctx.fillRect(12, newY - 2, 296, 28);
+      ctx.fillStyle = dark;
+      ctx.font = FONT_SM;
+      ctx.fillText('NEW:', 16, newY + 4);
+      ctx.fillStyle = '#c04040';
+      ctx.font = FONT;
+      ctx.fillText(moveData.name, 50, newY + 4);
+      ctx.font = FONT_SM;
+      ctx.fillStyle = '#606060';
+      ctx.fillText(`${moveData.type.toUpperCase()}  POW:${moveData.power || '-'}  ACC:${moveData.accuracy}`, 50, newY + 16);
+
+      // Cancel option
+      if (this.cursor === 4) {
+        ctx.fillStyle = dark;
+        ctx.font = FONT;
+        ctx.fillText('\u25b6', 16, newY + 34);
+      }
+      ctx.fillStyle = dark;
+      ctx.font = FONT;
+      ctx.fillText('CANCEL', 32, newY + 34);
+    }
+    ctx.textAlign = 'left';
   }
 
   private drawTrainerBalls(ctx: CanvasRenderingContext2D) {

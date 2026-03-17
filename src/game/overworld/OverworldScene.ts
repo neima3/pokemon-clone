@@ -54,6 +54,9 @@ export class OverworldScene implements Scene {
   // Heal animation
   private healTimer = 0;
 
+  // Zone music tracking
+  private lastZone: string = '';
+
   // Menu state
   private menuCursor = 0;
   private menuSubPhase: 'main' | 'pokemon' | 'bag' | 'pokedex' | 'save' | 'pc' = 'main';
@@ -106,10 +109,17 @@ export class OverworldScene implements Scene {
     }
 
     const zone = getRouteZone(this.player.gx, this.player.gy);
+    this.lastZone = zone;
+    this.playZoneMusic(zone);
+  }
+
+  private playZoneMusic(zone: string) {
     if (zone === 'route4') {
       Music.route4();
     } else if (zone === 'route5') {
       Music.route5();
+    } else if (zone === 'route6') {
+      Music.route6();
     } else {
       Music.overworld();
     }
@@ -180,6 +190,12 @@ export class OverworldScene implements Scene {
 
     // Check for encounter when player finishes a step
     if (wasMoving && !this.player.isMoving) {
+      // Switch music when crossing zone boundaries
+      const zone = getRouteZone(this.player.gx, this.player.gy);
+      if (zone !== this.lastZone) {
+        this.lastZone = zone;
+        this.playZoneMusic(zone);
+      }
       this.checkPoisonDamage();
       this.checkEncounter();
     }
@@ -281,6 +297,8 @@ export class OverworldScene implements Scene {
           this.startDialogue(['ROUTE 4', 'Electric currents fill the air!']);
         } else if (zone === 'route5') {
           this.startDialogue(['ROUTE 5', 'A path through fiery meadows.']);
+        } else if (zone === 'route6') {
+          this.startDialogue(['ROUTE 6', 'An eerie mist hangs in the air...']);
         } else {
           this.startDialogue(['ROUTE 2', 'Stronger POKéMON live here.']);
         }
@@ -771,7 +789,7 @@ export class OverworldScene implements Scene {
 
     // Zone indicator
     const zone = getRouteZone(this.player.gx, this.player.gy);
-    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3', route4: 'ROUTE 4', route5: 'ROUTE 5' };
+    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3', route4: 'ROUTE 4', route5: 'ROUTE 5', route6: 'ROUTE 6' };
     const zoneName = zoneNames[zone] ?? zone.toUpperCase();
 
     ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';

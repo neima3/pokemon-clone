@@ -641,6 +641,69 @@ export const BattleUI = {
         }
         break;
       }
+      case 'ghost': {
+        // Eerie shadow tendrils spiraling outward from target
+        for (let i = 0; i < 8; i++) {
+          const angle = (i / 8) * Math.PI * 2 + t * 5;
+          const dist = t * 32;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.6;
+          ctx.globalAlpha = (1 - t) * 0.7;
+          ctx.fillStyle = i % 2 === 0 ? '#705898' : '#483868';
+          // Wispy tendril shape: elongated rectangles rotated along spiral
+          ctx.save();
+          ctx.translate(px, py);
+          ctx.rotate(angle + t * 3);
+          ctx.fillRect(-5, -1, 10, 3);
+          ctx.restore();
+        }
+        // Fading shadow orbs floating upward
+        for (let i = 0; i < 5; i++) {
+          const seed = i * 97.3;
+          const orbX = targetCx + Math.sin(seed) * 16 + Math.cos(t * 4 + i) * 6;
+          const orbY = targetCy - t * 30 - i * 5;
+          const orbR = 3 + Math.sin(i + t * 6) * 1.5;
+          ctx.globalAlpha = (1 - t) * 0.6;
+          ctx.fillStyle = i % 2 === 0 ? '#483868' : '#705898';
+          ctx.beginPath();
+          ctx.arc(orbX, orbY, orbR, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        break;
+      }
+      case 'ice': {
+        // Crystalline particles radiating outward
+        for (let i = 0; i < 8; i++) {
+          const angle = (i / 8) * Math.PI * 2 + t * 2;
+          const dist = t * 30;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.7;
+          ctx.globalAlpha = (1 - t) * 0.85;
+          ctx.fillStyle = i % 3 === 0 ? '#98d8d8' : i % 3 === 1 ? '#b0f0f0' : '#ffffff';
+          // Diamond/crystal shape using rotated square
+          ctx.save();
+          ctx.translate(px, py);
+          ctx.rotate(Math.PI / 4 + t * 3);
+          const sz = 4 * (1 - t * 0.4);
+          ctx.fillRect(-sz / 2, -sz / 2, sz, sz);
+          ctx.restore();
+        }
+        // Icy sparkles that twinkle
+        for (let i = 0; i < 6; i++) {
+          const sparkAngle = (i / 6) * Math.PI * 2 + t * 7;
+          const sparkDist = 8 + t * 18;
+          const sx = targetCx + Math.cos(sparkAngle) * sparkDist;
+          const sy = targetCy + Math.sin(sparkAngle) * sparkDist * 0.6;
+          // Twinkle effect: oscillating alpha
+          const twinkle = Math.abs(Math.sin(t * 12 + i * 2.5));
+          ctx.globalAlpha = (1 - t) * twinkle * 0.9;
+          ctx.fillStyle = '#ffffff';
+          // Small cross sparkle shape
+          ctx.fillRect(sx - 1, sy - 3, 2, 6);
+          ctx.fillRect(sx - 3, sy - 1, 6, 2);
+        }
+        break;
+      }
       default: {
         // Normal type: impact lines
         for (let i = 0; i < 6; i++) {

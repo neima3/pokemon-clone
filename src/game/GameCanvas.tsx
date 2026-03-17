@@ -5,6 +5,7 @@ import { GameLoop, Input, SceneManager, initAudio } from '@/engine';
 import { OverworldScene, VIEW_W, VIEW_H } from './overworld/OverworldScene';
 import { BattleScene, Pokemon } from './battle';
 import { StarterSelectScene } from './StarterSelectScene';
+import { TitleScene } from './TitleScene';
 import { GameState } from './GameState';
 import { TransitionEffect } from './TransitionEffect';
 
@@ -71,19 +72,24 @@ export default function GameCanvas() {
 
     const overworld = new OverworldScene(input, startEncounter, gameState, startTrainerBattle);
 
-    // Check for existing save
-    const hasSave = gameState.load();
-
-    if (hasSave) {
-      scenes.switch(overworld);
-    } else {
+    const startNewGame = () => {
       const starter = new StarterSelectScene(input, (pokemon) => {
         gameState.team.push(pokemon);
         gameState.save();
         scenes.switch(overworld);
       });
       scenes.switch(starter);
-    }
+    };
+
+    const continueGame = () => {
+      gameState.load();
+      scenes.switch(overworld);
+    };
+
+    // Show title screen
+    const hasSave = GameState.hasSave();
+    const title = new TitleScene(input, startNewGame, continueGame, hasSave);
+    scenes.switch(title);
 
     const loop = new GameLoop(
       (dt) => {

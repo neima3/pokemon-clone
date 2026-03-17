@@ -152,9 +152,9 @@ export class Pokemon {
    * Add EXP and handle level-ups.
    * Returns array of level-up events (level, new moves learned).
    */
-  gainExp(amount: number): Array<{ newLevel: number; newMoves: string[] }> {
+  gainExp(amount: number): Array<{ newLevel: number; newMoves: string[]; pendingMoves: string[] }> {
     this.exp += amount;
-    const events: Array<{ newLevel: number; newMoves: string[] }> = [];
+    const events: Array<{ newLevel: number; newMoves: string[]; pendingMoves: string[] }> = [];
 
     while (this.exp >= totalExpForLevel(this.level + 1) && this.level < 100) {
       this.level++;
@@ -162,24 +162,36 @@ export class Pokemon {
 
       // Check for new moves at this level
       const newMoves: string[] = [];
+      const pendingMoves: string[] = [];
       for (const lm of this.species.levelUpMoves) {
         if (lm.level === this.level) {
-          // Only learn if we don't already have this move and have room
           const alreadyKnown = this.moves.some((m) => m.key === lm.moveKey);
-          if (!alreadyKnown && this.moves.length < 4) {
-            const moveData = MOVES[lm.moveKey];
-            if (moveData) {
-              this.moves.push({ data: moveData, key: lm.moveKey, pp: moveData.maxPp });
-              newMoves.push(lm.moveKey);
-            }
+          if (alreadyKnown) continue;
+          const moveData = MOVES[lm.moveKey];
+          if (!moveData) continue;
+          if (this.moves.length < 4) {
+            this.moves.push({ data: moveData, key: lm.moveKey, pp: moveData.maxPp });
+            newMoves.push(lm.moveKey);
+          } else {
+            // Moves full — player needs to choose which to forget
+            pendingMoves.push(lm.moveKey);
           }
         }
       }
 
-      events.push({ newLevel: this.level, newMoves });
+      events.push({ newLevel: this.level, newMoves, pendingMoves });
     }
 
     return events;
+  }
+
+  /** Replace a move at the given index with a new move */
+  replaceMove(index: number, newMoveKey: string): boolean {
+    if (index < 0 || index >= this.moves.length) return false;
+    const moveData = MOVES[newMoveKey];
+    if (!moveData) return false;
+    this.moves[index] = { data: moveData, key: newMoveKey, pp: moveData.maxPp };
+    return true;
   }
 
   /** Serialize for save */

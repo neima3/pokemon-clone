@@ -1,21 +1,23 @@
 // ── Pokemon Types ──
 
-export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic';
+export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice';
 
 export type StatusCondition = 'poison' | 'burn' | 'paralyze' | 'sleep';
 
 const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
-  fire:     { grass: 2, water: 0.5, bug: 2, fire: 0.5, rock: 0.5 },
-  water:    { fire: 2, grass: 0.5, water: 0.5, ground: 2, rock: 2 },
+  fire:     { grass: 2, water: 0.5, bug: 2, fire: 0.5, rock: 0.5, ice: 2 },
+  water:    { fire: 2, grass: 0.5, water: 0.5, ground: 2, rock: 2, ice: 0.5 },
   grass:    { water: 2, fire: 0.5, grass: 0.5, poison: 0.5, bug: 0.5, ground: 2, rock: 2, flying: 0.5 },
-  poison:   { grass: 2, poison: 0.5, ground: 0.5, rock: 0.5 },
-  bug:      { grass: 2, fire: 0.5, poison: 0.5, flying: 0.5 },
+  poison:   { grass: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5 },
+  bug:      { grass: 2, fire: 0.5, poison: 0.5, flying: 0.5, ghost: 0.5 },
   electric: { water: 2, electric: 0.5, ground: 0, flying: 2, grass: 0.5 },
-  ground:   { fire: 2, electric: 2, rock: 2, poison: 2, grass: 0.5, flying: 0, bug: 0.5 },
-  rock:     { fire: 2, bug: 2, flying: 2, ground: 0.5 },
-  flying:   { grass: 2, bug: 2, ground: 0, rock: 0.5, electric: 0.5 },
-  normal:   { rock: 0.5 },
-  psychic:  { poison: 2 },
+  ground:   { fire: 2, electric: 2, rock: 2, poison: 2, grass: 0.5, flying: 0, bug: 0.5, ice: 2 },
+  rock:     { fire: 2, bug: 2, flying: 2, ground: 0.5, ice: 2 },
+  flying:   { grass: 2, bug: 2, ground: 0, rock: 0.5, electric: 0.5, ice: 2 },
+  normal:   { rock: 0.5, ghost: 0 },
+  psychic:  { poison: 2, ghost: 0.5 },
+  ghost:    { ghost: 2, psychic: 2, normal: 0 },
+  ice:      { grass: 2, ground: 2, flying: 2, water: 0.5, ice: 0.5, fire: 0.5 },
 };
 
 export function getTypeEffectiveness(atkType: PokemonType, defTypes: PokemonType[]): number {
@@ -151,11 +153,24 @@ export const MOVES: Record<string, MoveData> = {
   acid:         { name: 'ACID',        type: 'poison',   power: 40,  accuracy: 100, maxPp: 30, category: 'physical', effect: 'lower_defense' },
   razorWind:    { name: 'RAZOR WIND',  type: 'normal',   power: 80,  accuracy: 100, maxPp: 10, category: 'physical' },
   stomp:        { name: 'STOMP',       type: 'normal',   power: 65,  accuracy: 100, maxPp: 20, category: 'physical' },
-  lick:         { name: 'LICK',        type: 'normal',   power: 30,  accuracy: 100, maxPp: 30, category: 'physical', statusEffect: 'paralyze', statusChance: 30 },
-  nightShade:   { name: 'NIGHT SHADE', type: 'normal',   power: 50,  accuracy: 100, maxPp: 15, category: 'physical' },
-  shadowBall:   { name: 'SHADOW BALL', type: 'normal',   power: 80,  accuracy: 100, maxPp: 15, category: 'physical', effect: 'lower_defense' },
+  lick:         { name: 'LICK',        type: 'ghost',    power: 30,  accuracy: 100, maxPp: 30, category: 'physical', statusEffect: 'paralyze', statusChance: 30 },
+  nightShade:   { name: 'NIGHT SHADE', type: 'ghost',    power: 50,  accuracy: 100, maxPp: 15, category: 'physical' },
+  shadowBall:   { name: 'SHADOW BALL', type: 'ghost',    power: 80,  accuracy: 100, maxPp: 15, category: 'physical', effect: 'lower_defense' },
   hypnosis2:    { name: 'HYPNOSIS',    type: 'psychic',  power: 0,   accuracy: 60,  maxPp: 20, category: 'status', effect: 'sleep' },
   dreamEater:   { name: 'DREAM EATR', type: 'psychic',  power: 100, accuracy: 100, maxPp: 15, category: 'physical' },
+  // New moves — Sprint 009: Ghost + Ice types
+  shadowPunch:  { name: 'SHADOW PNCH', type: 'ghost',   power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
+  hex:          { name: 'HEX',         type: 'ghost',    power: 65,  accuracy: 100, maxPp: 10, category: 'physical' },
+  shadowClaw:   { name: 'SHADOW CLAW', type: 'ghost',    power: 70,  accuracy: 100, maxPp: 15, category: 'physical' },
+  curse:        { name: 'CURSE',       type: 'ghost',    power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'lower_speed' },
+  iceBeam:      { name: 'ICE BEAM',    type: 'ice',      power: 90,  accuracy: 100, maxPp: 10, category: 'physical', statusEffect: 'paralyze', statusChance: 10 },
+  blizzard:     { name: 'BLIZZARD',    type: 'ice',      power: 110, accuracy: 70,  maxPp: 5,  category: 'physical', statusEffect: 'paralyze', statusChance: 10 },
+  icePunch:     { name: 'ICE PUNCH',   type: 'ice',      power: 75,  accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'paralyze', statusChance: 10 },
+  icyWind:      { name: 'ICY WIND',    type: 'ice',      power: 55,  accuracy: 95,  maxPp: 15, category: 'physical', effect: 'lower_speed' },
+  auroraBeam:   { name: 'AURORA BEAM', type: 'ice',      power: 65,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'lower_attack' },
+  powderSnow:   { name: 'POWDER SNOW', type: 'ice',      power: 40,  accuracy: 100, maxPp: 25, category: 'physical', statusEffect: 'paralyze', statusChance: 10 },
+  barrier:      { name: 'BARRIER',     type: 'psychic',  power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'raise_defense' },
+  dazzleGleam:  { name: 'DAZZLE GLAM', type: 'normal',   power: 80,  accuracy: 100, maxPp: 10, category: 'physical' },
 };
 
 // ── Species ──
@@ -424,6 +439,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['confusion', 'psybeam', 'teleport'],
     baseExpYield: 145, catchRate: 100,
     levelUpMoves: [{ level: 18, moveKey: 'psybeam' }, { level: 24, moveKey: 'psychic' }],
+    evolution: { level: 36, into: 'alakazam' },
   },
 
   // Staryu line (Misty's Pokemon)
@@ -511,6 +527,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['pound', 'hypnosis'],
     baseExpYield: 66, catchRate: 190,
     levelUpMoves: [{ level: 5, moveKey: 'hypnosis' }, { level: 9, moveKey: 'confusion' }, { level: 17, moveKey: 'headbutt' }, { level: 21, moveKey: 'psybeam' }, { level: 29, moveKey: 'psychic' }],
+    evolution: { level: 26, into: 'hypno' },
   },
   machop: {
     id: 66, name: 'MACHOP', types: ['normal'],
@@ -626,19 +643,20 @@ export const SPECIES: Record<string, SpeciesData> = {
 
   // Gastly line
   gastly: {
-    id: 92, name: 'GASTLY', types: ['poison'],
+    id: 92, name: 'GASTLY', types: ['ghost', 'poison'],
     baseHp: 30, baseAtk: 35, baseDef: 30, baseSpd: 80,
     learnedMoves: ['lick', 'hypnosis'],
     baseExpYield: 62, catchRate: 190,
-    levelUpMoves: [{ level: 8, moveKey: 'nightShade' }, { level: 13, moveKey: 'hypnosis2' }, { level: 19, moveKey: 'crossPoison' }, { level: 25, moveKey: 'shadowBall' }],
+    levelUpMoves: [{ level: 8, moveKey: 'nightShade' }, { level: 13, moveKey: 'hypnosis2' }, { level: 19, moveKey: 'shadowPunch' }, { level: 25, moveKey: 'shadowBall' }],
     evolution: { level: 25, into: 'haunter' },
   },
   haunter: {
-    id: 93, name: 'HAUNTER', types: ['poison'],
+    id: 93, name: 'HAUNTER', types: ['ghost', 'poison'],
     baseHp: 45, baseAtk: 50, baseDef: 45, baseSpd: 95,
     learnedMoves: ['nightShade', 'shadowBall', 'hypnosis2', 'dreamEater'],
     baseExpYield: 142, catchRate: 90,
-    levelUpMoves: [{ level: 28, moveKey: 'dreamEater' }],
+    levelUpMoves: [{ level: 28, moveKey: 'dreamEater' }, { level: 33, moveKey: 'hex' }],
+    evolution: { level: 38, into: 'gengar' },
   },
 
   // Snorlax
@@ -649,10 +667,118 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 189, catchRate: 25,
     levelUpMoves: [{ level: 15, moveKey: 'headbutt' }, { level: 20, moveKey: 'bodySlam' }, { level: 28, moveKey: 'crunch' }, { level: 35, moveKey: 'earthquake' }],
   },
+
+  // ── Sprint 009 Pokemon ──
+
+  // Gengar (Haunter evolution)
+  gengar: {
+    id: 94, name: 'GENGAR', types: ['ghost', 'poison'],
+    baseHp: 60, baseAtk: 65, baseDef: 60, baseSpd: 110,
+    learnedMoves: ['shadowBall', 'hex', 'dreamEater', 'hypnosis2'],
+    baseExpYield: 225, catchRate: 45,
+    levelUpMoves: [{ level: 40, moveKey: 'shadowClaw' }],
+  },
+
+  // Alakazam (Kadabra evolution)
+  alakazam: {
+    id: 65, name: 'ALAKAZAM', types: ['psychic'],
+    baseHp: 55, baseAtk: 50, baseDef: 45, baseSpd: 120,
+    learnedMoves: ['confusion', 'psybeam', 'psychic', 'recover'],
+    baseExpYield: 250, catchRate: 50,
+    levelUpMoves: [{ level: 38, moveKey: 'dazzleGleam' }],
+  },
+
+  // Hypno (Drowzee evolution)
+  hypno: {
+    id: 97, name: 'HYPNO', types: ['psychic'],
+    baseHp: 85, baseAtk: 73, baseDef: 67, baseSpd: 67,
+    learnedMoves: ['confusion', 'hypnosis', 'psybeam', 'headbutt'],
+    baseExpYield: 169, catchRate: 75,
+    levelUpMoves: [{ level: 29, moveKey: 'psychic' }, { level: 37, moveKey: 'dreamEater' }],
+  },
+
+  // Clefairy
+  clefairy: {
+    id: 35, name: 'CLEFAIRY', types: ['normal'],
+    baseHp: 70, baseAtk: 45, baseDef: 48, baseSpd: 35,
+    learnedMoves: ['pound', 'growl', 'sing'],
+    baseExpYield: 68, catchRate: 150,
+    levelUpMoves: [{ level: 7, moveKey: 'doubleSlap' }, { level: 13, moveKey: 'sing' }, { level: 18, moveKey: 'dazzleGleam' }, { level: 25, moveKey: 'bodySlam' }],
+  },
+
+  // Seel + Dewgong
+  seel: {
+    id: 86, name: 'SEEL', types: ['water'],
+    baseHp: 65, baseAtk: 45, baseDef: 55, baseSpd: 45,
+    learnedMoves: ['headbutt', 'waterGun'],
+    baseExpYield: 65, catchRate: 190,
+    levelUpMoves: [{ level: 7, moveKey: 'waterGun' }, { level: 11, moveKey: 'icyWind' }, { level: 17, moveKey: 'auroraBeam' }, { level: 23, moveKey: 'bubbleBeam' }, { level: 29, moveKey: 'iceBeam' }],
+    evolution: { level: 34, into: 'dewgong' },
+  },
+  dewgong: {
+    id: 87, name: 'DEWGONG', types: ['water', 'ice'],
+    baseHp: 90, baseAtk: 70, baseDef: 80, baseSpd: 70,
+    learnedMoves: ['auroraBeam', 'iceBeam', 'bubbleBeam', 'surf'],
+    baseExpYield: 166, catchRate: 75,
+    levelUpMoves: [{ level: 36, moveKey: 'blizzard' }],
+  },
+
+  // Jynx
+  jynx: {
+    id: 124, name: 'JYNX', types: ['ice', 'psychic'],
+    baseHp: 65, baseAtk: 50, baseDef: 35, baseSpd: 95,
+    learnedMoves: ['pound', 'icyWind', 'confusion'],
+    baseExpYield: 159, catchRate: 45,
+    levelUpMoves: [{ level: 15, moveKey: 'powderSnow' }, { level: 18, moveKey: 'confusion' }, { level: 21, moveKey: 'icePunch' }, { level: 25, moveKey: 'psybeam' }, { level: 33, moveKey: 'iceBeam' }, { level: 39, moveKey: 'psychic' }, { level: 44, moveKey: 'blizzard' }],
+  },
+
+  // Lapras
+  lapras: {
+    id: 131, name: 'LAPRAS', types: ['water', 'ice'],
+    baseHp: 130, baseAtk: 85, baseDef: 80, baseSpd: 60,
+    learnedMoves: ['waterGun', 'powderSnow', 'bodySlam'],
+    baseExpYield: 187, catchRate: 45,
+    levelUpMoves: [{ level: 7, moveKey: 'waterGun' }, { level: 13, moveKey: 'iceBeam' }, { level: 18, moveKey: 'bodySlam' }, { level: 25, moveKey: 'surf' }, { level: 31, moveKey: 'iceBeam' }, { level: 37, moveKey: 'blizzard' }, { level: 43, moveKey: 'hydroPump' }],
+  },
+
+  // Eevee
+  eevee: {
+    id: 133, name: 'EEVEE', types: ['normal'],
+    baseHp: 55, baseAtk: 55, baseDef: 50, baseSpd: 55,
+    learnedMoves: ['tackle', 'tailWhip', 'quickAttack'],
+    baseExpYield: 65, catchRate: 45,
+    levelUpMoves: [{ level: 8, moveKey: 'quickAttack' }, { level: 16, moveKey: 'bite' }, { level: 23, moveKey: 'swift' }, { level: 30, moveKey: 'takeDown' }],
+  },
+
+  // Mr. Mime
+  mrMime: {
+    id: 122, name: 'MR. MIME', types: ['psychic'],
+    baseHp: 40, baseAtk: 45, baseDef: 65, baseSpd: 90,
+    learnedMoves: ['confusion', 'barrier'],
+    baseExpYield: 136, catchRate: 45,
+    levelUpMoves: [{ level: 8, moveKey: 'confusion' }, { level: 15, moveKey: 'barrier' }, { level: 22, moveKey: 'psybeam' }, { level: 29, moveKey: 'dazzleGleam' }, { level: 36, moveKey: 'psychic' }],
+  },
+
+  // Dratini + Dragonair (using normal/flying as proxy since no dragon type)
+  dratini: {
+    id: 147, name: 'DRATINI', types: ['normal'],
+    baseHp: 41, baseAtk: 64, baseDef: 45, baseSpd: 50,
+    learnedMoves: ['wrapMove', 'tackle'],
+    baseExpYield: 60, catchRate: 45,
+    levelUpMoves: [{ level: 5, moveKey: 'tackle' }, { level: 11, moveKey: 'dragonRage' }, { level: 15, moveKey: 'slam' }, { level: 21, moveKey: 'agility' }, { level: 25, moveKey: 'bodySlam' }],
+    evolution: { level: 30, into: 'dragonair' },
+  },
+  dragonair: {
+    id: 148, name: 'DRAGONAIR', types: ['normal', 'flying'],
+    baseHp: 61, baseAtk: 84, baseDef: 65, baseSpd: 70,
+    learnedMoves: ['dragonRage', 'slam', 'bodySlam', 'agility'],
+    baseExpYield: 147, catchRate: 27,
+    levelUpMoves: [{ level: 33, moveKey: 'takeDown' }, { level: 38, moveKey: 'hydroPump' }],
+  },
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
@@ -708,11 +834,25 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
     { species: 'snorlax', minLevel: 18, maxLevel: 20, weight: 2 },
     { species: 'pidgey', minLevel: 14, maxLevel: 17, weight: 8 },
   ],
+  route6: [
+    { species: 'drowzee', minLevel: 18, maxLevel: 22, weight: 18 },
+    { species: 'seel', minLevel: 18, maxLevel: 21, weight: 15 },
+    { species: 'clefairy', minLevel: 18, maxLevel: 21, weight: 15 },
+    { species: 'gastly', minLevel: 18, maxLevel: 22, weight: 15 },
+    { species: 'jynx', minLevel: 20, maxLevel: 23, weight: 8 },
+    { species: 'abra', minLevel: 18, maxLevel: 20, weight: 5 },
+    { species: 'eevee', minLevel: 18, maxLevel: 22, weight: 4 },
+    { species: 'dratini', minLevel: 18, maxLevel: 22, weight: 3 },
+    { species: 'machop', minLevel: 18, maxLevel: 21, weight: 10 },
+    { species: 'lapras', minLevel: 22, maxLevel: 25, weight: 2 },
+    { species: 'mrMime', minLevel: 20, maxLevel: 23, weight: 5 },
+  ],
   fishing: [
     { species: 'staryu', minLevel: 10, maxLevel: 18, weight: 40 },
     { species: 'squirtle', minLevel: 10, maxLevel: 15, weight: 10 },
-    { species: 'oddish', minLevel: 10, maxLevel: 14, weight: 20 },
-    { species: 'rattata', minLevel: 8, maxLevel: 12, weight: 30 },
+    { species: 'seel', minLevel: 12, maxLevel: 18, weight: 15 },
+    { species: 'oddish', minLevel: 10, maxLevel: 14, weight: 15 },
+    { species: 'rattata', minLevel: 8, maxLevel: 12, weight: 20 },
   ],
 };
 
@@ -773,6 +913,8 @@ export const TYPE_COLORS: Record<PokemonType, string> = {
   rock:     '#b8a038',
   flying:   '#a890f0',
   psychic:  '#f85888',
+  ghost:    '#705898',
+  ice:      '#98d8d8',
 };
 
 // ── EXP ──
@@ -799,7 +941,7 @@ export interface TrainerData {
   team: Array<{ species: string; level: number }>;
   reward: number; // money
   defeatMessage: string;
-  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3' | 'gymLeader4';
+  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3' | 'gymLeader4' | 'gymLeader5';
   isGymLeader?: boolean;
   badgeName?: string;
 }
@@ -923,5 +1065,37 @@ export const TRAINERS: Record<string, TrainerData> = {
     sprite: 'gymLeader4',
     isGymLeader: true,
     badgeName: 'RAINBOW BADGE',
+  },
+  // Route 6 trainers
+  lass_sarah: {
+    name: 'LASS SARAH',
+    team: [{ species: 'clefairy', level: 20 }, { species: 'jynx', level: 22 }],
+    reward: 500,
+    defeatMessage: "Brrr! Your POKéMON are too strong!",
+    sprite: 'lass',
+  },
+  youngster_matt: {
+    name: 'YOUNGSTER MATT',
+    team: [{ species: 'seel', level: 20 }, { species: 'drowzee', level: 21 }],
+    reward: 480,
+    defeatMessage: "I need to study harder!",
+    sprite: 'youngster',
+  },
+  hiker_ben: {
+    name: 'HIKER BEN',
+    team: [{ species: 'geodude', level: 20 }, { species: 'machop', level: 21 }, { species: 'haunter', level: 22 }],
+    reward: 600,
+    defeatMessage: "Ghosts give me the creeps too!",
+    sprite: 'hiker',
+  },
+  // Fifth gym leader — Sabrina
+  gym_sabrina: {
+    name: 'LEADER SABRINA',
+    team: [{ species: 'mrMime', level: 30 }, { species: 'kadabra', level: 32 }, { species: 'alakazam', level: 35 }],
+    reward: 5600,
+    defeatMessage: "Your power... I had not foreseen this! Take the MARSH BADGE!",
+    sprite: 'gymLeader5',
+    isGymLeader: true,
+    badgeName: 'MARSH BADGE',
   },
 };

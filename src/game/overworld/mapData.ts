@@ -53,17 +53,17 @@ export const MAP_DATA: Tile[] = [
   T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, G, G, G, G, P, P, P, P, P, P, g, g, G, G, P, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 25
   T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 26
   T, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T,  // 27
-  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, T,  // 28
-  T, T, T, T, P, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 29
-  T, G, G, G, P, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 30
-  T, G, G, G, P, G, g, g, g, g, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 31
-  T, G, F, G, P, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, g, g, G, G, G, F, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 32
-  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 33
-  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 34
-  T, G, G, G, P, P, P, P, P, P, P, P, S, P, P, P, P, P, W, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 35
-  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, P, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 36
-  T, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, P, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 37
-  T, G, G, G, G, G, g, g, g, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, E, E, P, E, E, G, P, G, G, G, T, T, T, T, T, T, T, T, T, T, T,  // 38
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 28
+  T, T, T, T, P, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, P, T, T, T, T,  // 29
+  T, G, G, G, P, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 30
+  T, G, G, G, P, G, g, g, g, g, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, T, T, G, E, Y, Y, Y, E, G, G, T,  // 31
+  T, G, F, G, P, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, g, g, G, G, G, F, G, G, G, G, G, T, T, G, E, B, y, B, E, G, G, T,  // 32
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, T, T, G, E, E, P, E, E, G, G, T,  // 33
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, P, G, G, F, G, T,  // 34
+  T, G, G, G, P, P, P, P, P, P, P, P, S, P, P, P, P, P, W, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T, T, G, g, g, P, G, W, W, G, T,  // 35
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, P, G, G, G, T, T, G, g, g, P, G, W, W, G, T,  // 36
+  T, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, P, G, G, G, T, T, G, G, F, P, G, G, G, G, T,  // 37
+  T, G, G, G, G, G, g, g, g, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, E, E, P, E, E, G, P, G, G, G, T, T, G, G, G, P, G, G, G, G, T,  // 38
   T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 39
 ];
 
@@ -71,6 +71,8 @@ export const MAP_DATA: Tile[] = [
 export function getRouteZone(gx: number, gy: number): string {
   // Town area: roughly rows 4-15, cols 8-22
   if (gy >= 4 && gy <= 15 && gx >= 8 && gx <= 22) return 'town';
+  // Route 6: bottom-right area
+  if (gy >= 29 && gx >= 39) return 'route6';
   // Route 5: bottom section rows 29+
   if (gy >= 29) return 'route5';
   // Route 4: far east section
@@ -307,5 +309,52 @@ export const MAP_NPCS: NPCData[] = [
     dialogue: ['I am ERIKA, the nature-loving princess.', 'My Grass-type POKéMON are elegant and strong.', 'Let us battle gracefully!'],
     isTrainer: true,
     trainerId: 'gym_erika',
+  },
+  // Route 6 trainers
+  {
+    id: 'trainer_sarah',
+    gx: 43, gy: 35,
+    sprite: 'lass',
+    facing: 'left',
+    dialogue: ['Psychic types are mysterious!', 'Can you handle them?'],
+    isTrainer: true,
+    trainerId: 'lass_sarah',
+  },
+  {
+    id: 'trainer_matt',
+    gx: 46, gy: 36,
+    sprite: 'youngster',
+    facing: 'left',
+    dialogue: ['I train hard every day!', 'Let\'s see who\'s stronger!'],
+    isTrainer: true,
+    trainerId: 'youngster_matt',
+  },
+  {
+    id: 'trainer_ben',
+    gx: 42, gy: 37,
+    sprite: 'hiker',
+    facing: 'right',
+    dialogue: ['These mountains hide many secrets!', 'Battle me if you dare!'],
+    isTrainer: true,
+    trainerId: 'hiker_ben',
+  },
+  // Route 6 helper
+  {
+    id: 'route6_helper',
+    gx: 47, gy: 30,
+    sprite: 'lass',
+    facing: 'down',
+    dialogue: ['SABRINA\'s GYM is just to the west.', 'She uses Psychic-type POKéMON!', 'Bug, Ghost, or Dark types are super effective!'],
+    isTrainer: false,
+  },
+  // Gym Leader — Sabrina
+  {
+    id: 'gym_leader_sabrina',
+    gx: 44, gy: 32,
+    sprite: 'gymLeader5',
+    facing: 'down',
+    dialogue: ['I am SABRINA, the master of Psychic POKéMON.', 'I foresaw your arrival...', 'Your mind is no match for mine!'],
+    isTrainer: true,
+    trainerId: 'gym_sabrina',
   },
 ];

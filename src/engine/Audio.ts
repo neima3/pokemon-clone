@@ -69,9 +69,9 @@ function playNoise(duration: number, startTime = 0) {
 // ── Note frequencies ──
 
 const NOTE: Record<string, number> = {
-  C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00, B3: 246.94,
-  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
-  C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00, B5: 987.77,
+  C3: 130.81, D3: 146.83, Eb3: 155.56, E3: 164.81, F3: 174.61, Fs3: 185.00, G3: 196.00, Ab3: 207.65, A3: 220.00, Bb3: 233.08, B3: 246.94,
+  C4: 261.63, Db4: 277.18, D4: 293.66, Eb4: 311.13, E4: 329.63, F4: 349.23, Fs4: 369.99, G4: 392.00, Ab4: 415.30, A4: 440.00, Bb4: 466.16, B4: 493.88,
+  C5: 523.25, Db5: 554.37, D5: 587.33, Eb5: 622.25, E5: 659.25, F5: 698.46, Fs5: 739.99, G5: 783.99, Ab5: 830.61, A5: 880.00, Bb5: 932.33, B5: 987.77,
   C6: 1046.50,
 };
 
@@ -213,6 +213,17 @@ export const SFX = {
     notes.forEach((n, i) => {
       playTone(n, durs[i], 'square', sfxGain!, time);
       time += durs[i];
+    });
+  },
+
+  newGame() {
+    // Triumphant ascending fanfare for starting a new game
+    const notes = [NOTE.C4, NOTE.E4, NOTE.G4, NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6, NOTE.C6];
+    const durs = [0.1, 0.1, 0.1, 0.1, 0.12, 0.12, 0.15, 0.3];
+    let time = 0;
+    notes.forEach((n, i) => {
+      playTone(n, durs[i], 'square', sfxGain!, time);
+      time += durs[i] * 0.85;
     });
   },
 };
@@ -386,6 +397,102 @@ function buildRoute5Pattern(): MusicPattern {
   };
 }
 
+function buildRoute6Pattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 3,
+    notes: [
+      // Bar 1 - eerie minor opening, slow and haunting
+      { freq: n.E3, dur: 1 }, { freq: n.Bb3, dur: 0.5 },
+      { freq: n.A3, dur: 0.5 }, { freq: n.Ab3, dur: 1 },
+      // Bar 2 - dissonant tritone intervals, psychic feel
+      { freq: n.D4, dur: 0.5 }, { freq: n.Ab4, dur: 0.75 },
+      { freq: n.G4, dur: 0.25 }, { freq: n.Fs4, dur: 0.5 },
+      { freq: n.E4, dur: 0.5 }, { freq: n.Eb4, dur: 0.5 },
+      // Bar 3 - ghostly descending chromatic
+      { freq: n.Bb4, dur: 0.5 }, { freq: n.A4, dur: 0.5 },
+      { freq: n.Ab4, dur: 0.5 }, { freq: n.G4, dur: 0.5 },
+      { freq: n.Fs4, dur: 0.5 }, { freq: n.F4, dur: 0.5 },
+      // Bar 4 - low ominous sustain with creepy ascent
+      { freq: n.E3, dur: 1 }, { freq: n.Bb3, dur: 0.5 },
+      { freq: n.Db4, dur: 0.5 }, { freq: n.E4, dur: 0.75 },
+      { freq: n.Eb4, dur: 0.25 },
+      // Bar 5 - minor key wandering, unsettling
+      { freq: n.C4, dur: 0.5 }, { freq: n.Eb4, dur: 0.5 },
+      { freq: n.Fs4, dur: 0.75 }, { freq: n.G4, dur: 0.25 },
+      { freq: n.Eb4, dur: 0.5 }, { freq: n.C4, dur: 0.5 },
+      // Bar 6 - resolve to uneasy rest
+      { freq: n.Bb3, dur: 0.5 }, { freq: n.A3, dur: 0.5 },
+      { freq: n.Ab3, dur: 0.5 }, { freq: n.E3, dur: 1.5 },
+    ],
+  };
+}
+
+function buildRoute6Bass(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 2,
+    notes: [
+      { freq: n.E3, dur: 1 }, { freq: n.Bb3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.D3, dur: 1 }, { freq: n.Ab3, dur: 0.5 }, { freq: n.D3, dur: 0.5 },
+      { freq: n.C3, dur: 1 }, { freq: n.Fs3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+      { freq: n.E3, dur: 1 }, { freq: n.Bb3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.C3, dur: 1 }, { freq: n.Eb3, dur: 0.5 }, { freq: n.Fs3, dur: 0.5 },
+      { freq: n.E3, dur: 1.5 }, { freq: n.E3, dur: 0.5 },
+    ],
+  };
+}
+
+function buildTitlePattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 4.5,
+    notes: [
+      // Bar 1 - majestic opening fanfare
+      { freq: n.C4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.G4, dur: 1 }, { freq: n.C5, dur: 1 },
+      // Bar 2 - heroic ascending phrase
+      { freq: n.E5, dur: 0.5 }, { freq: n.D5, dur: 0.5 },
+      { freq: n.C5, dur: 0.5 }, { freq: n.D5, dur: 0.5 },
+      { freq: n.E5, dur: 1 },
+      // Bar 3 - triumphant peak
+      { freq: n.G5, dur: 0.5 }, { freq: n.E5, dur: 0.5 },
+      { freq: n.C5, dur: 0.5 }, { freq: n.D5, dur: 0.5 },
+      { freq: n.E5, dur: 0.5 }, { freq: n.G5, dur: 0.5 },
+      { freq: n.A5, dur: 1 },
+      // Bar 4 - noble descent
+      { freq: n.G5, dur: 0.5 }, { freq: n.F5, dur: 0.5 },
+      { freq: n.E5, dur: 0.5 }, { freq: n.D5, dur: 0.5 },
+      { freq: n.C5, dur: 1 },
+      // Bar 5 - second heroic phrase, variation
+      { freq: n.G4, dur: 0.5 }, { freq: n.A4, dur: 0.5 },
+      { freq: n.B4, dur: 0.5 }, { freq: n.C5, dur: 0.5 },
+      { freq: n.D5, dur: 0.5 }, { freq: n.E5, dur: 0.5 },
+      { freq: n.F5, dur: 0.5 }, { freq: n.G5, dur: 0.5 },
+      // Bar 6 - grand resolution
+      { freq: n.A5, dur: 0.5 }, { freq: n.G5, dur: 0.5 },
+      { freq: n.E5, dur: 0.5 }, { freq: n.C5, dur: 0.5 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.C4, dur: 1 },
+    ],
+  };
+}
+
+function buildTitleBass(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 2.5,
+    notes: [
+      { freq: n.C3, dur: 1 }, { freq: n.G3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+      { freq: n.A3, dur: 1 }, { freq: n.E3, dur: 0.5 }, { freq: n.A3, dur: 0.5 },
+      { freq: n.F3, dur: 1 }, { freq: n.C3, dur: 0.5 }, { freq: n.G3, dur: 0.5 },
+      { freq: n.C3, dur: 1 }, { freq: n.G3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.G3, dur: 1 }, { freq: n.D3, dur: 0.5 }, { freq: n.G3, dur: 0.5 },
+      { freq: n.C3, dur: 1 }, { freq: n.G3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+    ],
+  };
+}
+
 function playMusicLoop(patterns: Array<{ pattern: MusicPattern; type: WaveType; gainVal: number }>): { stop: () => void } {
   const c = getCtx();
   let running = true;
@@ -473,6 +580,22 @@ export const Music = {
     Music.stop();
     currentMusic = playMusicLoop([
       { pattern: buildRoute5Pattern(), type: 'square', gainVal: 0.12 },
+    ]);
+  },
+
+  route6() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildRoute6Pattern(), type: 'triangle', gainVal: 0.1 },
+      { pattern: buildRoute6Bass(), type: 'sine', gainVal: 0.08 },
+    ]);
+  },
+
+  title() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildTitlePattern(), type: 'square', gainVal: 0.15 },
+      { pattern: buildTitleBass(), type: 'triangle', gainVal: 0.12 },
     ]);
   },
 
