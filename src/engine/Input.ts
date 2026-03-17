@@ -146,6 +146,18 @@ export class Input {
     return false;
   }
 
+  /** Returns true if Mega Evolution activation key (V) was just pressed. Consumed on read. */
+  getMegaEvolvePressed(): boolean {
+    const keys = ['v', 'V'];
+    for (const k of keys) {
+      if (this.pressed.has(k)) {
+        keys.forEach((k2) => this.pressed.delete(k2));
+        return true;
+      }
+    }
+    return false;
+  }
+
   /** Clear all buffered input. Call when switching scenes. */
   clear() {
     this.held.clear();

@@ -102,6 +102,11 @@ export class Pokemon {
   perishSongTurns = 0;
   
   zMoveUsed = false;
+  
+  megaEvolved = false;
+  originalAbility: AbilityData | null = null;
+  originalAbilityKey: string | null = null;
+  megaStatBoosts = { hp: 0, atk: 0, def: 0, spd: 0 };
 
   constructor(speciesKey: string, level: number, badgeCount: number = 0) {
     const species = SPECIES[speciesKey];
@@ -312,6 +317,54 @@ export class Pokemon {
       }
     }
     return null;
+  }
+
+  canMegaEvolve(): boolean {
+    if (this.megaEvolved) return false;
+    if (!this.heldItem || this.heldItem.effect !== 'mega_stone') return false;
+    return this.heldItem.megaSpecies === this.speciesKey;
+  }
+
+  megaEvolve(): boolean {
+    if (!this.canMegaEvolve()) return false;
+    
+    const megaAbilityKey = this.heldItem!.megaAbility;
+    if (!megaAbilityKey) return false;
+    
+    this.originalAbility = this.ability;
+    this.originalAbilityKey = this.abilityKey;
+    this.abilityKey = megaAbilityKey;
+    this.ability = ABILITIES[megaAbilityKey] || null;
+    
+    const megaBoosts: Record<string, { hp: number; atk: number; def: number; spd: number }> = {
+      venusaur: { hp: 0, atk: 18, def: 40, spd: 20 },
+      charizard: { hp: 0, atk: 46, def: 23, spd: 31 },
+      blastoise: { hp: 0, atk: 28, def: 28, spd: 34 },
+      alakazam: { hp: 0, atk: 10, def: 15, spd: 50 },
+      gengar: { hp: 0, atk: 23, def: 33, spd: 34 },
+      kangaskhan: { hp: 0, atk: 42, def: 13, spd: 25 },
+      pinsir: { hp: 0, atk: 58, def: 22, spd: 20 },
+      gyarados: { hp: 0, atk: 41, def: 21, spd: 28 },
+      aerodactyl: { hp: 0, atk: 32, def: 22, spd: 44 },
+      mewtwo: { hp: 0, atk: 50, def: 10, spd: 40 },
+    };
+    
+    const boosts = megaBoosts[this.speciesKey] || { hp: 0, atk: 20, def: 20, spd: 20 };
+    this.megaStatBoosts = boosts;
+    
+    const oldMaxHp = this.maxHp;
+    this.maxHp += boosts.hp;
+    this.attack += boosts.atk;
+    this.defense += boosts.def;
+    this.speed += boosts.spd;
+    
+    if (boosts.hp > 0) {
+      const hpGain = this.maxHp - oldMaxHp;
+      this.hp = Math.min(this.maxHp, this.hp + hpGain);
+    }
+    
+    this.megaEvolved = true;
+    return true;
   }
 
   private recalcStats(): number {

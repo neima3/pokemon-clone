@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.0] - 2026-03-17
+
+### Added
+- Sprint 033: Mega Evolution System
+- Mega Stones as held items: 12 Mega Stones (Venusaurite, Charizardite X/Y, Blastoisinite, Alakazite, Gengarite, Kangaskhanite, Pinsirite, Gyaradosite, Aerodactylite, Mewtwonite X/Y)
+- Mega Evolution activation with V key when holding matching Mega Stone
+- Mega Evolution stat boosts: Attack, Defense, Speed increased based on species
+- Mega Evolution ability changes to Mega-specific abilities
+- One Mega Evolution per battle per trainer
+- Dramatic Mega Evolution visual effects: pink particle burst, screen flash
+- MEGA badge indicator in battle UI for Mega Evolved Pokemon
+- Move menu hints showing available Z-Move and Mega Evolution options
+
+### Mega Evolution Abilities Added
+- Tough Claws: Boosts contact moves by 33%
+- Mega Launcher: Boosts pulse moves by 50%
+- Shadow Tag: Prevents foes from fleeing
+- Parental Bond: Moves hit twice, second hit at 25% power
+- Aerilate: Normal moves become Flying and boost 20%
+- Drought: Summons harsh sunlight on entry
+- Trace: Copies foe's ability on entry
+- Steadfast: Speed raises when flinching
+
+### Technical
+- Added mega_stone effect type to HeldItem interface
+- Added megaSpecies and megaAbility fields to HeldItem
+- Added isMegaStone(), getMegaStoneSpecies(), getMegaAbility(), canMegaEvolve() helper functions to HeldItems
+- Added megaEvolved, originalAbility, originalAbilityKey, megaStatBoosts state to Pokemon class
+- Added canMegaEvolve() and megaEvolve() methods to Pokemon
+- Added getMegaEvolvePressed() method to Input class (V key)
+- Added Mega Evolution particle system and renderMegaEvolution() method to BattleScene
+- Added megaEvolutionActive, megaEvolutionTimer, megaEvolutionParticles, megaEvolutionFlashAlpha, playerMegaEvolved state to BattleScene
+- Updated drawPlayerInfo() to show MEGA badge for Mega Evolved Pokemon
+- Updated drawMoveMenu() to show Z-Move and Mega Evolution hints
+
 ## [0.31.0] - 2026-03-17
 
 ### Added

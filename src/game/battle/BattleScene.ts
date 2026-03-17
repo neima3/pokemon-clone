@@ -5,8 +5,8 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
 import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters, checkDrowsy, checkWish, checkFutureSight, checkDoomDesire, checkDestinyBond, checkPerishSong, getTerrainHeal } from './BattleEngine';
-import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition, TerrainType, TYPE_COLORS } from './data';
-import { isZCrystal, getZCrystalType } from './HeldItems';
+import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition, TerrainType, TYPE_COLORS, ABILITIES } from './data';
+import { isZCrystal, getZCrystalType, isMegaStone, canMegaEvolve as canMegaEvolveItem } from './HeldItems';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
 
@@ -132,6 +132,13 @@ export class BattleScene implements Scene {
   private zMoveTimer = 0;
   private zMoveParticles: Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number; color: string; angle: number }> = [];
   private zMoveFlashAlpha = 0;
+  
+  // Mega Evolution state
+  private megaEvolutionActive = false;
+  private megaEvolutionTimer = 0;
+  private megaEvolutionParticles: Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number; color: string }> = [];
+  private megaEvolutionFlashAlpha = 0;
+  private playerMegaEvolved = false;
 
   private applyHazardsOnEntry(mon: Pokemon, isPlayer: boolean): string[] {
     const hazards = isPlayer ? this.playerHazards : this.enemyHazards;
@@ -258,6 +265,9 @@ export class BattleScene implements Scene {
     
     // Update Z-Move particles
     this.updateZMoveParticles(dt);
+    
+    // Update Mega Evolution particles
+    this.updateMegaEvolutionParticles(dt);
 
     // Spawn status particles for Pokemon with status conditions
     if (this.playerMon.status && this.phase !== 'intro' && Math.random() < dt * 2) {
@@ -626,6 +636,76 @@ export class BattleScene implements Scene {
     }
   }
   
+  private updateMegaEvolutionParticles(dt: number) {
+    if (!this.megaEvolutionActive) return;
+    
+    this.megaEvolutionTimer += dt;
+    
+    // Spawn dramatic particles during Mega Evolution animation
+    if (this.megaEvolutionTimer < 1.2) {
+      for (let i = 0; i < 6; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 60 + Math.random() * 100;
+        const colors = ['#f8b8d8', '#f8a8c8', '#f898b8', '#f888a8', '#f87898'];
+        this.megaEvolutionParticles.push({
+          x: this.playerSpriteX + 32 + (Math.random() - 0.5) * 40,
+          y: 78 + (Math.random() - 0.5) * 30,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 30,
+          life: 0.5 + Math.random() * 0.3,
+          maxLife: 0.5 + Math.random() * 0.3,
+          size: 4 + Math.random() * 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+        });
+      }
+    }
+    
+    // Update particles
+    for (const p of this.megaEvolutionParticles) {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 50 * dt;
+      p.life -= dt;
+    }
+    
+    this.megaEvolutionParticles = this.megaEvolutionParticles.filter(p => p.life > 0);
+    
+    // Fade out flash
+    if (this.megaEvolutionFlashAlpha > 0) {
+      this.megaEvolutionFlashAlpha -= dt * 1.5;
+      if (this.megaEvolutionFlashAlpha < 0) this.megaEvolutionFlashAlpha = 0;
+    }
+    
+    // End Mega Evolution animation
+    if (this.megaEvolutionTimer >= 1.8) {
+      this.megaEvolutionActive = false;
+      this.megaEvolutionParticles = [];
+    }
+  }
+  
+  private renderMegaEvolution(ctx: CanvasRenderingContext2D) {
+    if (!this.megaEvolutionActive && this.megaEvolutionParticles.length === 0) return;
+    
+    // Render particles
+    for (const p of this.megaEvolutionParticles) {
+      const alpha = Math.min(1, p.life / p.maxLife);
+      const hex = p.color;
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.8})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Render flash overlay
+    if (this.megaEvolutionFlashAlpha > 0) {
+      ctx.fillStyle = `rgba(248, 184, 216, ${this.megaEvolutionFlashAlpha * 0.5})`;
+      ctx.fillRect(0, 0, 320, 144);
+    }
+  }
+  
   private renderZMove(ctx: CanvasRenderingContext2D) {
     if (!this.zMoveActive && this.zMoveParticles.length === 0) return;
     
@@ -833,6 +913,45 @@ export class BattleScene implements Scene {
         SFX.bump();
       }
     }
+    
+    // Mega Evolution activation with V key
+    if (this.input.getMegaEvolvePressed()) {
+      if (this.playerMon.canMegaEvolve() && !this.playerMegaEvolved) {
+        SFX.menuConfirm();
+        this.activateMegaEvolution();
+      } else {
+        SFX.bump();
+      }
+    }
+  }
+  
+  private activateMegaEvolution() {
+    if (!this.playerMon.canMegaEvolve() || this.playerMegaEvolved) return;
+    
+    const megaAbilityKey = this.playerMon.heldItem?.megaAbility;
+    const abilityName = megaAbilityKey ? (ABILITIES[megaAbilityKey]?.name ?? 'unknown') : 'unknown';
+    
+    this.playerMon.megaEvolve();
+    this.playerMegaEvolved = true;
+    
+    this.megaEvolutionActive = true;
+    this.megaEvolutionTimer = 0;
+    this.megaEvolutionFlashAlpha = 1;
+    
+    this.playerDisplayHp = this.playerMon.hp;
+    
+    SFX.evolve();
+    
+    const messages = [
+      `${this.playerMon.name}'s ${this.playerMon.heldItem?.name} is reacting!`,
+      `${this.playerMon.name} has Mega Evolved!`,
+      `${this.playerMon.name} gained the ability ${abilityName}!`
+    ];
+    
+    this.queueMessages(messages, () => {
+      this.phase = 'action';
+      this.cursor = 0;
+    });
   }
 
   private updateAnimating(dt: number) {
@@ -2012,6 +2131,9 @@ export class BattleScene implements Scene {
     
     // Render Z-Move effects
     this.renderZMove(ctx);
+    
+    // Render Mega Evolution effects
+    this.renderMegaEvolution(ctx);
 
     // Calculate sprite positions with animation offsets
     let psx = this.playerSpriteX;
@@ -2120,6 +2242,7 @@ export class BattleScene implements Scene {
       this.playerMon.status,
       this.playerMon.ability?.name,
       this.playerMon.heldItem?.name,
+      this.playerMon.megaEvolved,
     );
 
     // Trainer team indicator
@@ -2141,7 +2264,14 @@ export class BattleScene implements Scene {
         BattleUI.drawActionMenu(ctx, this.cursor);
         break;
       case 'moves':
-        BattleUI.drawMoveMenu(ctx, this.playerMon.moves, this.cursor, this.enemyMon.species.types as PokemonType[]);
+        BattleUI.drawMoveMenu(
+          ctx, 
+          this.playerMon.moves, 
+          this.cursor, 
+          this.enemyMon.species.types as PokemonType[],
+          this.playerMon.canUseZMove(),
+          this.playerMon.canMegaEvolve() && !this.playerMegaEvolved
+        );
         break;
       case 'bag':
         BattleUI.drawBagMenu(ctx, this.gameState.inventory, this.cursor);

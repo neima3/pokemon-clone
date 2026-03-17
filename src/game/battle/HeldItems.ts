@@ -1,11 +1,13 @@
 export interface HeldItem {
   key: string;
   name: string;
-  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move' | 'boost_atk' | 'survive_ko' | 'super_effective_boost' | 'life_orb' | 'contact_damage' | 'ground_immune' | 'poison_heal' | 'boost_spd' | 'z_crystal';
+  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move' | 'boost_atk' | 'survive_ko' | 'super_effective_boost' | 'life_orb' | 'contact_damage' | 'ground_immune' | 'poison_heal' | 'boost_spd' | 'z_crystal' | 'mega_stone';
   boostType?: string;
   boostAmount?: number;
   zMoveName?: string;
   zMoveType?: string;
+  megaSpecies?: string;
+  megaAbility?: string;
 }
 
 export const HELD_ITEMS: Record<string, HeldItem> = {
@@ -57,6 +59,20 @@ export const HELD_ITEMS: Record<string, HeldItem> = {
   buginiumZ: { key: 'buginiumZ', name: 'BUGINIUM Z', effect: 'z_crystal', boostType: 'bug', zMoveName: 'SAVAGE SPIN-OUT', zMoveType: 'bug' },
   fairiumZ: { key: 'fairiumZ', name: 'FAIRIUM Z', effect: 'z_crystal', boostType: 'fairy', zMoveName: 'TWINKLE TACKLE', zMoveType: 'fairy' },
   normaliumZ: { key: 'normaliumZ', name: 'NORMALIUM Z', effect: 'z_crystal', boostType: 'normal', zMoveName: 'BREAKNECK BLITZ', zMoveType: 'normal' },
+  
+  // Mega Stones
+  venusaurite: { key: 'venusaurite', name: 'VENUSAURITE', effect: 'mega_stone', megaSpecies: 'venusaur', megaAbility: 'thickFat' },
+  charizarditeX: { key: 'charizarditeX', name: 'CHARIZARDITE X', effect: 'mega_stone', megaSpecies: 'charizard', megaAbility: 'toughClaws' },
+  charizarditeY: { key: 'charizarditeY', name: 'CHARIZARDITE Y', effect: 'mega_stone', megaSpecies: 'charizard', megaAbility: 'drought' },
+  blastoisinite: { key: 'blastoisinite', name: 'BLASTOISINITE', effect: 'mega_stone', megaSpecies: 'blastoise', megaAbility: 'megaLauncher' },
+  alakazite: { key: 'alakazite', name: 'ALAKAZITE', effect: 'mega_stone', megaSpecies: 'alakazam', megaAbility: 'trace' },
+  gengarite: { key: 'gengarite', name: 'GENGARITE', effect: 'mega_stone', megaSpecies: 'gengar', megaAbility: 'shadowTag' },
+  kangaskhanite: { key: 'kangaskhanite', name: 'KANGASKHANITE', effect: 'mega_stone', megaSpecies: 'kangaskhan', megaAbility: 'parentalBond' },
+  pinsirite: { key: 'pinsirite', name: 'PINSIRITE', effect: 'mega_stone', megaSpecies: 'pinsir', megaAbility: 'aerilate' },
+  gyaradosite: { key: 'gyaradosite', name: 'GYARADOSITE', effect: 'mega_stone', megaSpecies: 'gyarados', megaAbility: 'moldBreaker' },
+  aerodactylite: { key: 'aerodactylite', name: 'AERODACTYLITE', effect: 'mega_stone', megaSpecies: 'aerodactyl', megaAbility: 'toughClaws' },
+  mewtwoniteX: { key: 'mewtwoniteX', name: 'MEWTWONITE X', effect: 'mega_stone', megaSpecies: 'mewtwo', megaAbility: 'steadfast' },
+  mewtwoniteY: { key: 'mewtwoniteY', name: 'MEWTWONITE Y', effect: 'mega_stone', megaSpecies: 'mewtwo', megaAbility: 'insomnia' },
 };
 
 let maxHpForItem: number = 100;
@@ -167,4 +183,23 @@ export function calculateZMovePower(baseMovePower: number): number {
   const minPower = 120;
   const zPower = Math.floor(baseMovePower * 1.5);
   return Math.max(minPower, zPower);
+}
+
+export function isMegaStone(item: HeldItem | null): boolean {
+  return item?.effect === 'mega_stone';
+}
+
+export function getMegaStoneSpecies(item: HeldItem | null): string | null {
+  if (!item || item.effect !== 'mega_stone') return null;
+  return item.megaSpecies ?? null;
+}
+
+export function getMegaAbility(item: HeldItem | null): string | null {
+  if (!item || item.effect !== 'mega_stone') return null;
+  return item.megaAbility ?? null;
+}
+
+export function canMegaEvolve(item: HeldItem | null, speciesKey: string): boolean {
+  if (!item || item.effect !== 'mega_stone') return false;
+  return item.megaSpecies === speciesKey;
 }

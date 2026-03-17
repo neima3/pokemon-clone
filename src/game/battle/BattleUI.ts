@@ -128,6 +128,7 @@ export const BattleUI = {
     status?: StatusCondition | null,
     abilityName?: string,
     heldItemName?: string | null,
+    megaEvolved?: boolean,
   ) {
     const bx = 156, by = 92, bw = 156, bh = 58;
 
@@ -138,11 +139,24 @@ export const BattleUI = {
     ctx.lineWidth = 2;
     ctx.strokeRect(bx, by, bw, bh);
 
-    // Name
+    // Name with MEGA badge if mega evolved
     ctx.fillStyle = COLORS.dark;
     ctx.font = FONT;
     ctx.textBaseline = 'top';
-    ctx.fillText(name, bx + 6, by + 4);
+    
+    if (megaEvolved) {
+      // MEGA badge
+      ctx.fillStyle = '#f8b8d8';
+      ctx.fillRect(bx + 4, by + 2, 30, 12);
+      ctx.fillStyle = '#f8f8f0';
+      ctx.font = 'bold 7px monospace';
+      ctx.fillText('MEGA', bx + 6, by + 4);
+      ctx.fillStyle = COLORS.dark;
+      ctx.font = FONT;
+      ctx.fillText(name, bx + 38, by + 4);
+    } else {
+      ctx.fillText(name, bx + 6, by + 4);
+    }
 
     // Level
     ctx.font = FONT_SM;
@@ -281,7 +295,7 @@ export const BattleUI = {
   },
 
   /** Draw move selection menu with type colors and effectiveness indicator */
-  drawMoveMenu(ctx: CanvasRenderingContext2D, moves: MoveInstance[], cursor: number, enemyTypes?: PokemonType[]) {
+  drawMoveMenu(ctx: CanvasRenderingContext2D, moves: MoveInstance[], cursor: number, enemyTypes?: PokemonType[], canZMove?: boolean, canMegaEvolve?: boolean) {
     const bx = 4, by = 156, bw = 312, bh = 80;
 
     ctx.fillStyle = '#f8f8f0';
@@ -365,6 +379,23 @@ export const BattleUI = {
         ctx.fillText(`POW ${m.data.power}`, bx + 90, by + bh - 18);
       }
     }
+    
+    // Z-Move and Mega Evolution hints
+    ctx.font = 'bold 6px monospace';
+    ctx.textBaseline = 'bottom';
+    const hintY = by + bh - 2;
+    let hintX = bx + 8;
+    
+    if (canZMove) {
+      ctx.fillStyle = '#f8d858';
+      ctx.fillText('[C] Z-MOVE', hintX, hintY);
+      hintX += 58;
+    }
+    if (canMegaEvolve) {
+      ctx.fillStyle = '#f8b8d8';
+      ctx.fillText('[V] MEGA EVOLVE', hintX, hintY);
+    }
+    ctx.textBaseline = 'top';
   },
 
   /** Draw bag/item menu */

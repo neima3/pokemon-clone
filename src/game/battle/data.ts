@@ -426,6 +426,56 @@ export const ABILITIES: Record<string, AbilityData> = {
     trigger: 'passive',
     effect: 'grassy_terrain_status_immune',
   },
+  
+  // Mega Evolution Abilities
+  toughClaws: {
+    name: 'TOUGH CLAWS',
+    description: 'Boosts contact moves by 33%.',
+    trigger: 'passive',
+    effect: 'contact_boost',
+  },
+  megaLauncher: {
+    name: 'MEGA LAUNCHER',
+    description: 'Boosts pulse moves by 50%.',
+    trigger: 'passive',
+    effect: 'pulse_boost',
+  },
+  shadowTag: {
+    name: 'SHADOW TAG',
+    description: 'Prevents foes from fleeing.',
+    trigger: 'passive',
+    effect: 'trap_all',
+  },
+  parentalBond: {
+    name: 'PARENTAL BOND',
+    description: 'Moves hit twice, second hit at 25% power.',
+    trigger: 'passive',
+    effect: 'double_hit',
+  },
+  aerilate: {
+    name: 'AERILATE',
+    description: 'Normal moves become Flying and boost 20%.',
+    trigger: 'passive',
+    effect: 'normal_to_flying',
+  },
+  drought: {
+    name: 'DROUGHT',
+    description: 'Summons harsh sunlight on entry.',
+    trigger: 'on_entry',
+    effect: 'summon_sun',
+  },
+  trace: {
+    name: 'TRACE',
+    description: 'Copies foe\'s ability on entry.',
+    trigger: 'on_entry',
+    effect: 'copy_ability',
+  },
+  steadfast: {
+    name: 'STEADFAST',
+    description: 'Speed raises when flinching.',
+    trigger: 'on_damage',
+    effect: 'flinch_speed',
+  },
 };
 
 const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
