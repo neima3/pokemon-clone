@@ -225,6 +225,60 @@ export const SFX = {
     playTone(NOTE.C6, 0.2, 'sine', sfxGain!, 0.35);
   },
 
+  criticalHit() {
+    // Sharp, impactful critical hit sound
+    playTone(NOTE.G5, 0.04, 'square');
+    playTone(NOTE.C6, 0.04, 'square', sfxGain!, 0.04);
+    playTone(NOTE.E6, 0.08, 'square', sfxGain!, 0.08);
+    playNoise(0.05, 0.02);
+  },
+
+  badgeGet() {
+    // Triumphant badge fanfare
+    const notes = [NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6, NOTE.G5, NOTE.E5, NOTE.C6];
+    const durs = [0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.3];
+    let time = 0;
+    notes.forEach((n, i) => {
+      playTone(n, durs[i], 'triangle', sfxGain!, time);
+      time += durs[i] * 0.8;
+    });
+  },
+
+  weatherChange() {
+    // Subtle environmental shift sound
+    playTone(NOTE.E4, 0.15, 'sine');
+    playTone(NOTE.G4, 0.15, 'sine', sfxGain!, 0.1);
+    playTone(NOTE.B4, 0.2, 'sine', sfxGain!, 0.2);
+  },
+
+  itemGet() {
+    // Item pickup jingle
+    const notes = [NOTE.G4, NOTE.A4, NOTE.B4, NOTE.C5];
+    notes.forEach((n, i) => {
+      playTone(n, 0.08, 'square', sfxGain!, i * 0.07);
+    });
+  },
+
+  expGain() {
+    // Quick EXP gain blip
+    playTone(NOTE.C5, 0.06, 'triangle');
+    playTone(NOTE.E5, 0.08, 'triangle', sfxGain!, 0.05);
+  },
+
+  pokemonHealed() {
+    // Healing center jingle
+    const notes = [NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6, NOTE.G5, NOTE.C6];
+    notes.forEach((n, i) => {
+      playTone(n, 0.1, 'triangle', sfxGain!, i * 0.08);
+    });
+  },
+
+  runToggle() {
+    // Toggle running shoes
+    playTone(NOTE.C5, 0.05, 'square');
+    playTone(NOTE.G5, 0.08, 'square', sfxGain!, 0.05);
+  },
+
   newGame() {
     // Triumphant ascending fanfare for starting a new game
     const notes = [NOTE.C4, NOTE.E4, NOTE.G4, NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6, NOTE.C6];

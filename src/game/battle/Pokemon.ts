@@ -1,4 +1,6 @@
 import { MoveData, MOVES, SPECIES, SpeciesData, totalExpForLevel, StatusCondition } from './data';
+import type { HeldItem } from './HeldItems';
+import { HELD_ITEMS } from './HeldItems';
 
 export interface MoveInstance {
   data: MoveData;
@@ -17,6 +19,7 @@ export interface PokemonSaveData {
   exp: number;
   moves: Array<{ key: string; pp: number }>;
   isShiny?: boolean;
+  heldItemKey?: string | null;
 }
 
 export class Pokemon {
@@ -41,6 +44,8 @@ export class Pokemon {
   sleepTurns = 0;
   /** Shiny variant (1/256 chance) */
   isShiny = false;
+  /** Held item */
+  heldItem: HeldItem | null = null;
 
   constructor(speciesKey: string, level: number) {
     const species = SPECIES[speciesKey];
@@ -207,6 +212,7 @@ export class Pokemon {
       exp: this.exp,
       moves: this.moves.map((m) => ({ key: m.key, pp: m.pp })),
       isShiny: this.isShiny || undefined,
+      heldItemKey: this.heldItem?.key ?? null,
     };
   }
 
@@ -216,6 +222,9 @@ export class Pokemon {
     mon.exp = data.exp;
     mon.hp = Math.min(data.hp, mon.maxHp);
     mon.isShiny = data.isShiny ?? false;
+    if (data.heldItemKey && HELD_ITEMS[data.heldItemKey]) {
+      mon.heldItem = HELD_ITEMS[data.heldItemKey];
+    }
     // Restore moves with saved PP
     mon.moves = data.moves
       .filter((saved) => MOVES[saved.key]) // skip unknown moves

@@ -768,3 +768,67 @@ function wrapText(text: string, maxChars: number): string[] {
   if (line) lines.push(line);
   return lines;
 }
+
+export interface DamageNumber {
+  x: number;
+  y: number;
+  value: number;
+  timer: number;
+  maxTimer: number;
+  isPlayer: boolean;
+  isHeal: boolean;
+  critical: boolean;
+}
+
+export const DamageNumbers = {
+  create(value: number, isPlayer: boolean, isHeal: boolean = false, critical: boolean = false): DamageNumber {
+    return {
+      x: isPlayer ? 80 : 230,
+      y: isPlayer ? 100 : 50,
+      value,
+      timer: 0,
+      maxTimer: 1.2,
+      isPlayer,
+      isHeal,
+      critical,
+    };
+  },
+
+  update(dn: DamageNumber, dt: number) {
+    dn.timer += dt;
+    dn.y -= dt * 30;
+  },
+
+  render(ctx: CanvasRenderingContext2D, dn: DamageNumber) {
+    const progress = dn.timer / dn.maxTimer;
+    if (progress >= 1) return;
+
+    const alpha = progress > 0.7 ? 1 - (progress - 0.7) / 0.3 : 1;
+    const scale = dn.critical ? 1.3 : 1;
+    const offsetY = Math.sin(progress * Math.PI) * 10;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = `bold ${Math.floor(12 * scale)}px monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    let color = dn.isHeal ? '#48b048' : (dn.critical ? '#f8d830' : '#f85888');
+    if (dn.value === 0 && !dn.isHeal) color = '#808080';
+
+    ctx.fillStyle = '#000000';
+    ctx.fillText(dn.isHeal ? `+${dn.value}` : `${dn.value}`, dn.x + 1, dn.y + offsetY + 1);
+
+    ctx.fillStyle = color;
+    ctx.fillText(dn.isHeal ? `+${dn.value}` : `${dn.value}`, dn.x, dn.y + offsetY);
+
+    if (dn.critical) {
+      ctx.font = 'bold 8px monospace';
+      ctx.fillStyle = '#f8d830';
+      ctx.fillText('CRITICAL!', dn.x, dn.y + offsetY - 16);
+    }
+
+    ctx.restore();
+    ctx.textAlign = 'left';
+  },
+};

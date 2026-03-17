@@ -71,6 +71,9 @@ export class OverworldScene implements Scene {
   // Bag cursor
   private bagCursor = 0;
 
+  // Running shoes
+  private isRunning = false;
+
   // HUD
   private showMiniStatus = true;
 
@@ -178,8 +181,14 @@ export class OverworldScene implements Scene {
       if (this.input.getActionPressed()) {
         if (this.tryInteract()) return;
       }
+      this.player.setRunning(this.isRunning || this.input.isRunning());
 
-      this.player.setRunning(this.input.isRunning());
+      // Toggle running shoes with B key
+      if (this.input.getRunTogglePressed()) {
+        this.isRunning = !this.isRunning;
+        SFX.runToggle();
+      }
+
       const dir = this.input.getDirection();
       if (dir) {
         this.player.tryMove(dir, (gx, gy) => {

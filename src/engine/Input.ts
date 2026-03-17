@@ -121,6 +121,18 @@ export class Input {
     return this.shiftHeld;
   }
 
+  /** Returns true if run toggle key (B) was just pressed. Consumed on read. */
+  getRunTogglePressed(): boolean {
+    const keys = ['b', 'B'];
+    for (const k of keys) {
+      if (this.pressed.has(k)) {
+        keys.forEach((k2) => this.pressed.delete(k2));
+        return true;
+      }
+    }
+    return false;
+  }
+
   /** Clear all buffered input. Call when switching scenes. */
   clear() {
     this.held.clear();

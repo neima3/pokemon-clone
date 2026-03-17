@@ -2,7 +2,7 @@ import type { Scene } from '@/engine/Scene';
 import { Input } from '@/engine/Input';
 import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
-import { BattleUI } from './BattleUI';
+import { BattleUI, DamageNumber, DamageNumbers } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
 import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType } from './data';
@@ -68,6 +68,9 @@ export class BattleScene implements Scene {
 
   // Screen shake
   private screenShake = 0;
+
+  // Damage numbers
+  private damageNumbers: DamageNumber[] = [];
 
   // Catch animation state
   private catchTimer = 0;
@@ -173,6 +176,12 @@ export class BattleScene implements Scene {
       this.screenShake *= 0.85;
       if (this.screenShake < 0.5) this.screenShake = 0;
     }
+
+    // Update damage numbers
+    for (const dn of this.damageNumbers) {
+      DamageNumbers.update(dn, dt);
+    }
+    this.damageNumbers = this.damageNumbers.filter(dn => dn.timer < dn.maxTimer);
 
     switch (this.phase) {
       case 'intro': this.updateIntro(dt); break;
@@ -935,6 +944,7 @@ export class BattleScene implements Scene {
     } else if (result.damage > 0) {
       SFX.attackHit();
       if (result.critical) {
+        SFX.criticalHit();
         messages.push('A critical hit!');
       }
       if (result.effectiveness > 1) {
@@ -954,6 +964,10 @@ export class BattleScene implements Scene {
     }
 
     this.playAttackAnim(isPlayer, move.data.type as PokemonType, result.critical, () => {
+      // Spawn damage number
+      if (result.damage > 0) {
+        this.damageNumbers.push(DamageNumbers.create(result.damage, !isPlayer, false, result.critical));
+      }
       this.queueMessages(messages, then);
     });
   }
@@ -1012,6 +1026,7 @@ export class BattleScene implements Scene {
         // Gym badge
         if (this.trainerData.isGymLeader && this.trainerData.badgeName) {
           this.gameState.addBadge(this.trainerData.badgeName);
+          SFX.badgeGet();
           msgs.push(`You received the ${this.trainerData.badgeName}!`);
         }
         if (this.trainerData.defeatMessage) {
@@ -1337,6 +1352,11 @@ export class BattleScene implements Scene {
     if (this.flashAlpha > 0) {
       ctx.fillStyle = `rgba(255,255,255,${this.flashAlpha})`;
       ctx.fillRect(0, 0, 320, 240);
+    }
+
+    // Render damage numbers
+    for (const dn of this.damageNumbers) {
+      DamageNumbers.render(ctx, dn);
     }
 
     // Restore screen shake transform
