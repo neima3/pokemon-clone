@@ -1,5 +1,5 @@
 import { Pokemon, MoveInstance } from './Pokemon';
-import { getTypeEffectiveness, MOVES, StatusCondition } from './data';
+import { getTypeEffectiveness, MOVES, StatusCondition, TerrainType } from './data';
 import type { PokemonType } from './data';
 import type { WeatherType } from '../Weather';
 import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash, getContactDamage, hasGroundImmunityItem, getBlackSludgeHeal, setContextMaxHp, getSpeedBoost } from './HeldItems';
@@ -120,6 +120,8 @@ export interface TurnResult {
   perishSongSet?: boolean;
   destinyBondTriggered?: boolean;
   perishSongCount?: number;
+  terrainSet?: TerrainType;
+  terrainTurns?: number;
 }
 
   
@@ -445,15 +447,83 @@ function getAbilityDamageModifier(attacker: Pokemon, defender: Pokemon, moveType
 
 const PUNCHING_MOVES = new Set([
   'machPunch', 'thunderPunch', 'fireFang', 'icePunch', 'megaPunch',
-  'cometPunch', 'dynamicPunch', 'dizzyPunch', 'focusPunch', 'hammerArm',
-  'skyUppercut', 'crossChop', 'brickBreak'
+  'dynamicPunch', 'cometPunch', 'firePunch'
 ]);
 
 function isPunchingMove(moveKey: string): boolean {
   return PUNCHING_MOVES.has(moveKey);
 }
 
-export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInstance, weather?: WeatherType): TurnResult {
+export function getTerrainDamageModifier(attacker: Pokemon, moveType: PokemonType, terrain: TerrainType): number {
+  if (terrain === 'none') return 1;
+  
+  const isGrounded = !attacker.species.types.includes('flying') && 
+                     attacker.ability?.effect !== 'ground_immune' &&
+                     !hasGroundImmunityItem(attacker.heldItem);
+  
+  if (!isGrounded) return 1;
+  
+  if (terrain === 'electric' && moveType === 'electric') return 1.5;
+  if (terrain === 'psychic' && moveType === 'psychic') return 1.5;
+  if (terrain === 'grassy' && moveType === 'grass') return 1.5;
+  if (terrain === 'misty' && moveType === 'dragon') return 0.5;
+  
+  return 1;
+}
+
+export function isImmuneToStatusInTerrain(mon: Pokemon, statusType: 'sleep' | 'all', terrain: TerrainType): boolean {
+  if (terrain === 'none') return false;
+  
+  const isGrounded = !mon.species.types.includes('flying') && 
+                     mon.ability?.effect !== 'ground_immune' &&
+                     !hasGroundImmunityItem(mon.heldItem);
+  
+  if (!isGrounded) return false;
+  
+  if (terrain === 'electric' && statusType === 'sleep') return true;
+  if (terrain === 'misty' && statusType === 'all') return true;
+  if (terrain === 'grassy' && mon.ability?.effect === 'grassy_terrain_status_immune') return true;
+  
+  return false;
+}
+
+export function getTerrainHeal(mon: Pokemon, terrain: TerrainType): number {
+  if (terrain !== 'grassy') return 0;
+  
+  const isGrounded = !mon.species.types.includes('flying') && 
+                     mon.ability?.effect !== 'ground_immune' &&
+                     !hasGroundImmunityItem(mon.heldItem);
+  
+  if (!isGrounded) return 0;
+  
+  return Math.floor(mon.maxHp / 16);
+}
+
+export function getTerrainSpeedBoost(mon: Pokemon, terrain: TerrainType): number {
+  if (terrain === 'electric' && mon.ability?.effect === 'electric_terrain_speed') {
+    return 2;
+  }
+  return 1;
+}
+
+export function getTerrainDefenseBoost(mon: Pokemon, terrain: TerrainType): number {
+  if (terrain === 'grassy' && mon.ability?.effect === 'grassy_terrain_defense') {
+    return 1.5;
+  }
+  return 1;
+}
+
+export function blocksPriorityMoves(terrain: TerrainType, defender: Pokemon): boolean {
+  if (terrain !== 'psychic') return false;
+  
+  const isGrounded = !defender.species.types.includes('flying') && 
+                     defender.ability?.effect !== 'ground_immune' &&
+                     !hasGroundImmunityItem(defender.heldItem);
+  
+  return isGrounded;
+}
+
+export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInstance, weather?: WeatherType, terrain: TerrainType = 'none'): TurnResult {
   move.pp = Math.max(0, move.pp - 1);
   
   const result: TurnResult = {
@@ -635,6 +705,22 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
       result.perishSongSet = true;
       result.perishSongCount = 4;
       result.statusMessage = `A PERISH SONG! All Pokemon will faint in 3 turns!`;
+    } else if (effect === 'electric_terrain') {
+      result.terrainSet = 'electric';
+      result.terrainTurns = 5;
+      result.statusMessage = `An electric current runs across the battlefield!`;
+    } else if (effect === 'psychic_terrain') {
+      result.terrainSet = 'psychic';
+      result.terrainTurns = 5;
+      result.statusMessage = `The battlefield got weird!`;
+    } else if (effect === 'grassy_terrain') {
+      result.terrainSet = 'grassy';
+      result.terrainTurns = 5;
+      result.statusMessage = `Grass grew to cover the battlefield!`;
+    } else if (effect === 'misty_terrain') {
+      result.terrainSet = 'misty';
+      result.terrainTurns = 5;
+      result.statusMessage = `Mist swirled around the battlefield!`;
     }
     return result;
   }
@@ -751,6 +837,11 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
         if (move.data.type === 'fire') hitDamage = Math.floor(hitDamage * 1.5);
         if (move.data.type === 'water') hitDamage = Math.floor(hitDamage * 0.5);
       }
+    }
+    
+    const terrainMod = getTerrainDamageModifier(attacker, move.data.type, terrain);
+    if (terrainMod !== 1) {
+      hitDamage = Math.floor(hitDamage * terrainMod);
     }
     
     if (attacker.species.types.includes(move.data.type)) {

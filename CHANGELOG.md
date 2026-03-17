@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2026-03-17
+
+### Added
+- Sprint 031: Terrain Effects System
+- Terrain effects: Electric, Psychic, Grassy, and Misty Terrain with 5-turn duration
+- Terrain moves: Electric Terrain, Psychic Terrain, Grassy Terrain, Misty Terrain
+- Terrain damage modifiers: 1.5x boost for matching types (Electric/Psychic/Grass), 0.5x for Dragon in Misty Terrain
+- Terrain status immunity: Electric Terrain prevents sleep, Misty Terrain prevents all status conditions
+- Grassy Terrain healing: Grounded Pokemon recover 1/16 HP per turn
+- Terrain-related abilities: Surge Surfer (Electric Terrain speed boost), Grass Pelt (Grassy Terrain defense boost), Leaf Guard (Grassy Terrain status immunity)
+- Visual terrain particle effects and overlays for each terrain type
+- Fairy type support added to PokemonType and TYPE_COLORS
+
+### Technical
+- Added TerrainType to data.ts with 'electric', 'psychic', 'grassy', 'misty', 'none' types
+- Extended MoveData effect type with terrain-setting effects
+- Added terrain state tracking to BattleScene (terrain, terrainTurns, terrainParticles)
+- Added getTerrainDamageModifier(), isImmuneToStatusInTerrain(), getTerrainHeal(), getTerrainSpeedBoost(), getTerrainDefenseBoost(), blocksPriorityMoves() helper functions to BattleEngine
+- Updated executeMove() signature to accept terrain parameter
+- Added terrain damage calculation in damage formula
+- Added terrain healing in applyEndOfTurnStatus()
+- Added updateTerrainParticles(), spawnTerrainParticle(), renderTerrain() methods to BattleScene
+- Extended TurnResult with terrainSet and terrainTurns fields
+
 ## [0.29.0] - 2026-03-17
 
 ### Added

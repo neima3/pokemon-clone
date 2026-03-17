@@ -4,8 +4,8 @@ import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
-import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters, checkDrowsy, checkWish, checkFutureSight, checkDoomDesire, checkDestinyBond, checkPerishSong } from './BattleEngine';
-import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition } from './data';
+import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters, checkDrowsy, checkWish, checkFutureSight, checkDoomDesire, checkDestinyBond, checkPerishSong, getTerrainHeal } from './BattleEngine';
+import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition, TerrainType } from './data';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
 
@@ -88,6 +88,11 @@ export class BattleScene implements Scene {
   private weather: WeatherType = 'clear';
   private weatherParticles: Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number }> = [];
   private weatherTimer = 0;
+
+  // Terrain effects
+  private terrain: TerrainType = 'none';
+  private terrainTurns = 0;
+  private terrainParticles: Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number; color: string }> = [];
 
   // Catch animation state
   private catchTimer = 0;
@@ -240,6 +245,9 @@ export class BattleScene implements Scene {
 
     // Update weather particles
     this.updateWeatherParticles(dt);
+    
+    // Update terrain particles
+    this.updateTerrainParticles(dt);
 
     // Spawn status particles for Pokemon with status conditions
     if (this.playerMon.status && this.phase !== 'intro' && Math.random() < dt * 2) {
@@ -443,6 +451,120 @@ export class BattleScene implements Scene {
       ctx.fillRect(0, 0, 320, 156);
     } else if (this.weather === 'sandstorm') {
       ctx.fillStyle = 'rgba(200, 170, 130, 0.08)';
+      ctx.fillRect(0, 0, 320, 156);
+    }
+  }
+
+  private updateTerrainParticles(dt: number) {
+    if (this.terrain === 'none') return;
+    
+    const targetCount = 25;
+    while (this.terrainParticles.length < targetCount) {
+      this.spawnTerrainParticle();
+    }
+    
+    for (const p of this.terrainParticles) {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+    }
+    
+    this.terrainParticles = this.terrainParticles.filter(p => p.life > 0 && p.y < 200);
+  }
+
+  private spawnTerrainParticle() {
+    switch (this.terrain) {
+      case 'electric':
+        this.terrainParticles.push({
+          x: Math.random() * 320,
+          y: 130 + Math.random() * 20,
+          vx: (Math.random() - 0.5) * 40,
+          vy: -30 - Math.random() * 20,
+          life: 0.4 + Math.random() * 0.2,
+          maxLife: 0.4 + Math.random() * 0.2,
+          size: 2 + Math.random() * 2,
+          color: '#f8d858',
+        });
+        break;
+      case 'psychic':
+        this.terrainParticles.push({
+          x: Math.random() * 320,
+          y: 100 + Math.random() * 40,
+          vx: Math.sin(this.weatherTimer * 3) * 20,
+          vy: -15 + Math.cos(this.weatherTimer * 2) * 10,
+          life: 1.5 + Math.random(),
+          maxLife: 1.5 + Math.random(),
+          size: 4 + Math.random() * 3,
+          color: '#f85888',
+        });
+        break;
+      case 'grassy':
+        this.terrainParticles.push({
+          x: Math.random() * 320,
+          y: 140 + Math.random() * 10,
+          vx: (Math.random() - 0.5) * 10,
+          vy: -20 - Math.random() * 15,
+          life: 1 + Math.random() * 0.5,
+          maxLife: 1 + Math.random() * 0.5,
+          size: 3 + Math.random() * 2,
+          color: '#78c850',
+        });
+        break;
+      case 'misty':
+        this.terrainParticles.push({
+          x: Math.random() * 320,
+          y: Math.random() * 150,
+          vx: 5 + Math.random() * 10,
+          vy: Math.sin(this.weatherTimer + Math.random()) * 2,
+          life: 2 + Math.random(),
+          maxLife: 2 + Math.random(),
+          size: 20 + Math.random() * 25,
+          color: '#ee99ac',
+        });
+        break;
+    }
+  }
+
+  private renderTerrain(ctx: CanvasRenderingContext2D) {
+    if (this.terrain === 'none') return;
+    
+    for (const p of this.terrainParticles) {
+      const alpha = Math.min(1, p.life / p.maxLife);
+      ctx.fillStyle = p.color.replace(')', `, ${alpha * 0.5})`).replace('rgb', 'rgba').replace('#', '');
+      
+      const hex = p.color;
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.5})`;
+      
+      if (this.terrain === 'electric') {
+        ctx.fillRect(p.x - p.size / 4, p.y - 1, p.size / 2, 2);
+        ctx.fillRect(p.x - 1, p.y - p.size / 4, 2, p.size / 2);
+      } else if (this.terrain === 'psychic') {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (this.terrain === 'grassy') {
+        ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+      } else if (this.terrain === 'misty') {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    if (this.terrain === 'electric') {
+      ctx.fillStyle = 'rgba(248, 216, 88, 0.08)';
+      ctx.fillRect(0, 120, 320, 36);
+    } else if (this.terrain === 'psychic') {
+      ctx.fillStyle = 'rgba(248, 88, 136, 0.08)';
+      ctx.fillRect(0, 0, 320, 156);
+    } else if (this.terrain === 'grassy') {
+      ctx.fillStyle = 'rgba(120, 200, 80, 0.08)';
+      ctx.fillRect(0, 120, 320, 36);
+    } else if (this.terrain === 'misty') {
+      ctx.fillStyle = 'rgba(238, 153, 172, 0.1)';
       ctx.fillRect(0, 0, 320, 156);
     }
   }
@@ -1247,6 +1369,31 @@ export class BattleScene implements Scene {
       msgs.push(`${this.enemyMon.name}'s perish count: ${enemyPerish.count}`);
     }
 
+    // Terrain effects
+    if (this.terrain !== 'none') {
+      this.terrainTurns--;
+      if (this.terrainTurns <= 0) {
+        msgs.push('The terrain returned to normal.');
+        this.terrain = 'none';
+      } else if (this.terrain === 'grassy') {
+        const playerTerrainHeal = getTerrainHeal(this.playerMon, this.terrain);
+        if (playerTerrainHeal > 0) {
+          this.playerMon.hp = Math.min(this.playerMon.maxHp, this.playerMon.hp + playerTerrainHeal);
+          msgs.push(`${this.playerMon.name} was healed by the grassy terrain!`);
+          this.healParticles.push(...HealParticles.create(this.playerSpriteX + 20, 100, 6));
+          this.playerDisplayHp = this.playerMon.hp;
+        }
+        
+        const enemyTerrainHeal = getTerrainHeal(this.enemyMon, this.terrain);
+        if (enemyTerrainHeal > 0) {
+          this.enemyMon.hp = Math.min(this.enemyMon.maxHp, this.enemyMon.hp + enemyTerrainHeal);
+          msgs.push(`${this.enemyMon.name} was healed by the grassy terrain!`);
+          this.healParticles.push(...HealParticles.create(this.enemySpriteX + 20, 40, 6));
+          this.enemyDisplayHp = this.enemyMon.hp;
+        }
+      }
+    }
+
     decrementTurnCounters(this.playerMon);
     decrementTurnCounters(this.enemyMon);
 
@@ -1404,7 +1551,7 @@ export class BattleScene implements Scene {
       return;
     }
     
-    const result = executeMove(attacker, defender, move, this.weather);
+    const result = executeMove(attacker, defender, move, this.weather, this.terrain);
     const messages: string[] = [];
 
     messages.push(`${prefix}${attacker.name} used ${move.data.name}!`);
@@ -1469,6 +1616,11 @@ export class BattleScene implements Scene {
         } else {
           this.enemyHazards = createEmptyHazards();
         }
+      }
+      
+      if (result.terrainSet) {
+        this.terrain = result.terrainSet;
+        this.terrainTurns = result.terrainTurns || 5;
       }
       
       this.queueMessages(messages, then);
@@ -1751,6 +1903,9 @@ export class BattleScene implements Scene {
 
     // Render weather effects
     this.renderWeather(ctx);
+    
+    // Render terrain effects
+    this.renderTerrain(ctx);
 
     // Calculate sprite positions with animation offsets
     let psx = this.playerSpriteX;

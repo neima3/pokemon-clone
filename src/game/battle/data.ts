@@ -1,8 +1,10 @@
 // ── Pokemon Types ──
 
-export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice' | 'fighting' | 'dragon' | 'steel' | 'dark';
+export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice' | 'fighting' | 'dragon' | 'steel' | 'dark' | 'fairy';
 
 export type StatusCondition = 'poison' | 'burn' | 'paralyze' | 'sleep' | 'toxic';
+
+export type TerrainType = 'electric' | 'psychic' | 'grassy' | 'misty' | 'none';
 
 // ── Abilities ──
 
@@ -406,6 +408,24 @@ export const ABILITIES: Record<string, AbilityData> = {
     trigger: 'passive',
     effect: 'reflect_status',
   },
+  surgeSurfer: {
+    name: 'SURGE SURFER',
+    description: 'Speed doubles in Electric Terrain.',
+    trigger: 'passive',
+    effect: 'electric_terrain_speed',
+  },
+  grassPelt: {
+    name: 'GRASS PELT',
+    description: 'Defense boosts in Grassy Terrain.',
+    trigger: 'passive',
+    effect: 'grassy_terrain_defense',
+  },
+  leafGuard: {
+    name: 'LEAF GUARD',
+    description: 'Immune to status in Grassy Terrain.',
+    trigger: 'passive',
+    effect: 'grassy_terrain_status_immune',
+  },
 };
 
 const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
@@ -444,7 +464,7 @@ export interface MoveData {
   accuracy: number;
   maxPp: number;
   category: 'physical' | 'status';
-  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect' | 'spikes' | 'stealth_rock' | 'toxic_spikes' | 'clear_hazards' | 'baton_pass' | 'u_turn' | 'substitute' | 'trap' | 'disable' | 'encore' | 'taunt' | 'attract' | 'phaze' | 'yawn' | 'wish' | 'prevent_switch' | 'team_cure' | 'future_sight' | 'doom_desire' | 'destiny_bond' | 'perish_song';
+  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect' | 'spikes' | 'stealth_rock' | 'toxic_spikes' | 'clear_hazards' | 'baton_pass' | 'u_turn' | 'substitute' | 'trap' | 'disable' | 'encore' | 'taunt' | 'attract' | 'phaze' | 'yawn' | 'wish' | 'prevent_switch' | 'team_cure' | 'future_sight' | 'doom_desire' | 'destiny_bond' | 'perish_song' | 'electric_terrain' | 'psychic_terrain' | 'grassy_terrain' | 'misty_terrain';
   statusEffect?: StatusCondition;
   statusChance?: number;
   confuseChance?: number;
@@ -689,6 +709,11 @@ export const MOVES: Record<string, MoveData> = {
   doomDesire:   { name: 'DOOM DESIRE',type: 'steel',    power: 140, accuracy: 100, maxPp: 5,  category: 'physical', effect: 'doom_desire' },
   destinyBond:  { name: 'DESTINY BND', type: 'ghost',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'destiny_bond', priority: -1 },
   perishSong:   { name: 'PERISH SNG', type: 'normal',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'perish_song' },
+  // Sprint 031: Terrain moves
+  electricTerrain: { name: 'ELEC TERRAIN', type: 'electric', power: 0, accuracy: 100, maxPp: 10, category: 'status', effect: 'electric_terrain' },
+  psychicTerrain:  { name: 'PSY TERRAIN',  type: 'psychic',  power: 0, accuracy: 100, maxPp: 10, category: 'status', effect: 'psychic_terrain' },
+  grassyTerrain:   { name: 'GRASS TERRAIN',type: 'grass',    power: 0, accuracy: 100, maxPp: 10, category: 'status', effect: 'grassy_terrain' },
+  mistyTerrain:    { name: 'MISTY TERRAIN',type: 'fairy',    power: 0, accuracy: 100, maxPp: 10, category: 'status', effect: 'misty_terrain' },
 };
 
 // ── Species ──
@@ -1838,6 +1863,7 @@ export const TYPE_COLORS: Record<PokemonType, string> = {
   dragon:   '#7038f8',
   steel:    '#b8b8d0',
   dark:     '#705848',
+  fairy:    '#ee99ac',
 };
 
 // ── EXP ──
