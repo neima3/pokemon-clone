@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.0] - 2026-03-17
+
+### Added
+- Sprint 024: Two-Turn Moves & Confusion System
+- Two-turn moves: Fly, Dig, Solar Beam, Sky Attack with charge/invulnerability mechanics
+- Confusion status: 33% chance to hurt self in confusion, lasts 1-4 turns
+- Confusion-inducing moves: Confuse Ray (100%), Supersonic (55%), Swagger (raises attack + confuses)
+- Secondary confusion chance on damaging moves: Water Pulse, Rock Climb, Signal Beam
+- Confusion visual particles: yellow stars floating around confused Pokemon
+- Dark type added to type system with proper color (#705848)
+- New moves: Psyshock, Agility (raises speed +2)
+
+### Technical
+- Added twoTurnState and twoTurnMove to Pokemon class for tracking charge states
+- Added confused and confuseTurns to Pokemon class for confusion tracking
+- Updated canAct() to handle confusion self-damage (40 power physical hit)
+- Added confusion check with 33% self-hit chance
+- Added invulnerability handling for Fly/Dig states
+- Extended MoveData interface with raise_speed, raise_attack_2, confuse effects
+- Added confuseChance field for secondary confusion on damaging moves
+- Updated StatusParticle type to include 'confusion'
+- Confusion particles render as yellow asterisks
+
 ## [0.22.0] - 2026-03-17
 
 ### Added

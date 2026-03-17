@@ -21,6 +21,10 @@ export interface TurnResult {
   hits?: number;
   heldItemMessage?: string;
   flinched?: boolean;
+  confused?: boolean;
+  snappedOut?: boolean;
+  charging?: boolean;
+  invulnerable?: boolean;
 }
 
   
@@ -37,6 +41,8 @@ export interface TurnEndResult {
 export interface ActResult {
   canAct: boolean;
   message?: string;
+  confusionHit?: boolean;
+  confusionDamage?: number;
 }
 
 function stageMultiplier(stage: number): number {
@@ -58,6 +64,20 @@ export function canAct(mon: Pokemon): ActResult {
     if (Math.random() < 0.25) {
       return { canAct: false, message: `${mon.name} is paralyzed! It can't move!` };
     }
+  }
+  
+  if (mon.confused) {
+    mon.confuseTurns--;
+    if (mon.confuseTurns <= 0) {
+      mon.confused = false;
+      return { canAct: true, message: `${mon.name} snapped out of confusion!` };
+    }
+    if (Math.random() < 0.33) {
+      const damage = Math.floor(((2 * mon.level / 5 + 2) * 40 * mon.attack / mon.defense) / 50) + 2;
+      mon.hp = Math.max(0, mon.hp - damage);
+      return { canAct: false, message: `${mon.name} is confused! It hurt itself in confusion!`, confusionHit: true, confusionDamage: damage };
+    }
+    return { canAct: true, message: `${mon.name} is confused!` };
   }
   
   return { canAct: true };
@@ -309,6 +329,17 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
       attacker.defStage = Math.min(6, attacker.defStage + 1);
     } else if (effect === 'raise_attack') {
       attacker.atkStage = Math.min(6, attacker.atkStage + 1);
+    } else if (effect === 'raise_attack_2') {
+      defender.atkStage = Math.min(6, defender.atkStage + 2);
+      if (!defender.confused) {
+        defender.confused = true;
+        defender.confuseTurns = 1 + Math.floor(Math.random() * 4);
+        result.statusMessage = `${defender.name}'s Attack rose sharply! ${defender.name} became confused!`;
+      } else {
+        result.statusMessage = `${defender.name}'s Attack rose sharply!`;
+      }
+    } else if (effect === 'raise_speed') {
+      attacker.spdStage = Math.min(6, attacker.spdStage + 2);
     } else if (effect === 'poison' && !defender.status && !defender.isImmuneToStatus('poison')) {
       defender.status = 'poison';
       result.statusMessage = `${defender.name} was poisoned!`;
@@ -322,6 +353,10 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
       defender.status = 'sleep';
       defender.sleepTurns = 2 + Math.floor(Math.random() * 2);
       result.statusMessage = `${defender.name} fell asleep!`;
+    } else if (effect === 'confuse' && !defender.confused) {
+      defender.confused = true;
+      defender.confuseTurns = 1 + Math.floor(Math.random() * 4);
+      result.statusMessage = `${defender.name} became confused!`;
     }
     return result;
   }
@@ -477,6 +512,12 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
             if (defender.ability?.effect !== 'no_flinch') {
                 result.flinched = true;
             }
+        }
+        
+        if (move.data.confuseChance && damage > 0 && !defender.confused && Math.random() * 100 < move.data.confuseChance) {
+            defender.confused = true;
+            defender.confuseTurns = 1 + Math.floor(Math.random() * 4);
+            result.statusMessage = `${defender.name} became confused!`;
         }
         
         return result;

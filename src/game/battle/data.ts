@@ -1,6 +1,6 @@
 // ── Pokemon Types ──
 
-export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice' | 'fighting' | 'dragon' | 'steel';
+export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice' | 'fighting' | 'dragon' | 'steel' | 'dark';
 
 export type StatusCondition = 'poison' | 'burn' | 'paralyze' | 'sleep';
 
@@ -426,10 +426,12 @@ export interface MoveData {
   accuracy: number;
   maxPp: number;
   category: 'physical' | 'status';
-  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'poison' | 'burn' | 'paralyze' | 'sleep';
+  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2';
   /** Secondary status effect on damaging moves (e.g. Ember 10% burn) */
   statusEffect?: StatusCondition;
   statusChance?: number;
+  /** Secondary confusion chance on damaging moves */
+  confuseChance?: number;
   /** Priority bracket: +1 goes before normal moves, -1 goes after */
   priority?: number;
   /** Percentage of damage dealt that heals the user (e.g., 50 for drain moves) */
@@ -613,6 +615,22 @@ export const MOVES: Record<string, MoveData> = {
   rollingKick:  { name: 'ROLLING KCK',type: 'fighting',  power: 60,  accuracy: 85,  maxPp: 15, category: 'physical' },
   cometPunch:   { name: 'COMET PNCH', type: 'normal',    power: 60,  accuracy: 85,  maxPp: 15, category: 'physical' },
   machPunch:    { name: 'MACH PUNCH', type: 'fighting',  power: 40,  accuracy: 100, maxPp: 30, category: 'physical', priority: 1 },
+  // Sprint 024: Two-turn moves
+  fly:          { name: 'FLY',         type: 'flying',   power: 90,  accuracy: 95,  maxPp: 15, category: 'physical', twoTurn: 'fly' },
+  digMove:      { name: 'DIG',         type: 'ground',   power: 80,  accuracy: 100, maxPp: 10, category: 'physical', twoTurn: 'dig' },
+  solarBeamMove:{ name: 'SOLAR BEAM',  type: 'grass',    power: 120, accuracy: 100, maxPp: 10, category: 'physical', twoTurn: 'charge' },
+  skyAttack:    { name: 'SKY ATK',     type: 'flying',   power: 140, accuracy: 90,  maxPp: 5,  category: 'physical', twoTurn: 'charge', flinchChance: 30 },
+  // Sprint 024: Confusion moves
+  confuseRay:   { name: 'CONFUSE RAY', type: 'ghost',    power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'confuse' },
+  supersonic:   { name: 'SUPERSONIC',  type: 'normal',   power: 0,   accuracy: 55,  maxPp: 20, category: 'status', effect: 'confuse' },
+  swagger:      { name: 'SWAGGER',     type: 'normal',   power: 0,   accuracy: 85,  maxPp: 15, category: 'status', effect: 'raise_attack_2' },
+  flatter:      { name: 'FLATTER',     type: 'dark',     power: 0,   accuracy: 100, maxPp: 15, category: 'status', effect: 'confuse' },
+  teeterDance:  { name: 'TEETER DNC',  type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'confuse' },
+  waterPulse2:  { name: 'WATER PULSE', type: 'water',    power: 60,  accuracy: 100, maxPp: 20, category: 'physical', confuseChance: 20 },
+  rockClimb:    { name: 'ROCK CLIMB',  type: 'normal',   power: 90,  accuracy: 85,  maxPp: 20, category: 'physical', confuseChance: 20 },
+  signalBeam:   { name: 'SIGNAL BEAM', type: 'bug',      power: 75,  accuracy: 100, maxPp: 15, category: 'physical', confuseChance: 10 },
+  psyshock:     { name: 'PSYSHOCK',    type: 'psychic',  power: 80,  accuracy: 100, maxPp: 10, category: 'physical' },
+  agility2:     { name: 'AGILITY',     type: 'psychic',  power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'raise_speed' },
 };
 
 // ── Species ──
@@ -1761,6 +1779,7 @@ export const TYPE_COLORS: Record<PokemonType, string> = {
   fighting: '#c03028',
   dragon:   '#7038f8',
   steel:    '#b8b8d0',
+  dark:     '#705848',
 };
 
 // ── EXP ──

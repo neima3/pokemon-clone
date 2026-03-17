@@ -45,6 +45,12 @@ export class Pokemon {
   heldItem: HeldItem | null = null;
   ability: AbilityData | null = null;
   abilityKey: string | null = null;
+  
+  confused = false;
+  confuseTurns = 0;
+  
+  twoTurnState: 'none' | 'charging' | 'flying' | 'underground' = 'none';
+  twoTurnMove: string | null = null;
 
   flashFireBoost = false;
   sturdyUsed = false;
@@ -127,6 +133,10 @@ export class Pokemon {
     this.atkStage = 0;
     this.defStage = 0;
     this.spdStage = 0;
+    this.confused = false;
+    this.confuseTurns = 0;
+    this.twoTurnState = 'none';
+    this.twoTurnMove = null;
   }
 
   heal() {
@@ -134,6 +144,10 @@ export class Pokemon {
     this.resetStages();
     this.status = null;
     this.sleepTurns = 0;
+    this.confused = false;
+    this.confuseTurns = 0;
+    this.twoTurnState = 'none';
+    this.twoTurnMove = null;
     for (const m of this.moves) m.pp = m.data.maxPp;
   }
 

@@ -905,7 +905,7 @@ export interface StatusParticle {
   maxLife: number;
   size: number;
   color: string;
-  type: 'poison' | 'burn' | 'paralyze' | 'sleep';
+  type: 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confusion';
 }
 
 export interface HealParticle {
@@ -982,6 +982,10 @@ export const StatusParticles = {
         case 'sleep':
           ctx.font = `bold ${Math.floor(p.size * 2)}px monospace`
           ctx.fillText('z', p.x, p.y)
+          break
+        case 'confusion':
+          ctx.font = `bold ${Math.floor(p.size * 2)}px monospace`
+          ctx.fillText('*', p.x, p.y)
           break
       }
     }

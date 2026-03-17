@@ -5,7 +5,7 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
 import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems } from './BattleEngine';
-import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType } from './data';
+import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition } from './data';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
 
@@ -240,6 +240,38 @@ export class BattleScene implements Scene {
         p.y = 20 + Math.random() * 30;
       }
       this.statusParticles.push(...particles);
+    }
+    
+    // Spawn confusion particles
+    if (this.playerMon.confused && this.phase !== 'intro' && Math.random() < dt * 3) {
+      for (let i = 0; i < 3; i++) {
+        this.statusParticles.push({
+          x: this.playerSpriteX + 20 + Math.random() * 50,
+          y: 60 + Math.random() * 40,
+          vx: (Math.random() - 0.5) * 30,
+          vy: -20 - Math.random() * 20,
+          life: 0.6 + Math.random() * 0.3,
+          maxLife: 0.6 + Math.random() * 0.3,
+          size: 3 + Math.random() * 3,
+          color: '#f8d830',
+          type: 'confusion',
+        });
+      }
+    }
+    if (this.enemyMon.confused && this.phase !== 'intro' && Math.random() < dt * 3) {
+      for (let i = 0; i < 3; i++) {
+        this.statusParticles.push({
+          x: this.enemySpriteX + Math.random() * 50,
+          y: 15 + Math.random() * 35,
+          vx: (Math.random() - 0.5) * 30,
+          vy: -20 - Math.random() * 20,
+          life: 0.6 + Math.random() * 0.3,
+          maxLife: 0.6 + Math.random() * 0.3,
+          size: 3 + Math.random() * 3,
+          color: '#f8d830',
+          type: 'confusion',
+        });
+      }
     }
 
     switch (this.phase) {
@@ -1148,12 +1180,59 @@ export class BattleScene implements Scene {
 
   /** Execute one attack, checking status conditions first */
   private executeOneAttack(attacker: Pokemon, defender: Pokemon, move: MoveInstance, isPlayer: boolean, then: () => void) {
-    // Check if attacker can act
+    const prefix = isPlayer ? '' : (this.isTrainerBattle ? 'Foe ' : 'Wild ');
+    
+    if (attacker.twoTurnState !== 'none') {
+      const msgs: string[] = [];
+      if (attacker.twoTurnState === 'flying') {
+        attacker.twoTurnState = 'none';
+        msgs.push(`${prefix}${attacker.name} used ${move.data.name}!`);
+      } else if (attacker.twoTurnState === 'underground') {
+        attacker.twoTurnState = 'none';
+        msgs.push(`${prefix}${attacker.name} used ${move.data.name}!`);
+      } else if (attacker.twoTurnState === 'charging') {
+        attacker.twoTurnState = 'none';
+        msgs.push(`${prefix}${attacker.name} used ${move.data.name}!`);
+      }
+      if (msgs.length > 0) {
+        this.queueMessages(msgs, () => {
+          this.doAttack(attacker, defender, move, isPlayer, then);
+        });
+        return;
+      }
+    }
+    
+    if (move.data.twoTurn) {
+      const msgs: string[] = [];
+      msgs.push(`${prefix}${attacker.name} used ${move.data.name}!`);
+      
+      if (move.data.twoTurn === 'charge') {
+        attacker.twoTurnState = 'charging';
+        attacker.twoTurnMove = move.key;
+        msgs.push(`${prefix}${attacker.name} is charging up!`);
+      } else if (move.data.twoTurn === 'fly') {
+        attacker.twoTurnState = 'flying';
+        attacker.twoTurnMove = move.key;
+        msgs.push(`${prefix}${attacker.name} flew up high!`);
+      } else if (move.data.twoTurn === 'dig') {
+        attacker.twoTurnState = 'underground';
+        attacker.twoTurnMove = move.key;
+        msgs.push(`${prefix}${attacker.name} dug a hole!`);
+      }
+      
+      move.pp = Math.max(0, move.pp - 1);
+      this.queueMessages(msgs, then);
+      return;
+    }
+    
     const actCheck = canAct(attacker);
     if (!actCheck.canAct) {
-      const prefix = isPlayer ? '' : (this.isTrainerBattle ? 'Foe ' : 'Wild ');
       const msgs: string[] = [];
       if (actCheck.message) msgs.push(actCheck.message);
+      if (actCheck.confusionHit && actCheck.confusionDamage) {
+        this.damageNumbers.push(DamageNumbers.create(actCheck.confusionDamage, !isPlayer, false, false));
+        this.screenShake = 3;
+      }
       if (msgs.length > 0) {
         this.queueMessages(msgs, then);
       } else {
@@ -1162,7 +1241,6 @@ export class BattleScene implements Scene {
       return;
     }
 
-    // If woke up, show message then attack
     if (actCheck.message) {
       this.queueMessages([actCheck.message], () => {
         this.doAttack(attacker, defender, move, isPlayer, then);
@@ -1173,8 +1251,19 @@ export class BattleScene implements Scene {
   }
 
   private doAttack(attacker: Pokemon, defender: Pokemon, move: MoveInstance, isPlayer: boolean, then: () => void) {
-    const result = executeMove(attacker, defender, move);
     const prefix = isPlayer ? '' : (this.isTrainerBattle ? 'Foe ' : 'Wild ');
+    
+    if (defender.twoTurnState === 'flying' || defender.twoTurnState === 'underground') {
+      const invulnMsg = defender.twoTurnState === 'flying' 
+        ? `${defender.name} is flying high and can't be hit!`
+        : `${defender.name} is underground and can't be hit!`;
+      const messages: string[] = [`${prefix}${attacker.name} used ${move.data.name}!`, invulnMsg];
+      move.pp = Math.max(0, move.pp - 1);
+      this.queueMessages(messages, then);
+      return;
+    }
+    
+    const result = executeMove(attacker, defender, move, this.weather);
     const messages: string[] = [];
 
     messages.push(`${prefix}${attacker.name} used ${move.data.name}!`);
@@ -1212,7 +1301,6 @@ export class BattleScene implements Scene {
     }
 
     this.playAttackAnim(isPlayer, move.data.type as PokemonType, result.critical, () => {
-      // Spawn damage number
       if (result.damage > 0) {
         this.damageNumbers.push(DamageNumbers.create(result.damage, !isPlayer, false, result.critical));
       }
