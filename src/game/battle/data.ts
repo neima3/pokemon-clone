@@ -430,6 +430,12 @@ export interface MoveData {
   /** Secondary status effect on damaging moves (e.g. Ember 10% burn) */
   statusEffect?: StatusCondition;
   statusChance?: number;
+  /** Priority bracket: +1 goes before normal moves, -1 goes after */
+  priority?: number;
+  /** Percentage of damage dealt that heals the user (e.g., 50 for drain moves) */
+  drain?: number;
+  /** Percentage of damage dealt that hurts the user (e.g., 25 for recoil moves) */
+  recoil?: number;
 }
 
 export const MOVES: Record<string, MoveData> = {
@@ -439,7 +445,7 @@ export const MOVES: Record<string, MoveData> = {
   growl:        { name: 'GROWL',        type: 'normal',   power: 0,   accuracy: 100, maxPp: 40, category: 'status', effect: 'lower_attack' },
   tailWhip:     { name: 'TAIL WHIP',    type: 'normal',   power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'lower_defense' },
   gust:         { name: 'GUST',         type: 'flying',   power: 40,  accuracy: 100, maxPp: 35, category: 'physical' },
-  quickAttack:  { name: 'QUICK ATK',    type: 'normal',   power: 40,  accuracy: 100, maxPp: 30, category: 'physical' },
+  quickAttack:  { name: 'QUICK ATK',    type: 'normal',   power: 40,  accuracy: 100, maxPp: 30, category: 'physical', priority: 1 },
   bite:         { name: 'BITE',         type: 'normal',   power: 60,  accuracy: 100, maxPp: 25, category: 'physical' },
   slam:         { name: 'SLAM',         type: 'normal',   power: 80,  accuracy: 75,  maxPp: 20, category: 'physical' },
   headbutt:     { name: 'HEADBUTT',     type: 'normal',   power: 70,  accuracy: 100, maxPp: 15, category: 'physical' },
@@ -490,8 +496,8 @@ export const MOVES: Record<string, MoveData> = {
   // New moves — Sprint 006
   bodySlam:     { name: 'BODY SLAM',    type: 'normal',    power: 85,  accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'paralyze', statusChance: 30 },
   thunderWave:  { name: 'THNDR WAVE',   type: 'electric',  power: 0,   accuracy: 90,  maxPp: 20, category: 'status', effect: 'paralyze' },
-  absorb:       { name: 'ABSORB',       type: 'grass',     power: 20,  accuracy: 100, maxPp: 25, category: 'physical' },
-  megaDrain:    { name: 'MEGA DRAIN',   type: 'grass',     power: 40,  accuracy: 100, maxPp: 15, category: 'physical' },
+  absorb:       { name: 'ABSORB',       type: 'grass',     power: 20,  accuracy: 100, maxPp: 25, category: 'physical', drain: 50 },
+  megaDrain:    { name: 'MEGA DRAIN',   type: 'grass',     power: 40,  accuracy: 100, maxPp: 15, category: 'physical', drain: 50 },
   crossPoison:  { name: 'CROSS PSN',    type: 'poison',    power: 70,  accuracy: 100, maxPp: 20, category: 'physical', statusEffect: 'poison', statusChance: 10 },
   twineedle:    { name: 'TWINEEDLE',    type: 'bug',       power: 60,  accuracy: 100, maxPp: 20, category: 'physical', statusEffect: 'poison', statusChance: 20 },
   swift:        { name: 'SWIFT',        type: 'normal',    power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
@@ -522,18 +528,18 @@ export const MOVES: Record<string, MoveData> = {
   disable:      { name: 'DISABLE',     type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'lower_speed' },
   hypnosis:     { name: 'HYPNOSIS',    type: 'psychic',  power: 0,   accuracy: 60,  maxPp: 20, category: 'status', effect: 'sleep' },
   headbutt2:    { name: 'HEADBUTT',    type: 'normal',   power: 70,  accuracy: 100, maxPp: 15, category: 'physical' },
-  submission:   { name: 'SUBMISSION',  type: 'fighting', power: 80,  accuracy: 80,  maxPp: 20, category: 'physical' },
+  submission:   { name: 'SUBMISSION',  type: 'fighting', power: 80,  accuracy: 80,  maxPp: 20, category: 'physical', recoil: 25 },
   dragonRage:   { name: 'DRAGON RAGE', type: 'dragon',   power: 60,  accuracy: 100, maxPp: 10, category: 'physical' },
   wingAttack2:  { name: 'WING ATK',    type: 'flying',   power: 60,  accuracy: 100, maxPp: 35, category: 'physical' },
   // New moves — Sprint 008
   petalDance:   { name: 'PETAL DANCE', type: 'grass',    power: 120, accuracy: 100, maxPp: 10, category: 'physical' },
-  gigaDrain:    { name: 'GIGA DRAIN',  type: 'grass',    power: 75,  accuracy: 100, maxPp: 10, category: 'physical' },
+  gigaDrain:    { name: 'GIGA DRAIN',  type: 'grass',    power: 75,  accuracy: 100, maxPp: 10, category: 'physical', drain: 50 },
   sludgeBomb:   { name: 'SLUDGE BOMB', type: 'poison',   power: 90,  accuracy: 100, maxPp: 10, category: 'physical', statusEffect: 'poison', statusChance: 30 },
   fireSpinMove: { name: 'FIRE SPIN',   type: 'fire',     power: 35,  accuracy: 85,  maxPp: 15, category: 'physical', statusEffect: 'burn', statusChance: 10 },
   flameBurst:   { name: 'FLAME BURST', type: 'fire',     power: 70,  accuracy: 100, maxPp: 15, category: 'physical' },
   agility:      { name: 'AGILITY',     type: 'psychic',  power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'raise_attack' },
-  flareBlitz:   { name: 'FLARE BLITZ', type: 'fire',     power: 120, accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'burn', statusChance: 10 },
-  takeDown:     { name: 'TAKE DOWN',   type: 'normal',   power: 90,  accuracy: 85,  maxPp: 20, category: 'physical' },
+  flareBlitz:   { name: 'FLARE BLITZ', type: 'fire',     power: 120, accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'burn', statusChance: 10, recoil: 33 },
+  takeDown:     { name: 'TAKE DOWN',   type: 'normal',   power: 90,  accuracy: 85,  maxPp: 20, category: 'physical', recoil: 25 },
   crunch:       { name: 'CRUNCH',      type: 'normal',   power: 80,  accuracy: 100, maxPp: 15, category: 'physical', effect: 'lower_defense' },
   roar:         { name: 'ROAR',        type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'lower_attack' },
   willOWisp:    { name: 'WILL-O-WISP',type: 'fire',     power: 0,   accuracy: 85,  maxPp: 15, category: 'status', effect: 'burn' },
@@ -563,7 +569,7 @@ export const MOVES: Record<string, MoveData> = {
   // New moves — Sprint 010: Fighting + Dragon types
   brickBreak:   { name: 'BRICK BREAK', type: 'fighting', power: 75,  accuracy: 100, maxPp: 15, category: 'physical' },
   closeCombat:  { name: 'CLOSE COMBAT',type: 'fighting', power: 120, accuracy: 100, maxPp: 5,  category: 'physical' },
-  highJumpKick: { name: 'HI JUMP KCK', type: 'fighting', power: 130, accuracy: 90,  maxPp: 10, category: 'physical' },
+  highJumpKick: { name: 'HI JUMP KCK', type: 'fighting', power: 130, accuracy: 90,  maxPp: 10, category: 'physical', recoil: 50 },
   crossChop:    { name: 'CROSS CHOP',  type: 'fighting', power: 100, accuracy: 80,  maxPp: 5,  category: 'physical' },
   dragonClaw:   { name: 'DRAGON CLAW', type: 'dragon',   power: 80,  accuracy: 100, maxPp: 15, category: 'physical' },
   dragonBreath: { name: 'DRAGON BRTH', type: 'dragon',   power: 60,  accuracy: 100, maxPp: 20, category: 'physical', statusEffect: 'paralyze', statusChance: 30 },
@@ -596,7 +602,7 @@ export const MOVES: Record<string, MoveData> = {
   megaKick:     { name: 'MEGA KICK',  type: 'normal',    power: 120, accuracy: 75,  maxPp: 5,  category: 'physical' },
   rollingKick:  { name: 'ROLLING KCK',type: 'fighting',  power: 60,  accuracy: 85,  maxPp: 15, category: 'physical' },
   cometPunch:   { name: 'COMET PNCH', type: 'normal',    power: 60,  accuracy: 85,  maxPp: 15, category: 'physical' },
-  machPunch:    { name: 'MACH PUNCH', type: 'fighting',  power: 40,  accuracy: 100, maxPp: 30, category: 'physical' },
+  machPunch:    { name: 'MACH PUNCH', type: 'fighting',  power: 40,  accuracy: 100, maxPp: 30, category: 'physical', priority: 1 },
 };
 
 // ── Species ──

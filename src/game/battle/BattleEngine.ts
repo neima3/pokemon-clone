@@ -13,11 +13,26 @@ export interface TurnResult {
   healed?: number;
   absorbed?: boolean;
   immune?: boolean;
+  recoilDamage?: number;
+  recoilMessage?: string;
+  drainHeal?: number;
+  drainMessage?: string;
+}
+
+  
+export interface TurnEndResult {
+  message?: string;
+  cured?: boolean;
 }
 
 export interface CatchResult {
   shakes: number;
   caught: boolean;
+}
+
+export interface TurnEndResult {
+  message?: string;
+  cured?: boolean;
 }
 
 export interface ActResult {
@@ -72,7 +87,13 @@ export function applyStatusDamage(mon: Pokemon): StatusDamageResult | null {
   return null;
 }
 
-export function determineTurnOrder(player: Pokemon, enemy: Pokemon): 'player' | 'enemy' {
+export function determineTurnOrder(player: Pokemon, enemy: Pokemon, playerMove?: MoveInstance, enemyMove?: MoveInstance): 'player' | 'enemy' {
+  const playerPriority = playerMove?.data.priority ?? 0;
+  const enemyPriority = enemyMove?.data.priority ?? 0;
+  
+  if (playerPriority > enemyPriority) return 'player';
+  if (enemyPriority > playerPriority) return 'enemy';
+  
   const playerSpd = player.getEffSpd();
   const enemySpd = enemy.getEffSpd();
   
@@ -329,30 +350,45 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     result.statusMessage = sturdyCheck.message;
   }
   
-  defender.hp = Math.max(0, defender.hp - damage);
-  result.damage = damage;
-  
-  if (defender.ability?.effect === 'crit_atk_max' && result.critical) {
-    attacker.atkStage = 6;
-    result.abilityMessage = `${attacker.name}'s ANGER POINT maxed its Attack!`;
-  }
-  
-  const contactMsg = checkContactAbility(attacker, defender);
-  if (contactMsg) {
-    result.abilityMessage = contactMsg;
-  }
-  
-  if (move.data.statusEffect && !defender.status && Math.random() * 100 < (move.data.statusChance || 10)) {
-    if (!defender.isImmuneToStatus(move.data.statusEffect)) {
-      defender.status = move.data.statusEffect;
-      if (move.data.statusEffect === 'sleep') {
-        defender.sleepTurns = 2 + Math.floor(Math.random() * 2);
-      }
+        defender.hp = Math.max(0, defender.hp - damage);
+        result.damage = damage;
+
+        if (move.data.drain && damage > 0) {
+            const healAmount = Math.floor(damage * move.data.drain / 100);
+            attacker.hp = Math.min(attacker.maxHp, attacker.hp + healAmount);
+            result.healed = healAmount;
+            result.drainHeal = healAmount;
+            result.drainMessage = `${attacker.name} restored HP!`;
+        }
+
+        if (move.data.recoil && damage > 0 && attacker.ability?.effect !== 'no_recoil') {
+            const recoilDamage = Math.floor(damage * move.data.recoil / 100);
+            attacker.hp = Math.max(0, attacker.hp - recoilDamage);
+            result.recoilDamage = recoilDamage;
+            result.recoilMessage = `${attacker.name} was hurt by recoil!`;
+        }
+
+        if (defender.ability?.effect === 'crit_atk_max' && result.critical) {
+            attacker.atkStage = 6;
+            result.abilityMessage = `${attacker.name}'s ANGER POINT maxed its Attack!`;
+        }
+        
+        const contactMsg = checkContactAbility(attacker, defender);
+        if (contactMsg) {
+            result.abilityMessage = contactMsg;
+        }
+        
+        if (move.data.statusEffect && !defender.status && Math.random() * 100 < (move.data.statusChance || 10)) {
+            if (!defender.isImmuneToStatus(move.data.statusEffect)) {
+                defender.status = move.data.statusEffect;
+                if (move.data.statusEffect === 'sleep') {
+                    defender.sleepTurns = 1 + Math.floor(Math.random() * 2);
+                }
+            }
+        }
+        
+        return result;
     }
-  }
-  
-  return result;
-}
 
 export function attemptCatch(mon: Pokemon, catchMultiplier: number = 1): CatchResult {
   const catchRate = (3 * mon.maxHp - 2 * mon.hp) * mon.species.catchRate * catchMultiplier / (3 * mon.maxHp);
@@ -369,4 +405,22 @@ export function attemptCatch(mon: Pokemon, catchMultiplier: number = 1): CatchRe
     shakes,
     caught: shakes >= 3,
   };
+}
+
+export function checkTurnEndAbilities(mon: Pokemon): TurnEndResult | null {
+  if (!mon.status || mon.hp <= 0) return null;
+  
+  if (mon.ability?.effect === 'status_heal_chance') {
+    if (Math.random() < 0.3) {
+      const oldStatus = mon.status;
+      mon.status = null;
+      mon.sleepTurns = 0;
+      return {
+        message: `${mon.name}'s SHED SKIN cured its ${oldStatus}!`,
+        cured: true,
+      };
+    }
+  }
+  
+  return null;
 }

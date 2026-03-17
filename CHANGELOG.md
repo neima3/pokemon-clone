@@ -5,7 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.19.0] - 2026-03-17
+## [0.20.0] - 2026-03-17
+
+### Added
+- Sprint 021: Advanced Move Mechanics & Ability Triggers
+- Priority moves: Quick Attack, Mach Punch always go first regardless of speed
+- Drain moves: Absorb, Mega Drain, Giga Drain heal user for 50% of damage dealt
+- Recoil moves: Take Down, Flare Blitz, Submission damage user for 33% recoil
+- Entry abilities: Intimidate lowers opponent's Attack when entering battle
+- Turn-end abilities: Shed Skin has 30% chance to cure status each turn
+
+### Technical
+- Added priority, drain, and recoil fields to MoveData interface
+- Extended TurnResult with drainHeal, drainMessage, recoilDamage, and recoilMessage fields
+- Added checkTurnEndAbilities function for Shed Skin ability
+- Updated determineTurnOrder to consider move priority
+- Integrated Intimidate ability trigger in BattleScene
+- Updated applyEndOfTurnStatus to call Shed Skin check
 
 ### Added
 - Sprint 020: Pokemon Abilities System
