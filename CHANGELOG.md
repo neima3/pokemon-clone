@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.0] - 2026-03-17
+
+### Added
+- Sprint 035: Quality of Life & Missing Species
+- Critical hit screen flash effect: white/yellow flash overlay when landing critical hits
+- New Pokemon species: Ditto (#132), Paras (#46), Parasect (#47), Wigglytuff (#40)
+
+### Fixed
+- Fixed Cerulean Cave encounter table typo (dittom -> ditto)
+- Fixed missing species definitions causing potential encounter crashes
+
+### New Pokemon Details
+- Ditto: Normal-type Transform Pokemon with Limber ability
+- Paras: Bug/Grass mushroom Pokemon with Effect Spore ability, evolves to Parasect at level 24
+- Parasect: Bug/Grass evolution with higher stats and spore moves
+- Wigglytuff: Normal/Fairy balloon Pokemon with Cute Charm ability
+
+### Visual Improvements
+- Critical hit flash overlay adds dramatic impact feedback
+- Flash decays smoothly over 200ms for polished feel
+
 ## [0.32.4] - 2026-03-17
 
 ### Added

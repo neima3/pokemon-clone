@@ -70,6 +70,9 @@ export class BattleScene implements Scene {
   // Flash overlay
   private flashAlpha = 0;
 
+  // Critical hit flash overlay
+  private criticalFlashAlpha = 0;
+
   // Screen shake
   private screenShake = 0;
 
@@ -237,6 +240,12 @@ export class BattleScene implements Scene {
     if (this.screenShake > 0) {
       this.screenShake *= 0.85;
       if (this.screenShake < 0.5) this.screenShake = 0;
+    }
+
+    // Decay critical hit flash
+    if (this.criticalFlashAlpha > 0) {
+      this.criticalFlashAlpha -= dt * 4;
+      if (this.criticalFlashAlpha < 0) this.criticalFlashAlpha = 0;
     }
 
     // Update damage numbers
@@ -1863,6 +1872,11 @@ export class BattleScene implements Scene {
     this.phase = 'animating';
     this.anim = { active: true, isPlayer, timer: 0, done: callback, moveType, critical };
     this.screenShake = critical ? 8 : 4;
+    
+    // Trigger critical hit flash
+    if (critical) {
+      this.criticalFlashAlpha = 0.6;
+    }
   }
 
   private handleFaint(fainted: Pokemon) {
@@ -2311,6 +2325,12 @@ export class BattleScene implements Scene {
     if (this.flashAlpha > 0) {
       ctx.fillStyle = `rgba(255,255,255,${this.flashAlpha})`;
       ctx.fillRect(0, 0, 320, 240);
+    }
+
+    // Critical hit flash overlay
+    if (this.criticalFlashAlpha > 0) {
+      ctx.fillStyle = `rgba(255, 255, 200, ${this.criticalFlashAlpha})`;
+      ctx.fillRect(0, 0, 320, 144);
     }
 
     // Render damage numbers

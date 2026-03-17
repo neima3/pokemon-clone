@@ -1719,10 +1719,55 @@ export const SPECIES: Record<string, SpeciesData> = {
     abilities: ['pressure'],
     isLegendary: true,
   },
+
+  // ── Sprint 035: Missing Species for Cerulean Cave ──
+
+  // Ditto - Transform Pokemon
+  ditto: {
+    id: 132, name: 'DITTO', types: ['normal'],
+    baseHp: 48, baseAtk: 48, baseDef: 48, baseSpd: 48,
+    learnedMoves: ['tackle', 'transform'],
+    baseExpYield: 101, catchRate: 35,
+    levelUpMoves: [{ level: 10, moveKey: 'tackle' }, { level: 20, moveKey: 'transform' }],
+    abilities: ['limber'],
+  },
+
+  // Paras - Mushroom Pokemon
+  paras: {
+    id: 46, name: 'PARAS', types: ['bug', 'grass'],
+    baseHp: 35, baseAtk: 70, baseDef: 55, baseSpd: 25,
+    learnedMoves: ['scratch', 'stunSpore', 'leechLife'],
+    baseExpYield: 57, catchRate: 190,
+    levelUpMoves: [{ level: 6, moveKey: 'stunSpore' }, { level: 11, moveKey: 'leechLife' }, { level: 17, moveKey: 'spore' }],
+    evolution: { level: 24, into: 'parasect' },
+    abilities: ['effectSpore', 'drySkin'],
+  },
+
+  // Parasect - Mushroom Pokemon evolution
+  parasect: {
+    id: 47, name: 'PARASECT', types: ['bug', 'grass'],
+    baseHp: 60, baseAtk: 95, baseDef: 80, baseSpd: 30,
+    learnedMoves: ['slash', 'spore', 'gigaDrain', 'xScissor'],
+    baseExpYield: 142, catchRate: 75,
+    levelUpMoves: [{ level: 27, moveKey: 'slash' }, { level: 33, moveKey: 'gigaDrain' }, { level: 39, moveKey: 'xScissor' }],
+    abilities: ['effectSpore', 'drySkin'],
+  },
+
+  // Wigglytuff - Balloon Pokemon (Jigglypuff evolution)
+  wigglytuff: {
+    id: 40, name: 'WIGGLYTUFF', types: ['normal', 'fairy'],
+    baseHp: 140, baseAtk: 70, baseDef: 45, baseSpd: 45,
+    learnedMoves: ['doubleSlap', 'bodySlam', 'hyperVoice', 'dazzleGleam'],
+    baseExpYield: 218, catchRate: 50,
+    levelUpMoves: [{ level: 25, moveKey: 'bodySlam' }, { level: 35, moveKey: 'hyperVoice' }, { level: 45, moveKey: 'dazzleGleam' }],
+    abilities: ['cuteCharm', 'competitive'],
+  },
+
+  // Electrode evolution fix - add species if not defined
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon', 'raichu', 'meowth', 'persian', 'nidoking', 'kangaskhan', 'tauros', 'ekans', 'aerodactyl', 'mewtwo'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon', 'raichu', 'meowth', 'persian', 'nidoking', 'kangaskhan', 'tauros', 'ekans', 'aerodactyl', 'ditto', 'paras', 'wigglytuff', 'mewtwo'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
@@ -1843,7 +1888,7 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
     { species: 'cubone', minLevel: 45, maxLevel: 52, weight: 12 },
     { species: 'machoke', minLevel: 48, maxLevel: 56, weight: 10 },
     { species: 'kadabra', minLevel: 46, maxLevel: 54, weight: 10 },
-    { species: 'dittom', minLevel: 45, maxLevel: 50, weight: 8 },
+    { species: 'ditto', minLevel: 45, maxLevel: 50, weight: 8 },
     { species: 'electrode', minLevel: 50, maxLevel: 58, weight: 10 },
     { species: 'wigglytuff', minLevel: 48, maxLevel: 55, weight: 7 },
     { species: 'parasect', minLevel: 46, maxLevel: 52, weight: 5 },
