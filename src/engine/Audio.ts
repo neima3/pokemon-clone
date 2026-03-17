@@ -216,6 +216,15 @@ export const SFX = {
     });
   },
 
+  shinySparkle() {
+    // Magical shimmering sparkle sound
+    const notes = [NOTE.E5, NOTE.G5, NOTE.B5, NOTE.E5, NOTE.G5, NOTE.B5, NOTE.C6];
+    notes.forEach((n, i) => {
+      playTone(n, 0.08, 'sine', sfxGain!, i * 0.05);
+    });
+    playTone(NOTE.C6, 0.2, 'sine', sfxGain!, 0.35);
+  },
+
   newGame() {
     // Triumphant ascending fanfare for starting a new game
     const notes = [NOTE.C4, NOTE.E4, NOTE.G4, NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6, NOTE.C6];
@@ -483,6 +492,52 @@ function buildRoute7Bass(): MusicPattern {
   };
 }
 
+function buildRoute8Pattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 5,
+    notes: [
+      // Bar 1 - fiery, intense volcanic theme in D minor
+      { freq: n.D4, dur: 0.25 }, { freq: n.F4, dur: 0.25 },
+      { freq: n.A4, dur: 0.5 }, { freq: n.D5, dur: 0.5 },
+      { freq: n.C5, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      // Bar 2 - erupting energy
+      { freq: n.Bb4, dur: 0.5 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.G4, dur: 0.25 }, { freq: n.F4, dur: 0.5 },
+      { freq: n.E4, dur: 0.25 }, { freq: n.F4, dur: 0.25 },
+      // Bar 3 - rising heat
+      { freq: n.D4, dur: 0.5 }, { freq: n.F4, dur: 0.5 },
+      { freq: n.A4, dur: 0.5 }, { freq: n.C5, dur: 0.5 },
+      // Bar 4 - explosive climax
+      { freq: n.D5, dur: 0.5 }, { freq: n.C5, dur: 0.25 },
+      { freq: n.Bb4, dur: 0.25 }, { freq: n.A4, dur: 0.5 },
+      { freq: n.F4, dur: 0.25 }, { freq: n.D4, dur: 0.75 },
+      // Bar 5 - smoldering calm
+      { freq: n.G4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.Bb4, dur: 0.5 }, { freq: n.A4, dur: 0.5 },
+      { freq: n.G4, dur: 0.25 }, { freq: n.F4, dur: 0.25 },
+      // Bar 6 - resolve with heat
+      { freq: n.E4, dur: 0.5 }, { freq: n.F4, dur: 0.5 },
+      { freq: n.D4, dur: 1 },
+    ],
+  };
+}
+
+function buildRoute8Bass(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 2.5,
+    notes: [
+      { freq: n.D3, dur: 1 }, { freq: n.A3, dur: 0.5 }, { freq: n.D3, dur: 0.5 },
+      { freq: n.Bb3, dur: 0.5 }, { freq: n.A3, dur: 0.5 }, { freq: n.F3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.D3, dur: 1 }, { freq: n.F3, dur: 0.5 }, { freq: n.A3, dur: 0.5 },
+      { freq: n.D3, dur: 0.5 }, { freq: n.Bb3, dur: 0.5 }, { freq: n.A3, dur: 0.5 }, { freq: n.D3, dur: 0.5 },
+      { freq: n.G3, dur: 1 }, { freq: n.F3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.D3, dur: 1.5 }, { freq: n.D3, dur: 0.5 },
+    ],
+  };
+}
+
 function buildTitlePattern(): MusicPattern {
   const n = NOTE;
   return {
@@ -636,6 +691,14 @@ export const Music = {
     currentMusic = playMusicLoop([
       { pattern: buildRoute7Pattern(), type: 'sawtooth', gainVal: 0.08 },
       { pattern: buildRoute7Bass(), type: 'triangle', gainVal: 0.1 },
+    ]);
+  },
+
+  route8() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildRoute8Pattern(), type: 'square', gainVal: 0.14 },
+      { pattern: buildRoute8Bass(), type: 'sawtooth', gainVal: 0.1 },
     ]);
   },
 

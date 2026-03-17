@@ -13,6 +13,7 @@ export interface Inventory {
   fullHeal: number;
   revive: number;
   repel: number;
+  expShare: number;
 }
 
 interface SaveData {
@@ -32,7 +33,7 @@ interface SaveData {
 export class GameState {
   team: Pokemon[] = [];
   pcBox: Pokemon[] = [];
-  inventory: Inventory = { pokeball: 5, greatBall: 0, ultraBall: 0, potion: 3, superPotion: 0, antidote: 0, fullHeal: 0, revive: 0, repel: 0 };
+  inventory: Inventory = { pokeball: 5, greatBall: 0, ultraBall: 0, potion: 3, superPotion: 0, antidote: 0, fullHeal: 0, revive: 0, repel: 0, expShare: 0 };
   playerPosition = { x: 15, y: 13 };
   money = 1000;
   defeatedTrainers: Set<string> = new Set();
@@ -179,6 +180,7 @@ export class GameState {
         fullHeal: data.inventory.fullHeal ?? 0,
         revive: data.inventory.revive ?? 0,
         repel: data.inventory.repel ?? 0,
+        expShare: (data.inventory as unknown as Record<string, number>).expShare ?? 0,
       };
       this.playerPosition = data.playerPosition ?? { x: 15, y: 13 };
       this.money = data.money ?? 1000;

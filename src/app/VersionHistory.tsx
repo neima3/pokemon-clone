@@ -9,6 +9,19 @@ interface VersionHistoryProps {
 export default function VersionHistory({ onClose }: VersionHistoryProps) {
   const versions = [
     {
+      version: '0.11.0',
+      date: '2026-03-16',
+      sprint: 11,
+      changes: [
+        'Route 8 (volcanic fire zone) with Blaine\'s gym',
+        'Steel type with full type chart',
+        '12 new Pokémon (Magneton, Steelix, Cubone, Rhyhorn, Eeveelutions, etc.)',
+        'Exp Share item for team-wide EXP',
+        'Shiny Pokémon system (1/256 chance)',
+        'Improved battle intro animations',
+      ],
+    },
+    {
       version: '0.7.0',
       date: '2026-03-16',
       sprint: 6,

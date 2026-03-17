@@ -124,6 +124,8 @@ export class OverworldScene implements Scene {
       Music.route6();
     } else if (zone === 'route7') {
       Music.route7();
+    } else if (zone === 'route8') {
+      Music.route8();
     } else {
       Music.overworld();
     }
@@ -251,6 +253,20 @@ export class OverworldScene implements Scene {
         return true;
       }
 
+      // Exp Share researcher gives EXP. SHARE
+      if (npc.id === 'exp_share_npc') {
+        if (this.gameState.inventory.expShare > 0) {
+          this.startDialogue(['How is the EXP. SHARE working?', 'Your whole team should be getting stronger!']);
+        } else {
+          this.startDialogue(npc.data.dialogue, () => {
+            this.gameState.inventory.expShare = 1;
+            this.gameState.save();
+            this.startDialogue(['You received the EXP. SHARE!', 'All team POKéMON now get 50% EXP!']);
+          });
+        }
+        return true;
+      }
+
       // Fisherman gives OLD ROD
       if (npc.id === 'fisherman') {
         if (this.gameState.hasOldRod) {
@@ -305,6 +321,8 @@ export class OverworldScene implements Scene {
           this.startDialogue(['ROUTE 6', 'An eerie mist hangs in the air...']);
         } else if (zone === 'route7') {
           this.startDialogue(['ROUTE 7', 'Toxic fumes fill the swamp...']);
+        } else if (zone === 'route8') {
+          this.startDialogue(['ROUTE 8', 'The volcanic heat is intense!']);
         } else {
           this.startDialogue(['ROUTE 2', 'Stronger POKéMON live here.']);
         }
@@ -331,7 +349,14 @@ export class OverworldScene implements Scene {
       if (tile === Tile.GymDoor) {
         SFX.menuConfirm();
         // Determine which gym based on position
-        if (fy >= 42) {
+        if (fy >= 48) {
+          // Blaine's Gym (Route 8 area)
+          if (this.gameState.hasBadge('VOLCANO BADGE')) {
+            this.startDialogue(['CINNABAR GYM', 'LEADER: BLAINE', 'You already have the VOLCANO BADGE!']);
+          } else {
+            this.startDialogue(['CINNABAR GYM', 'LEADER: BLAINE', 'Specializes in Fire-type POKéMON.']);
+          }
+        } else if (fy >= 42) {
           // Koga's Gym (Route 7 area)
           if (this.gameState.hasBadge('SOUL BADGE')) {
             this.startDialogue(['FUCHSIA GYM', 'LEADER: KOGA', 'You already have the SOUL BADGE!']);

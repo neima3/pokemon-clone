@@ -16,6 +16,7 @@ export interface PokemonSaveData {
   hp: number;
   exp: number;
   moves: Array<{ key: string; pp: number }>;
+  isShiny?: boolean;
 }
 
 export class Pokemon {
@@ -38,6 +39,8 @@ export class Pokemon {
   status: StatusCondition | null = null;
   /** Turns remaining for sleep */
   sleepTurns = 0;
+  /** Shiny variant (1/256 chance) */
+  isShiny = false;
 
   constructor(speciesKey: string, level: number) {
     const species = SPECIES[speciesKey];
@@ -55,6 +58,7 @@ export class Pokemon {
     this.speed = Math.floor((species.baseSpd * 2 * level) / 100) + 5;
 
     this.hp = this.maxHp;
+    this.isShiny = Math.random() < 1 / 256;
 
     this.moves = species.learnedMoves.map((key) => ({
       data: MOVES[key],
@@ -202,6 +206,7 @@ export class Pokemon {
       hp: this.hp,
       exp: this.exp,
       moves: this.moves.map((m) => ({ key: m.key, pp: m.pp })),
+      isShiny: this.isShiny || undefined,
     };
   }
 
@@ -210,6 +215,7 @@ export class Pokemon {
     const mon = new Pokemon(data.speciesKey, data.level);
     mon.exp = data.exp;
     mon.hp = Math.min(data.hp, mon.maxHp);
+    mon.isShiny = data.isShiny ?? false;
     // Restore moves with saved PP
     mon.moves = data.moves
       .filter((saved) => MOVES[saved.key]) // skip unknown moves

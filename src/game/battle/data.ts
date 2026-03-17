@@ -1,25 +1,26 @@
 // ── Pokemon Types ──
 
-export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice' | 'fighting' | 'dragon';
+export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice' | 'fighting' | 'dragon' | 'steel';
 
 export type StatusCondition = 'poison' | 'burn' | 'paralyze' | 'sleep';
 
 const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
-  fire:     { grass: 2, water: 0.5, bug: 2, fire: 0.5, rock: 0.5, ice: 2, dragon: 0.5 },
+  fire:     { grass: 2, water: 0.5, bug: 2, fire: 0.5, rock: 0.5, ice: 2, dragon: 0.5, steel: 2 },
   water:    { fire: 2, grass: 0.5, water: 0.5, ground: 2, rock: 2, ice: 0.5, dragon: 0.5 },
   grass:    { water: 2, fire: 0.5, grass: 0.5, poison: 0.5, bug: 0.5, ground: 2, rock: 2, flying: 0.5, dragon: 0.5 },
-  poison:   { grass: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5 },
+  poison:   { grass: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5, steel: 0 },
   bug:      { grass: 2, fire: 0.5, poison: 0.5, flying: 0.5, ghost: 0.5, fighting: 0.5 },
   electric: { water: 2, electric: 0.5, ground: 0, flying: 2, grass: 0.5, dragon: 0.5 },
-  ground:   { fire: 2, electric: 2, rock: 2, poison: 2, grass: 0.5, flying: 0, bug: 0.5, ice: 2 },
+  ground:   { fire: 2, electric: 2, rock: 2, poison: 2, steel: 2, grass: 0.5, flying: 0, bug: 0.5, ice: 2 },
   rock:     { fire: 2, bug: 2, flying: 2, ground: 0.5, ice: 2, fighting: 0.5 },
   flying:   { grass: 2, bug: 2, fighting: 2, ground: 0, rock: 0.5, electric: 0.5, ice: 2 },
   normal:   { rock: 0.5, ghost: 0, fighting: 0.5 },
   psychic:  { fighting: 2, poison: 2, ghost: 0.5 },
   ghost:    { ghost: 2, psychic: 2, normal: 0 },
   ice:      { grass: 2, ground: 2, flying: 2, dragon: 2, water: 0.5, ice: 0.5, fire: 0.5 },
-  fighting: { normal: 2, rock: 2, ice: 2, flying: 0.5, poison: 0.5, bug: 0.5, psychic: 0.5, ghost: 0 },
+  fighting: { normal: 2, rock: 2, ice: 2, steel: 2, flying: 0.5, poison: 0.5, bug: 0.5, psychic: 0.5, ghost: 0 },
   dragon:   { dragon: 2 },
+  steel:    { ice: 2, rock: 2, fire: 0.5, water: 0.5, electric: 0.5, steel: 0.5 },
 };
 
 export function getTypeEffectiveness(atkType: PokemonType, defTypes: PokemonType[]): number {
@@ -97,7 +98,7 @@ export const MOVES: Record<string, MoveData> = {
   airSlash:     { name: 'AIR SLASH',    type: 'flying',    power: 75,  accuracy: 95,  maxPp: 15, category: 'physical' },
   bind:         { name: 'BIND',         type: 'normal',    power: 15,  accuracy: 85,  maxPp: 20, category: 'physical' },
   rockTomb:     { name: 'ROCK TOMB',    type: 'rock',      power: 60,  accuracy: 95,  maxPp: 15, category: 'physical', effect: 'lower_speed' },
-  ironTail:     { name: 'IRON TAIL',    type: 'normal',    power: 100, accuracy: 75,  maxPp: 15, category: 'physical', effect: 'lower_defense' },
+  ironTail:     { name: 'IRON TAIL',    type: 'steel',     power: 100, accuracy: 75,  maxPp: 15, category: 'physical', effect: 'lower_defense' },
   pursuit:      { name: 'PURSUIT',      type: 'normal',    power: 40,  accuracy: 100, maxPp: 20, category: 'physical' },
   focusEnergy:  { name: 'FOCUS ENRGY',  type: 'normal',    power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'raise_attack' },
   // New moves — Sprint 006
@@ -195,6 +196,21 @@ export const MOVES: Record<string, MoveData> = {
   viceGrip:     { name: 'VICE GRIP',  type: 'normal',    power: 55,  accuracy: 100, maxPp: 30, category: 'physical' },
   splash:       { name: 'SPLASH',     type: 'normal',    power: 0,   accuracy: 100, maxPp: 40, category: 'status' },
   flail:        { name: 'FLAIL',      type: 'normal',    power: 30,  accuracy: 100, maxPp: 15, category: 'physical' },
+  // New moves — Sprint 011: Steel type + extras
+  ironHead:     { name: 'IRON HEAD',  type: 'steel',     power: 80,  accuracy: 100, maxPp: 15, category: 'physical' },
+  metalClaw:    { name: 'METAL CLAW', type: 'steel',     power: 50,  accuracy: 95,  maxPp: 35, category: 'physical' },
+  flashCannon:  { name: 'FLASH CANN', type: 'steel',     power: 80,  accuracy: 100, maxPp: 10, category: 'physical', effect: 'lower_defense' },
+  steelWing:    { name: 'STEEL WING', type: 'steel',     power: 70,  accuracy: 90,  maxPp: 25, category: 'physical', effect: 'raise_defense' },
+  magnetBomb:   { name: 'MAGNET BOMB',type: 'steel',     power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
+  mirrorShot:   { name: 'MIRROR SHOT',type: 'steel',     power: 65,  accuracy: 85,  maxPp: 10, category: 'physical', effect: 'lower_attack' },
+  boneClub:     { name: 'BONE CLUB',  type: 'ground',    power: 65,  accuracy: 85,  maxPp: 20, category: 'physical' },
+  bonemerang:    { name: 'BONEMERANG', type: 'ground',    power: 50,  accuracy: 90,  maxPp: 10, category: 'physical' },
+  hornAttack:   { name: 'HORN ATK',   type: 'normal',    power: 65,  accuracy: 100, maxPp: 25, category: 'physical' },
+  hornDrill:    { name: 'HORN DRILL', type: 'normal',    power: 120, accuracy: 50,  maxPp: 5,  category: 'physical' },
+  megaKick:     { name: 'MEGA KICK',  type: 'normal',    power: 120, accuracy: 75,  maxPp: 5,  category: 'physical' },
+  rollingKick:  { name: 'ROLLING KCK',type: 'fighting',  power: 60,  accuracy: 85,  maxPp: 15, category: 'physical' },
+  cometPunch:   { name: 'COMET PNCH', type: 'normal',    power: 60,  accuracy: 85,  maxPp: 15, category: 'physical' },
+  machPunch:    { name: 'MACH PUNCH', type: 'fighting',  power: 40,  accuracy: 100, maxPp: 30, category: 'physical' },
 };
 
 // ── Species ──
@@ -366,6 +382,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'bind', 'rockThrow', 'rockTomb'],
     baseExpYield: 77, catchRate: 45,
     levelUpMoves: [{ level: 6, moveKey: 'rockThrow' }, { level: 10, moveKey: 'rockTomb' }, { level: 15, moveKey: 'ironTail' }],
+    evolution: { level: 36, into: 'steelix' },
   },
 
   // ── Sprint 006 Pokemon ──
@@ -510,11 +527,12 @@ export const SPECIES: Record<string, SpeciesData> = {
 
   // New Pokemon for Route 4
   magnemite: {
-    id: 81, name: 'MAGNEMITE', types: ['electric'],
+    id: 81, name: 'MAGNEMITE', types: ['electric', 'steel'],
     baseHp: 25, baseAtk: 35, baseDef: 70, baseSpd: 45,
     learnedMoves: ['tackle', 'thunderShock'],
     baseExpYield: 65, catchRate: 190,
-    levelUpMoves: [{ level: 6, moveKey: 'thunderShock' }, { level: 11, moveKey: 'sonicBoom' }, { level: 16, moveKey: 'spark' }, { level: 21, moveKey: 'thunderbolt' }],
+    levelUpMoves: [{ level: 6, moveKey: 'thunderShock' }, { level: 11, moveKey: 'sonicBoom' }, { level: 16, moveKey: 'spark' }, { level: 21, moveKey: 'thunderbolt' }, { level: 26, moveKey: 'metalClaw' }],
+    evolution: { level: 30, into: 'magneton' },
   },
   voltorb: {
     id: 100, name: 'VOLTORB', types: ['electric'],
@@ -522,6 +540,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'thunderShock', 'screech'],
     baseExpYield: 66, catchRate: 190,
     levelUpMoves: [{ level: 8, moveKey: 'sonicBoom' }, { level: 12, moveKey: 'spark' }, { level: 22, moveKey: 'selfDestruct' }],
+    evolution: { level: 30, into: 'electrode' },
   },
   diglett: {
     id: 50, name: 'DIGLETT', types: ['ground'],
@@ -907,10 +926,122 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 175, catchRate: 45,
     levelUpMoves: [{ level: 7, moveKey: 'bugBite' }, { level: 13, moveKey: 'viceGrip' }, { level: 18, moveKey: 'slash' }, { level: 25, moveKey: 'xScissor' }, { level: 33, moveKey: 'guillotine' }],
   },
+
+  // ── Sprint 011 Pokemon ──
+
+  // Magneton (Magnemite evolution)
+  magneton: {
+    id: 82, name: 'MAGNETON', types: ['electric', 'steel'],
+    baseHp: 50, baseAtk: 60, baseDef: 95, baseSpd: 70,
+    learnedMoves: ['thunderShock', 'spark', 'thunderbolt', 'metalClaw'],
+    baseExpYield: 163, catchRate: 60,
+    levelUpMoves: [{ level: 32, moveKey: 'flashCannon' }, { level: 38, moveKey: 'mirrorShot' }],
+  },
+
+  // Electrode (Voltorb evolution)
+  electrode: {
+    id: 101, name: 'ELECTRODE', types: ['electric'],
+    baseHp: 60, baseAtk: 50, baseDef: 70, baseSpd: 150,
+    learnedMoves: ['thunderShock', 'spark', 'sonicBoom', 'selfDestruct'],
+    baseExpYield: 172, catchRate: 60,
+    levelUpMoves: [{ level: 32, moveKey: 'thunderbolt' }],
+  },
+
+  // Steelix (Onix evolution)
+  steelix: {
+    id: 208, name: 'STEELIX', types: ['steel', 'ground'],
+    baseHp: 75, baseAtk: 85, baseDef: 200, baseSpd: 30,
+    learnedMoves: ['ironTail', 'rockSlide', 'earthquake', 'ironHead'],
+    baseExpYield: 179, catchRate: 25,
+    levelUpMoves: [{ level: 38, moveKey: 'flashCannon' }],
+  },
+
+  // Cubone
+  cubone: {
+    id: 104, name: 'CUBONE', types: ['ground'],
+    baseHp: 50, baseAtk: 50, baseDef: 95, baseSpd: 35,
+    learnedMoves: ['growl', 'mudSlap', 'headbutt'],
+    baseExpYield: 64, catchRate: 190,
+    levelUpMoves: [{ level: 7, moveKey: 'mudSlap' }, { level: 11, moveKey: 'boneClub' }, { level: 17, moveKey: 'headbutt' }, { level: 23, moveKey: 'bonemerang' }, { level: 29, moveKey: 'earthquake' }],
+    evolution: { level: 28, into: 'marowak' },
+  },
+
+  // Marowak (Cubone evolution)
+  marowak: {
+    id: 105, name: 'MAROWAK', types: ['ground'],
+    baseHp: 60, baseAtk: 80, baseDef: 110, baseSpd: 45,
+    learnedMoves: ['boneClub', 'bonemerang', 'headbutt', 'earthquake'],
+    baseExpYield: 149, catchRate: 75,
+    levelUpMoves: [{ level: 30, moveKey: 'earthquake' }],
+  },
+
+  // Rhyhorn
+  rhyhorn: {
+    id: 111, name: 'RHYHORN', types: ['ground', 'rock'],
+    baseHp: 80, baseAtk: 85, baseDef: 95, baseSpd: 25,
+    learnedMoves: ['tackle', 'mudSlap', 'hornAttack'],
+    baseExpYield: 69, catchRate: 120,
+    levelUpMoves: [{ level: 8, moveKey: 'hornAttack' }, { level: 12, moveKey: 'stomp' }, { level: 19, moveKey: 'rockSlide' }, { level: 26, moveKey: 'dig' }, { level: 33, moveKey: 'earthquake' }],
+    evolution: { level: 42, into: 'rhydon' },
+  },
+
+  // Rhydon (Rhyhorn evolution)
+  rhydon: {
+    id: 112, name: 'RHYDON', types: ['ground', 'rock'],
+    baseHp: 105, baseAtk: 130, baseDef: 120, baseSpd: 40,
+    learnedMoves: ['rockSlide', 'earthquake', 'hornAttack', 'hyperBeam'],
+    baseExpYield: 204, catchRate: 60,
+    levelUpMoves: [{ level: 44, moveKey: 'hornDrill' }],
+  },
+
+  // Flareon (fire Eeveelution)
+  flareon: {
+    id: 136, name: 'FLAREON', types: ['fire'],
+    baseHp: 65, baseAtk: 130, baseDef: 60, baseSpd: 65,
+    learnedMoves: ['ember', 'quickAttack', 'bite', 'fireFang'],
+    baseExpYield: 184, catchRate: 45,
+    levelUpMoves: [{ level: 25, moveKey: 'fireFang' }, { level: 29, moveKey: 'flamethrower' }, { level: 33, moveKey: 'flareBlitz' }],
+  },
+
+  // Jolteon (electric Eeveelution)
+  jolteon: {
+    id: 135, name: 'JOLTEON', types: ['electric'],
+    baseHp: 65, baseAtk: 65, baseDef: 60, baseSpd: 130,
+    learnedMoves: ['thunderShock', 'quickAttack', 'spark'],
+    baseExpYield: 184, catchRate: 45,
+    levelUpMoves: [{ level: 25, moveKey: 'spark' }, { level: 29, moveKey: 'thunderbolt' }, { level: 33, moveKey: 'thunderPunch' }],
+  },
+
+  // Vaporeon (water Eeveelution)
+  vaporeon: {
+    id: 134, name: 'VAPOREON', types: ['water'],
+    baseHp: 130, baseAtk: 65, baseDef: 60, baseSpd: 65,
+    learnedMoves: ['waterGun', 'quickAttack', 'bite'],
+    baseExpYield: 184, catchRate: 45,
+    levelUpMoves: [{ level: 25, moveKey: 'bubbleBeam' }, { level: 29, moveKey: 'surf' }, { level: 33, moveKey: 'hydroPump' }],
+  },
+
+  // Hitmonlee
+  hitmonlee: {
+    id: 106, name: 'HITMONLEE', types: ['fighting'],
+    baseHp: 50, baseAtk: 120, baseDef: 53, baseSpd: 87,
+    learnedMoves: ['lowKick', 'karatechop', 'rollingKick'],
+    baseExpYield: 159, catchRate: 45,
+    levelUpMoves: [{ level: 21, moveKey: 'brickBreak' }, { level: 26, moveKey: 'highJumpKick' }, { level: 31, moveKey: 'megaKick' }, { level: 36, moveKey: 'closeCombat' }],
+  },
+
+  // Hitmonchan
+  hitmonchan: {
+    id: 107, name: 'HITMONCHAN', types: ['fighting'],
+    baseHp: 50, baseAtk: 105, baseDef: 79, baseSpd: 76,
+    learnedMoves: ['cometPunch', 'machPunch', 'icePunch'],
+    baseExpYield: 159, catchRate: 45,
+    levelUpMoves: [{ level: 21, moveKey: 'icePunch' }, { level: 26, moveKey: 'thunderPunch' }, { level: 31, moveKey: 'brickBreak' }, { level: 36, moveKey: 'closeCombat' }],
+  },
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
@@ -990,6 +1121,19 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
     { species: 'zubat', minLevel: 22, maxLevel: 25, weight: 10 },
     { species: 'mankey', minLevel: 22, maxLevel: 26, weight: 5 },
   ],
+  route8: [
+    { species: 'ponyta', minLevel: 28, maxLevel: 33, weight: 18 },
+    { species: 'growlithe', minLevel: 28, maxLevel: 32, weight: 15 },
+    { species: 'rhyhorn', minLevel: 28, maxLevel: 32, weight: 15 },
+    { species: 'cubone', minLevel: 27, maxLevel: 31, weight: 15 },
+    { species: 'magnemite', minLevel: 28, maxLevel: 32, weight: 10 },
+    { species: 'geodude', minLevel: 28, maxLevel: 32, weight: 8 },
+    { species: 'vulpix', minLevel: 28, maxLevel: 31, weight: 8 },
+    { species: 'hitmonlee', minLevel: 30, maxLevel: 33, weight: 3 },
+    { species: 'hitmonchan', minLevel: 30, maxLevel: 33, weight: 3 },
+    { species: 'flareon', minLevel: 30, maxLevel: 33, weight: 2 },
+    { species: 'eevee', minLevel: 28, maxLevel: 30, weight: 3 },
+  ],
   fishing: [
     { species: 'magikarp', minLevel: 5, maxLevel: 15, weight: 50 },
     { species: 'staryu', minLevel: 10, maxLevel: 18, weight: 20 },
@@ -1044,6 +1188,7 @@ export const ITEMS: Record<string, ItemData> = {
   revive:      { name: 'REVIVE',       type: 'medicine', description: 'Revives fainted POKéMON to half HP.', price: 1500 },
   repel:       { name: 'REPEL',       type: 'repel',    description: 'Prevents encounters (100 steps).', price: 350 },
   oldRod:      { name: 'OLD ROD',    type: 'key',      description: 'Fish in water for POKéMON.', price: 0 },
+  expShare:    { name: 'EXP. SHARE', type: 'key',     description: 'Party POKéMON get 50% EXP from battle.', price: 3000 },
 };
 
 // ── Type colors (for UI) ──
@@ -1064,6 +1209,7 @@ export const TYPE_COLORS: Record<PokemonType, string> = {
   ice:      '#98d8d8',
   fighting: '#c03028',
   dragon:   '#7038f8',
+  steel:    '#b8b8d0',
 };
 
 // ── EXP ──
@@ -1090,7 +1236,7 @@ export interface TrainerData {
   team: Array<{ species: string; level: number }>;
   reward: number; // money
   defeatMessage: string;
-  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3' | 'gymLeader4' | 'gymLeader5' | 'gymLeader6';
+  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3' | 'gymLeader4' | 'gymLeader5' | 'gymLeader6' | 'gymLeader7';
   isGymLeader?: boolean;
   badgeName?: string;
 }
@@ -1278,5 +1424,37 @@ export const TRAINERS: Record<string, TrainerData> = {
     sprite: 'gymLeader6',
     isGymLeader: true,
     badgeName: 'SOUL BADGE',
+  },
+  // Route 8 trainers
+  lass_ember: {
+    name: 'LASS EMBER',
+    team: [{ species: 'vulpix', level: 30 }, { species: 'ponyta', level: 31 }],
+    reward: 700,
+    defeatMessage: "Your POKéMON put out my flames!",
+    sprite: 'lass',
+  },
+  youngster_ash: {
+    name: 'YOUNGSTER ASH',
+    team: [{ species: 'cubone', level: 29 }, { species: 'growlithe', level: 30 }, { species: 'rhyhorn', level: 31 }],
+    reward: 750,
+    defeatMessage: "The volcano's heat wasn't enough!",
+    sprite: 'youngster',
+  },
+  hiker_magma: {
+    name: 'HIKER MAGMA',
+    team: [{ species: 'geodude', level: 30 }, { species: 'rhyhorn', level: 31 }, { species: 'cubone', level: 32 }],
+    reward: 850,
+    defeatMessage: "Even molten rock couldn't stop you!",
+    sprite: 'hiker',
+  },
+  // Seventh gym leader — Blaine
+  gym_blaine: {
+    name: 'LEADER BLAINE',
+    team: [{ species: 'growlithe', level: 37 }, { species: 'ponyta', level: 38 }, { species: 'rapidash', level: 40 }, { species: 'arcanine', level: 43 }],
+    reward: 8600,
+    defeatMessage: "Hah! I have been scorched! You earned the VOLCANO BADGE!",
+    sprite: 'gymLeader7',
+    isGymLeader: true,
+    badgeName: 'VOLCANO BADGE',
   },
 };

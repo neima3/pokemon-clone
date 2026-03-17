@@ -34,6 +34,8 @@ export class BattleScene implements Scene {
 
   // Intro animation
   private introTimer = 0;
+  private shinySparkled = false;
+  private shinyParticles: Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number }> = [];
 
   // Message system
   private msgText = '';
@@ -204,7 +206,34 @@ export class BattleScene implements Scene {
       this.flashAlpha = 0;
     }
 
-    if (this.introTimer >= 0.6) {
+    // Shiny sparkle sound once sprites have mostly slid in
+    if (!this.shinySparkled && this.enemyMon.isShiny && this.introTimer >= 1.0) {
+      this.shinySparkled = true;
+      SFX.shinySparkle();
+      // Spawn sparkle particles around enemy sprite position
+      for (let i = 0; i < 8; i++) {
+        const angle = (Math.PI * 2 * i) / 8 + Math.random() * 0.4;
+        this.shinyParticles.push({
+          x: this.enemySpriteX + 32 + Math.cos(angle) * 20,
+          y: 14 + 32 + Math.sin(angle) * 20,
+          vx: Math.cos(angle) * 30 + (Math.random() - 0.5) * 10,
+          vy: Math.sin(angle) * 30 + (Math.random() - 0.5) * 10,
+          life: 0.8 + Math.random() * 0.5,
+          maxLife: 0.8 + Math.random() * 0.5,
+          size: 2 + Math.random() * 2,
+        });
+      }
+    }
+
+    // Update shiny particles
+    for (const p of this.shinyParticles) {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+    }
+    this.shinyParticles = this.shinyParticles.filter(p => p.life > 0);
+
+    if (this.introTimer >= 1.8) {
       const enemyPrefix = this.isTrainerBattle ? `${this.trainerData!.name} sent out` : 'Wild';
       this.queueMessages(
         [`${enemyPrefix} ${this.enemyMon.name}!`, `Go! ${this.playerMon.name}!`],
@@ -1023,11 +1052,6 @@ export class BattleScene implements Scene {
     const events = this.playerMon.gainExp(amount);
     this.playerDisplayExp = this.playerMon.expPercent;
 
-    if (events.length === 0) {
-      then();
-      return;
-    }
-
     const msgs: string[] = [];
     for (const ev of events) {
       SFX.levelUp();
@@ -1043,7 +1067,38 @@ export class BattleScene implements Scene {
         this.learnMovePendingQueue.push({ mon: this.playerMon, moveKey });
       }
     }
+
+    // EXP Share: distribute 50% to all other alive team members
+    if (this.gameState.inventory.expShare > 0) {
+      const sharedAmount = Math.floor(amount * 0.5);
+      if (sharedAmount > 0) {
+        for (const mon of this.gameState.team) {
+          if (mon === this.playerMon || !mon.isAlive) continue;
+          const sharedEvents = mon.gainExp(sharedAmount);
+          for (const ev of sharedEvents) {
+            SFX.levelUp();
+            msgs.push(`${mon.name} grew to Lv.${ev.newLevel}! (EXP. SHARE)`);
+            for (const moveKey of ev.newMoves) {
+              const moveData = MOVES[moveKey];
+              if (moveData) {
+                msgs.push(`${mon.name} learned ${moveData.name}!`);
+              }
+            }
+            for (const moveKey of ev.pendingMoves) {
+              this.learnMovePendingQueue.push({ mon, moveKey });
+            }
+          }
+        }
+      }
+    }
+
     this.playerDisplayHp = this.playerMon.hp;
+
+    if (msgs.length === 0) {
+      then();
+      return;
+    }
+
     this.queueMessages(msgs, then);
   }
 
@@ -1051,15 +1106,8 @@ export class BattleScene implements Scene {
     const events = this.playerMon.gainExp(amount);
     this.playerDisplayExp = this.playerMon.expPercent;
 
-    if (events.length === 0) {
-      Music.victory();
-      this.queueMessages(['You won!'], () => {
-        this.checkPendingMoves();
-      });
-      return;
-    }
-
     const msgs: string[] = [];
+
     for (const ev of events) {
       SFX.levelUp();
       msgs.push(`${this.playerMon.name} grew to Lv.${ev.newLevel}!`);
@@ -1074,10 +1122,42 @@ export class BattleScene implements Scene {
         this.learnMovePendingQueue.push({ mon: this.playerMon, moveKey });
       }
     }
-    msgs.push('You won!');
+
+    // EXP Share: distribute 50% to all other alive team members
+    if (this.gameState.inventory.expShare > 0) {
+      const sharedAmount = Math.floor(amount * 0.5);
+      if (sharedAmount > 0) {
+        for (const mon of this.gameState.team) {
+          if (mon === this.playerMon || !mon.isAlive) continue;
+          const sharedEvents = mon.gainExp(sharedAmount);
+          for (const ev of sharedEvents) {
+            SFX.levelUp();
+            msgs.push(`${mon.name} grew to Lv.${ev.newLevel}! (EXP. SHARE)`);
+            for (const moveKey of ev.newMoves) {
+              const moveData = MOVES[moveKey];
+              if (moveData) {
+                msgs.push(`${mon.name} learned ${moveData.name}!`);
+              }
+            }
+            for (const moveKey of ev.pendingMoves) {
+              this.learnMovePendingQueue.push({ mon, moveKey });
+            }
+          }
+        }
+      }
+    }
 
     this.playerDisplayHp = this.playerMon.hp;
 
+    if (msgs.length === 0) {
+      Music.victory();
+      this.queueMessages(['You won!'], () => {
+        this.checkPendingMoves();
+      });
+      return;
+    }
+
+    msgs.push('You won!');
     Music.victory();
     this.queueMessages(msgs, () => {
       this.checkPendingMoves();
@@ -1144,11 +1224,13 @@ export class BattleScene implements Scene {
       }
     }
 
-    // Intro slide-in
+    // Intro slide-in (~1.5 seconds)
     if (this.phase === 'intro') {
-      const p = Math.min(1, this.introTimer / 0.5);
-      esx = 320 + (this.enemySpriteX - 320) * p;
-      psx = -60 + (this.playerSpriteX + 60) * p;
+      const p = Math.min(1, this.introTimer / 1.5);
+      // Ease-out for smooth deceleration
+      const eased = 1 - Math.pow(1 - p, 3);
+      esx = 320 + (this.enemySpriteX - 320) * eased;
+      psx = -60 + (this.playerSpriteX + 60) * eased;
     }
 
     if (this.phase === 'catching') {
@@ -1158,6 +1240,29 @@ export class BattleScene implements Scene {
     // Draw Pokemon sprites
     drawPokemonBack(ctx, this.playerMon.species.id, Math.round(psx), 76, pVisible);
     drawPokemonFront(ctx, this.enemyMon.species.id, Math.round(esx), 14, eVisible);
+
+    // Shiny sparkle particles
+    if (this.shinyParticles.length > 0) {
+      for (const p of this.shinyParticles) {
+        const alpha = Math.max(0, p.life / p.maxLife);
+        ctx.fillStyle = `rgba(255, 255, 200, ${alpha})`;
+        // Draw a small star/diamond shape
+        const cx = p.x;
+        const cy = p.y;
+        const s = p.size * alpha;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - s);
+        ctx.lineTo(cx + s * 0.4, cy - s * 0.4);
+        ctx.lineTo(cx + s, cy);
+        ctx.lineTo(cx + s * 0.4, cy + s * 0.4);
+        ctx.lineTo(cx, cy + s);
+        ctx.lineTo(cx - s * 0.4, cy + s * 0.4);
+        ctx.lineTo(cx - s, cy);
+        ctx.lineTo(cx - s * 0.4, cy - s * 0.4);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
 
     // Type-colored attack flash
     if (this.anim.active) {
@@ -1179,6 +1284,15 @@ export class BattleScene implements Scene {
 
     // Draw info boxes with status
     BattleUI.drawEnemyInfo(ctx, this.enemyMon.name, this.enemyMon.level, this.enemyDisplayHp / this.enemyMon.maxHp, this.enemyMon.status);
+
+    // Shiny star indicator next to enemy name
+    if (this.enemyMon.isShiny) {
+      ctx.fillStyle = '#f8d830';
+      ctx.font = 'bold 8px monospace';
+      ctx.textBaseline = 'top';
+      ctx.fillText('\u2605', 8 + 6 + ctx.measureText(this.enemyMon.name).width + 3, 8 + 4);
+    }
+
     BattleUI.drawPlayerInfo(
       ctx,
       this.playerMon.name,

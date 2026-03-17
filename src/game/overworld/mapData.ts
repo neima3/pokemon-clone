@@ -3,7 +3,7 @@ import { NPCData } from './NPC';
 
 /** 50×48 overworld map — expanded with a town, routes, and buildings */
 export const MAP_WIDTH = 50;
-export const MAP_HEIGHT = 48;
+export const MAP_HEIGHT = 56;
 
 const T = Tile.Tree;
 const G = Tile.Grass;
@@ -72,14 +72,25 @@ export const MAP_DATA: Tile[] = [
   T, G, G, G, P, P, P, P, P, P, P, P, S, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, E, E, P, E, E, G, G, G, G, T,  // 44
   T, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, F, G, G, G, T,  // 45
   T, G, G, G, G, G, g, g, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, T,  // 46
-  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 47
+  T, T, T, T, P, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 47
+// ── Route 8: Volcanic Fire Zone ──
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 48
+  T, G, G, g, P, g, g, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 49
+  T, G, g, g, P, g, g, g, G, G, G, G, G, G, G, G, G, G, G, W, W, G, G, G, G, G, G, G, G, G, G, G, G, g, g, g, G, G, G, G, G, G, G, G, G, G, F, G, G, T,  // 50
+  T, G, G, g, P, g, g, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 51
+  T, G, G, G, P, P, P, P, P, P, P, P, S, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, G, G, G, G, T,  // 52
+  T, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, P, G, G, G, G, G, P, G, G, G, G, G, G, G, T,  // 53
+  T, G, G, G, G, G, g, g, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, P, G, G, G, G, G, P, G, G, F, G, G, G, G, T,  // 54
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 55
 ];
 
 /** Get the route zone for a given grid position */
 export function getRouteZone(gx: number, gy: number): string {
   // Town area: roughly rows 4-15, cols 8-22
   if (gy >= 4 && gy <= 15 && gx >= 8 && gx <= 22) return 'town';
-  // Route 7: rows 39+ (poison swamp area)
+  // Route 8: rows 48+ (volcanic fire zone)
+  if (gy >= 48) return 'route8';
+  // Route 7: rows 39-47 (poison swamp area)
   if (gy >= 39) return 'route7';
   // Route 6: bottom-right area
   if (gy >= 29 && gx >= 39) return 'route6';
@@ -413,5 +424,61 @@ export const MAP_NPCS: NPCData[] = [
     dialogue: ['I am KOGA, the Poisonous Ninja Master!', 'My toxic arts will leave you paralyzed!', 'Prepare for the ultimate poison trap!'],
     isTrainer: true,
     trainerId: 'gym_koga',
+  },
+  // Route 8 trainers
+  {
+    id: 'trainer_ember',
+    gx: 8, gy: 50,
+    sprite: 'lass',
+    facing: 'right',
+    dialogue: ['The heat here makes my Fire POKéMON stronger!', 'Let me show you!'],
+    isTrainer: true,
+    trainerId: 'lass_ember',
+  },
+  {
+    id: 'trainer_ash',
+    gx: 25, gy: 49,
+    sprite: 'youngster',
+    facing: 'left',
+    dialogue: ['I found amazing POKéMON in the volcanic caves!', 'Battle me!'],
+    isTrainer: true,
+    trainerId: 'youngster_ash',
+  },
+  {
+    id: 'trainer_magma',
+    gx: 35, gy: 53,
+    sprite: 'hiker',
+    facing: 'left',
+    dialogue: ['The earth trembles with power here!', 'My Rock POKéMON are unbeatable!'],
+    isTrainer: true,
+    trainerId: 'hiker_magma',
+  },
+  // Route 8 helper
+  {
+    id: 'route8_helper',
+    gx: 4, gy: 53,
+    sprite: 'youngster',
+    facing: 'right',
+    dialogue: ['BLAINE\'s GYM is to the east.', 'He uses Fire-type POKéMON!', 'Water, Ground, and Rock types are your best bet!'],
+    isTrainer: false,
+  },
+  // Exp Share NPC
+  {
+    id: 'exp_share_npc',
+    gx: 15, gy: 49,
+    sprite: 'shopkeeper',
+    facing: 'down',
+    dialogue: ['I\'m a POKéMON researcher!', 'Take this EXP. SHARE!', 'It lets all your team POKéMON gain experience!'],
+    isTrainer: false,
+  },
+  // Gym Leader — Blaine
+  {
+    id: 'gym_leader_blaine',
+    gx: 31, gy: 54,
+    sprite: 'gymLeader7',
+    facing: 'down',
+    dialogue: ['I am BLAINE, the hotheaded quiz master!', 'My fiery POKéMON will burn you to a crisp!', 'Can you withstand the heat?!'],
+    isTrainer: true,
+    trainerId: 'gym_blaine',
   },
 ];
