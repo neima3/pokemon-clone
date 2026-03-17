@@ -2,10 +2,10 @@
 export const VERSION = {
   major: 0,
   minor: 7,
-  patch: 0,
-  full: '0.7.0',
-  buildDate: '2026-03-16',
-  sprint: 6,
+  patch: 1,
+  full: '0.7.1',
+  buildDate: '2026-03-17',
+  sprint: 7,
 };
 
 export const getVersionString = () => `v${VERSION.full}`;
