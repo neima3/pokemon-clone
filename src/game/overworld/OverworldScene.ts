@@ -44,10 +44,12 @@ export class OverworldScene implements Scene {
   private shopItems: Array<{ key: keyof Inventory; name: string; price: number }> = [
     { key: 'pokeball', name: 'POKé BALL', price: 200 },
     { key: 'greatBall', name: 'GREAT BALL', price: 600 },
+    { key: 'ultraBall', name: 'ULTRA BALL', price: 1200 },
     { key: 'potion', name: 'POTION', price: 300 },
     { key: 'superPotion', name: 'SUPER POTION', price: 700 },
     { key: 'antidote', name: 'ANTIDOTE', price: 100 },
     { key: 'fullHeal', name: 'FULL HEAL', price: 600 },
+    { key: 'revive', name: 'REVIVE', price: 1500 },
     { key: 'repel', name: 'REPEL', price: 350 },
   ];
 
@@ -120,6 +122,8 @@ export class OverworldScene implements Scene {
       Music.route5();
     } else if (zone === 'route6') {
       Music.route6();
+    } else if (zone === 'route7') {
+      Music.route7();
     } else {
       Music.overworld();
     }
@@ -299,6 +303,8 @@ export class OverworldScene implements Scene {
           this.startDialogue(['ROUTE 5', 'A path through fiery meadows.']);
         } else if (zone === 'route6') {
           this.startDialogue(['ROUTE 6', 'An eerie mist hangs in the air...']);
+        } else if (zone === 'route7') {
+          this.startDialogue(['ROUTE 7', 'Toxic fumes fill the swamp...']);
         } else {
           this.startDialogue(['ROUTE 2', 'Stronger POKéMON live here.']);
         }
@@ -325,7 +331,14 @@ export class OverworldScene implements Scene {
       if (tile === Tile.GymDoor) {
         SFX.menuConfirm();
         // Determine which gym based on position
-        if (fy >= 36) {
+        if (fy >= 42) {
+          // Koga's Gym (Route 7 area)
+          if (this.gameState.hasBadge('SOUL BADGE')) {
+            this.startDialogue(['FUCHSIA GYM', 'LEADER: KOGA', 'You already have the SOUL BADGE!']);
+          } else {
+            this.startDialogue(['FUCHSIA GYM', 'LEADER: KOGA', 'Specializes in Poison-type POKéMON.']);
+          }
+        } else if (fy >= 36) {
           // Erika's Gym (Route 5 area)
           if (this.gameState.hasBadge('RAINBOW BADGE')) {
             this.startDialogue(['CELADON GYM', 'LEADER: ERIKA', 'You already have the RAINBOW BADGE!']);
@@ -333,11 +346,21 @@ export class OverworldScene implements Scene {
             this.startDialogue(['CELADON GYM', 'LEADER: ERIKA', 'Specializes in Grass-type POKéMON.']);
           }
         } else if (fx >= 38) {
-          // Lt. Surge's Gym
-          if (this.gameState.hasBadge('THUNDER BADGE')) {
-            this.startDialogue(['VERMILION GYM', 'LEADER: LT. SURGE', 'You already have the THUNDER BADGE!']);
+          // Lt. Surge's or Sabrina's Gym
+          if (fy >= 30) {
+            // Sabrina's Gym
+            if (this.gameState.hasBadge('MARSH BADGE')) {
+              this.startDialogue(['SAFFRON GYM', 'LEADER: SABRINA', 'You already have the MARSH BADGE!']);
+            } else {
+              this.startDialogue(['SAFFRON GYM', 'LEADER: SABRINA', 'Specializes in Psychic-type POKéMON.']);
+            }
           } else {
-            this.startDialogue(['VERMILION GYM', 'LEADER: LT. SURGE', 'Specializes in Electric-type POKéMON.']);
+            // Lt. Surge's Gym
+            if (this.gameState.hasBadge('THUNDER BADGE')) {
+              this.startDialogue(['VERMILION GYM', 'LEADER: LT. SURGE', 'You already have the THUNDER BADGE!']);
+            } else {
+              this.startDialogue(['VERMILION GYM', 'LEADER: LT. SURGE', 'Specializes in Electric-type POKéMON.']);
+            }
           }
         } else if (fy >= 20) {
           if (this.gameState.hasBadge('CASCADE BADGE')) {
@@ -557,6 +580,19 @@ export class OverworldScene implements Scene {
         } else {
           SFX.bump();
         }
+      } else if (item.key === 'revive') {
+        // Revive: find first fainted Pokemon in team
+        const fainted = this.gameState.team.find(p => !p.isAlive);
+        if (fainted) {
+          if (this.gameState.useItem('revive')) {
+            fainted.hp = Math.floor(fainted.maxHp / 2);
+            SFX.heal();
+            this.phase = 'explore';
+            this.startDialogue([`Used REVIVE!`, `${fainted.name} was revived!`]);
+          }
+        } else {
+          SFX.bump();
+        }
       } else {
         SFX.bump();
       }
@@ -567,10 +603,12 @@ export class OverworldScene implements Scene {
     const all: Array<{ key: keyof Inventory; name: string; count: number }> = [
       { key: 'pokeball', name: 'POKé BALL', count: this.gameState.inventory.pokeball },
       { key: 'greatBall', name: 'GREAT BALL', count: this.gameState.inventory.greatBall },
+      { key: 'ultraBall', name: 'ULTRA BALL', count: this.gameState.inventory.ultraBall },
       { key: 'potion', name: 'POTION', count: this.gameState.inventory.potion },
       { key: 'superPotion', name: 'SUPER POTION', count: this.gameState.inventory.superPotion },
       { key: 'antidote', name: 'ANTIDOTE', count: this.gameState.inventory.antidote },
       { key: 'fullHeal', name: 'FULL HEAL', count: this.gameState.inventory.fullHeal },
+      { key: 'revive', name: 'REVIVE', count: this.gameState.inventory.revive },
       { key: 'repel', name: 'REPEL', count: this.gameState.inventory.repel },
     ];
     return all.filter(i => i.count > 0);
@@ -789,7 +827,7 @@ export class OverworldScene implements Scene {
 
     // Zone indicator
     const zone = getRouteZone(this.player.gx, this.player.gy);
-    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3', route4: 'ROUTE 4', route5: 'ROUTE 5', route6: 'ROUTE 6' };
+    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3', route4: 'ROUTE 4', route5: 'ROUTE 5', route6: 'ROUTE 6', route7: 'ROUTE 7' };
     const zoneName = zoneNames[zone] ?? zone.toUpperCase();
 
     ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';

@@ -2106,6 +2106,16 @@ const C8 = {
   dratBlue: '#7098c8', dratLight: '#a0c0e0', dratWhite: '#f0f0f8',
   // Dragonair
   dragBlue: '#5080b8', dragLight: '#88b0d8', dragOrb: '#5858c8', dragWing: '#e0e8f0',
+  // Sprint 010 colors
+  koffPurple: '#7858a0', koffDark: '#584078', koffCream: '#e8d8b0', koffSkull: '#f8f0e0',
+  grimPurple: '#8050a0', grimDark: '#604080', grimLight: '#b088c0',
+  tentBlue: '#5088b8', tentRed: '#e85050', tentCream: '#c0d8e8',
+  magikRed: '#e87050', magikGold: '#f8d830', magikWhite: '#f8f0e0',
+  gyarBlue: '#4870b0', gyarCream: '#e8d8b0', gyarDark: '#283878',
+  dnitOrange: '#e89048', dnitCream: '#f8e0a8', dnitGreen: '#68a848', dnitWing: '#58a058',
+  machampGray: '#8898a0', machampDark: '#506068', machampSkin: '#c0a888',
+  scyGreen: '#78b050', scyDark: '#487030', scyBlade: '#d0e0c0', scyWing: '#c8e0b8',
+  pinBrown: '#a08060', pinDark: '#705838', pinClaw: '#f0e8d0',
 };
 
 // Bellsprout (69)
@@ -3455,6 +3465,480 @@ SPRITES[148] = {
   },
 };
 
+// ── Sprint 010 Pokemon sprites ──
+
+// Machamp (68)
+SPRITES[68] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.machampGray;
+    ctx.fillRect(x + 14, y + 18, 24, 22); // torso
+    ctx.fillRect(x + 16, y + 38, 8, 10); // left leg
+    ctx.fillRect(x + 28, y + 38, 8, 10); // right leg
+    ctx.fillStyle = C8.machampSkin;
+    ctx.fillRect(x + 16, y + 4, 20, 16); // head
+    ctx.fillStyle = C8.machampDark;
+    ctx.fillRect(x + 16, y + 0, 20, 6); // crest
+    // 4 arms!
+    ctx.fillStyle = C8.machampGray;
+    ctx.fillRect(x + 4, y + 18, 12, 6); // upper left arm
+    ctx.fillRect(x + 36, y + 18, 12, 6); // upper right arm
+    ctx.fillRect(x + 6, y + 26, 10, 6); // lower left arm
+    ctx.fillRect(x + 36, y + 26, 10, 6); // lower right arm
+    // Belt
+    ctx.fillStyle = '#c04040';
+    ctx.fillRect(x + 14, y + 34, 24, 4);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 10, 4, 4);
+    ctx.fillRect(x + 28, y + 10, 4, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.machampGray;
+    ctx.fillRect(x + 14, y + 18, 24, 22);
+    ctx.fillRect(x + 16, y + 38, 8, 10);
+    ctx.fillRect(x + 28, y + 38, 8, 10);
+    ctx.fillStyle = C8.machampDark;
+    ctx.fillRect(x + 16, y + 4, 20, 16);
+    ctx.fillRect(x + 16, y + 0, 20, 6);
+    ctx.fillStyle = C8.machampGray;
+    ctx.fillRect(x + 4, y + 18, 12, 6);
+    ctx.fillRect(x + 36, y + 18, 12, 6);
+    ctx.fillRect(x + 6, y + 26, 10, 6);
+    ctx.fillRect(x + 36, y + 26, 10, 6);
+    ctx.fillStyle = '#c04040';
+    ctx.fillRect(x + 14, y + 34, 24, 4);
+  },
+};
+
+// Tentacool (72)
+SPRITES[72] = {
+  front: (ctx, x, y) => {
+    // Bell-shaped head
+    ctx.fillStyle = C8.tentBlue;
+    ctx.fillRect(x + 14, y + 8, 24, 20);
+    ctx.fillRect(x + 18, y + 4, 16, 8);
+    // Red gems
+    ctx.fillStyle = C8.tentRed;
+    ctx.fillRect(x + 22, y + 14, 8, 6);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 10, 4, 4);
+    ctx.fillRect(x + 30, y + 10, 4, 4);
+    // Tentacles
+    ctx.fillStyle = C8.tentCream;
+    ctx.fillRect(x + 14, y + 28, 4, 18);
+    ctx.fillRect(x + 22, y + 28, 4, 20);
+    ctx.fillRect(x + 34, y + 28, 4, 18);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.tentBlue;
+    ctx.fillRect(x + 14, y + 8, 24, 20);
+    ctx.fillRect(x + 18, y + 4, 16, 8);
+    ctx.fillStyle = C8.tentCream;
+    ctx.fillRect(x + 14, y + 28, 4, 18);
+    ctx.fillRect(x + 22, y + 28, 4, 20);
+    ctx.fillRect(x + 34, y + 28, 4, 18);
+  },
+};
+
+// Tentacruel (73)
+SPRITES[73] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.tentBlue;
+    ctx.fillRect(x + 10, y + 4, 32, 24);
+    ctx.fillRect(x + 14, y + 0, 24, 8);
+    ctx.fillStyle = C8.tentRed;
+    ctx.fillRect(x + 18, y + 10, 6, 6);
+    ctx.fillRect(x + 28, y + 10, 6, 6);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 16, y + 6, 6, 4);
+    ctx.fillRect(x + 30, y + 6, 6, 4);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 18, y + 6, 3, 3);
+    ctx.fillRect(x + 32, y + 6, 3, 3);
+    ctx.fillStyle = C8.tentCream;
+    ctx.fillRect(x + 10, y + 28, 4, 20);
+    ctx.fillRect(x + 18, y + 28, 4, 22);
+    ctx.fillRect(x + 26, y + 28, 4, 22);
+    ctx.fillRect(x + 34, y + 28, 4, 20);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.tentBlue;
+    ctx.fillRect(x + 10, y + 4, 32, 24);
+    ctx.fillRect(x + 14, y + 0, 24, 8);
+    ctx.fillStyle = C8.tentCream;
+    ctx.fillRect(x + 10, y + 28, 4, 20);
+    ctx.fillRect(x + 18, y + 28, 4, 22);
+    ctx.fillRect(x + 26, y + 28, 4, 22);
+    ctx.fillRect(x + 34, y + 28, 4, 20);
+  },
+};
+
+// Grimer (88)
+SPRITES[88] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.grimPurple;
+    ctx.fillRect(x + 8, y + 20, 36, 24);
+    ctx.fillRect(x + 12, y + 14, 28, 10);
+    ctx.fillStyle = C8.grimDark;
+    ctx.fillRect(x + 8, y + 38, 10, 10);
+    ctx.fillRect(x + 34, y + 38, 10, 10);
+    ctx.fillStyle = C8.grimLight;
+    ctx.fillRect(x + 14, y + 26, 24, 6);
+    // Droopy eyes
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 16, y + 16, 8, 6);
+    ctx.fillRect(x + 28, y + 16, 8, 6);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 18, 4, 4);
+    ctx.fillRect(x + 30, y + 18, 4, 4);
+    // Mouth
+    ctx.fillRect(x + 20, y + 28, 12, 3);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.grimPurple;
+    ctx.fillRect(x + 8, y + 20, 36, 24);
+    ctx.fillRect(x + 12, y + 14, 28, 10);
+    ctx.fillStyle = C8.grimDark;
+    ctx.fillRect(x + 8, y + 38, 10, 10);
+    ctx.fillRect(x + 34, y + 38, 10, 10);
+    ctx.fillStyle = C8.grimLight;
+    ctx.fillRect(x + 14, y + 26, 24, 6);
+  },
+};
+
+// Muk (89)
+SPRITES[89] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.grimDark;
+    ctx.fillRect(x + 4, y + 16, 44, 28);
+    ctx.fillRect(x + 8, y + 10, 36, 10);
+    ctx.fillStyle = C8.grimPurple;
+    ctx.fillRect(x + 10, y + 22, 32, 16);
+    // Arms (sludge blobs)
+    ctx.fillStyle = C8.grimDark;
+    ctx.fillRect(x + 0, y + 24, 10, 14);
+    ctx.fillRect(x + 42, y + 24, 10, 14);
+    // Eyes
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 14, y + 14, 10, 6);
+    ctx.fillRect(x + 28, y + 14, 10, 6);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 16, 4, 4);
+    ctx.fillRect(x + 32, y + 16, 4, 4);
+    // Wide mouth
+    ctx.fillRect(x + 16, y + 28, 20, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.grimDark;
+    ctx.fillRect(x + 4, y + 16, 44, 28);
+    ctx.fillRect(x + 8, y + 10, 36, 10);
+    ctx.fillStyle = C8.grimPurple;
+    ctx.fillRect(x + 10, y + 22, 32, 16);
+    ctx.fillStyle = C8.grimDark;
+    ctx.fillRect(x + 0, y + 24, 10, 14);
+    ctx.fillRect(x + 42, y + 24, 10, 14);
+  },
+};
+
+// Koffing (109)
+SPRITES[109] = {
+  front: (ctx, x, y) => {
+    // Round body
+    ctx.fillStyle = C8.koffPurple;
+    ctx.fillRect(x + 10, y + 8, 32, 32);
+    ctx.fillRect(x + 14, y + 4, 24, 8);
+    ctx.fillRect(x + 14, y + 36, 24, 8);
+    // Skull crossbones
+    ctx.fillStyle = C8.koffSkull;
+    ctx.fillRect(x + 20, y + 18, 12, 10);
+    ctx.fillRect(x + 18, y + 28, 4, 6);
+    ctx.fillRect(x + 30, y + 28, 4, 6);
+    // Eyes (X shaped - derpy)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 16, y + 12, 4, 4);
+    ctx.fillRect(x + 32, y + 12, 4, 4);
+    // Gas puffs
+    ctx.fillStyle = C8.koffDark;
+    ctx.fillRect(x + 4, y + 14, 8, 8);
+    ctx.fillRect(x + 40, y + 20, 8, 8);
+    ctx.fillRect(x + 8, y + 36, 8, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.koffPurple;
+    ctx.fillRect(x + 10, y + 8, 32, 32);
+    ctx.fillRect(x + 14, y + 4, 24, 8);
+    ctx.fillRect(x + 14, y + 36, 24, 8);
+    ctx.fillStyle = C8.koffDark;
+    ctx.fillRect(x + 4, y + 14, 8, 8);
+    ctx.fillRect(x + 40, y + 20, 8, 8);
+    ctx.fillRect(x + 8, y + 36, 8, 6);
+  },
+};
+
+// Weezing (110)
+SPRITES[110] = {
+  front: (ctx, x, y) => {
+    // Big head
+    ctx.fillStyle = C8.koffPurple;
+    ctx.fillRect(x + 4, y + 8, 28, 28);
+    ctx.fillRect(x + 8, y + 4, 20, 8);
+    // Small head
+    ctx.fillRect(x + 30, y + 18, 18, 18);
+    ctx.fillRect(x + 34, y + 14, 10, 8);
+    // Skull on big head
+    ctx.fillStyle = C8.koffSkull;
+    ctx.fillRect(x + 12, y + 18, 10, 8);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 10, y + 12, 4, 4);
+    ctx.fillRect(x + 22, y + 12, 4, 4);
+    // Small head eyes
+    ctx.fillRect(x + 34, y + 20, 3, 3);
+    ctx.fillRect(x + 42, y + 20, 3, 3);
+    // Gas puffs
+    ctx.fillStyle = C8.koffDark;
+    ctx.fillRect(x + 0, y + 20, 6, 6);
+    ctx.fillRect(x + 44, y + 12, 6, 6);
+    ctx.fillRect(x + 14, y + 34, 8, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.koffPurple;
+    ctx.fillRect(x + 4, y + 8, 28, 28);
+    ctx.fillRect(x + 8, y + 4, 20, 8);
+    ctx.fillRect(x + 30, y + 18, 18, 18);
+    ctx.fillRect(x + 34, y + 14, 10, 8);
+    ctx.fillStyle = C8.koffDark;
+    ctx.fillRect(x + 0, y + 20, 6, 6);
+    ctx.fillRect(x + 44, y + 12, 6, 6);
+  },
+};
+
+// Scyther (123)
+SPRITES[123] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.scyGreen;
+    ctx.fillRect(x + 16, y + 14, 20, 22); // body
+    ctx.fillRect(x + 18, y + 34, 6, 12); // left leg
+    ctx.fillRect(x + 28, y + 34, 6, 12); // right leg
+    ctx.fillStyle = C8.scyDark;
+    ctx.fillRect(x + 18, y + 4, 16, 14); // head
+    // Blade arms
+    ctx.fillStyle = C8.scyBlade;
+    ctx.fillRect(x + 2, y + 14, 16, 4);
+    ctx.fillRect(x + 0, y + 10, 6, 8);
+    ctx.fillRect(x + 34, y + 14, 16, 4);
+    ctx.fillRect(x + 46, y + 10, 6, 8);
+    // Wings
+    ctx.fillStyle = C8.scyWing;
+    ctx.fillRect(x + 10, y + 20, 8, 14);
+    ctx.fillRect(x + 34, y + 20, 8, 14);
+    // Eyes
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 20, y + 6, 5, 5);
+    ctx.fillRect(x + 27, y + 6, 5, 5);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 22, y + 8, 3, 3);
+    ctx.fillRect(x + 29, y + 8, 3, 3);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.scyGreen;
+    ctx.fillRect(x + 16, y + 14, 20, 22);
+    ctx.fillRect(x + 18, y + 34, 6, 12);
+    ctx.fillRect(x + 28, y + 34, 6, 12);
+    ctx.fillStyle = C8.scyDark;
+    ctx.fillRect(x + 18, y + 4, 16, 14);
+    ctx.fillStyle = C8.scyWing;
+    ctx.fillRect(x + 8, y + 10, 12, 20);
+    ctx.fillRect(x + 32, y + 10, 12, 20);
+    ctx.fillStyle = C8.scyBlade;
+    ctx.fillRect(x + 2, y + 14, 16, 4);
+    ctx.fillRect(x + 34, y + 14, 16, 4);
+  },
+};
+
+// Pinsir (127)
+SPRITES[127] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.pinBrown;
+    ctx.fillRect(x + 12, y + 16, 28, 24); // body
+    ctx.fillRect(x + 16, y + 38, 8, 10); // left leg
+    ctx.fillRect(x + 28, y + 38, 8, 10); // right leg
+    // Pincers
+    ctx.fillStyle = C8.pinClaw;
+    ctx.fillRect(x + 10, y + 0, 6, 18); // left horn
+    ctx.fillRect(x + 36, y + 0, 6, 18); // right horn
+    ctx.fillRect(x + 8, y + 0, 10, 4); // left horn tip
+    ctx.fillRect(x + 34, y + 0, 10, 4); // right horn tip
+    ctx.fillRect(x + 12, y + 6, 4, 3); // left tooth
+    ctx.fillRect(x + 36, y + 6, 4, 3); // right tooth
+    // Head
+    ctx.fillStyle = C8.pinDark;
+    ctx.fillRect(x + 14, y + 10, 24, 10);
+    // Eyes (angry)
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 18, y + 12, 6, 4);
+    ctx.fillRect(x + 28, y + 12, 6, 4);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 13, 3, 3);
+    ctx.fillRect(x + 30, y + 13, 3, 3);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.pinBrown;
+    ctx.fillRect(x + 12, y + 16, 28, 24);
+    ctx.fillRect(x + 16, y + 38, 8, 10);
+    ctx.fillRect(x + 28, y + 38, 8, 10);
+    ctx.fillStyle = C8.pinClaw;
+    ctx.fillRect(x + 10, y + 0, 6, 18);
+    ctx.fillRect(x + 36, y + 0, 6, 18);
+    ctx.fillStyle = C8.pinDark;
+    ctx.fillRect(x + 14, y + 10, 24, 10);
+  },
+};
+
+// Magikarp (129)
+SPRITES[129] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.magikRed;
+    ctx.fillRect(x + 14, y + 14, 24, 18); // body
+    ctx.fillRect(x + 18, y + 10, 16, 6); // top
+    ctx.fillStyle = C8.magikGold;
+    ctx.fillRect(x + 16, y + 20, 20, 6); // belly stripe
+    // Tail
+    ctx.fillStyle = C8.magikRed;
+    ctx.fillRect(x + 36, y + 10, 8, 8);
+    ctx.fillRect(x + 36, y + 26, 8, 8);
+    ctx.fillRect(x + 38, y + 16, 6, 12);
+    // Fins
+    ctx.fillRect(x + 22, y + 4, 8, 8);
+    // Eye (big dopey)
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 16, y + 14, 8, 8);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 16, 4, 4);
+    // Whiskers
+    ctx.fillStyle = C8.magikGold;
+    ctx.fillRect(x + 10, y + 22, 6, 2);
+    ctx.fillRect(x + 10, y + 26, 6, 2);
+    // Mouth
+    ctx.fillStyle = C8.magikWhite;
+    ctx.fillRect(x + 12, y + 24, 4, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.magikRed;
+    ctx.fillRect(x + 14, y + 14, 24, 18);
+    ctx.fillRect(x + 18, y + 10, 16, 6);
+    ctx.fillStyle = C8.magikGold;
+    ctx.fillRect(x + 16, y + 20, 20, 6);
+    ctx.fillStyle = C8.magikRed;
+    ctx.fillRect(x + 36, y + 10, 8, 8);
+    ctx.fillRect(x + 36, y + 26, 8, 8);
+    ctx.fillRect(x + 38, y + 16, 6, 12);
+    ctx.fillRect(x + 22, y + 4, 8, 8);
+  },
+};
+
+// Gyarados (130)
+SPRITES[130] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.gyarBlue;
+    // Large serpentine body
+    ctx.fillRect(x + 16, y + -4, 20, 22); // head
+    ctx.fillRect(x + 12, y + 14, 28, 12); // neck
+    ctx.fillRect(x + 8, y + 22, 36, 10); // body
+    ctx.fillRect(x + 12, y + 30, 28, 10); // lower body
+    ctx.fillRect(x + 16, y + 38, 20, 10); // tail
+    // Cream belly
+    ctx.fillStyle = C8.gyarCream;
+    ctx.fillRect(x + 20, y + 16, 12, 28);
+    // Whiskers/crest
+    ctx.fillStyle = C8.gyarDark;
+    ctx.fillRect(x + 10, y + -6, 6, 12);
+    ctx.fillRect(x + 36, y + -6, 6, 12);
+    ctx.fillRect(x + 20, y + -8, 12, 6); // crown
+    // Angry eyes
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 18, y + 2, 8, 8);
+    ctx.fillRect(x + 26, y + 2, 8, 8);
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 20, y + 4, 4, 4);
+    ctx.fillRect(x + 28, y + 4, 4, 4);
+    // Mouth
+    ctx.fillStyle = C8.gyarDark;
+    ctx.fillRect(x + 16, y + 12, 20, 4);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 18, y + 12, 3, 3);
+    ctx.fillRect(x + 31, y + 12, 3, 3);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.gyarBlue;
+    ctx.fillRect(x + 16, y + -4, 20, 22);
+    ctx.fillRect(x + 12, y + 14, 28, 12);
+    ctx.fillRect(x + 8, y + 22, 36, 10);
+    ctx.fillRect(x + 12, y + 30, 28, 10);
+    ctx.fillRect(x + 16, y + 38, 20, 10);
+    ctx.fillStyle = C8.gyarDark;
+    ctx.fillRect(x + 10, y + -6, 6, 12);
+    ctx.fillRect(x + 36, y + -6, 6, 12);
+    ctx.fillRect(x + 20, y + -8, 12, 6);
+  },
+};
+
+// Dragonite (149)
+SPRITES[149] = {
+  front: (ctx, x, y) => {
+    ctx.fillStyle = C8.dnitOrange;
+    ctx.fillRect(x + 14, y + 16, 24, 22); // body
+    ctx.fillRect(x + 16, y + 2, 20, 18); // head
+    ctx.fillRect(x + 16, y + 36, 8, 12); // left leg
+    ctx.fillRect(x + 28, y + 36, 8, 12); // right leg
+    // Belly
+    ctx.fillStyle = C8.dnitCream;
+    ctx.fillRect(x + 18, y + 22, 16, 14);
+    // Wings
+    ctx.fillStyle = C8.dnitGreen;
+    ctx.fillRect(x + 2, y + 10, 14, 20);
+    ctx.fillRect(x + 36, y + 10, 14, 20);
+    ctx.fillStyle = C8.dnitWing;
+    ctx.fillRect(x + 4, y + 14, 10, 14);
+    ctx.fillRect(x + 38, y + 14, 10, 14);
+    // Antennae
+    ctx.fillStyle = C8.dnitOrange;
+    ctx.fillRect(x + 18, y + -4, 4, 8);
+    ctx.fillRect(x + 30, y + -4, 4, 8);
+    // Eyes (friendly)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 8, 4, 4);
+    ctx.fillRect(x + 28, y + 8, 4, 4);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 21, y + 9, 2, 2);
+    ctx.fillRect(x + 29, y + 9, 2, 2);
+    // Mouth
+    ctx.fillStyle = C8.dnitCream;
+    ctx.fillRect(x + 22, y + 14, 8, 4);
+    // Arms
+    ctx.fillStyle = C8.dnitOrange;
+    ctx.fillRect(x + 8, y + 22, 8, 6);
+    ctx.fillRect(x + 36, y + 22, 8, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C8.dnitOrange;
+    ctx.fillRect(x + 14, y + 16, 24, 22);
+    ctx.fillRect(x + 16, y + 2, 20, 18);
+    ctx.fillRect(x + 16, y + 36, 8, 12);
+    ctx.fillRect(x + 28, y + 36, 8, 12);
+    ctx.fillStyle = C8.dnitGreen;
+    ctx.fillRect(x + 2, y + 8, 14, 22);
+    ctx.fillRect(x + 36, y + 8, 14, 22);
+    ctx.fillStyle = C8.dnitWing;
+    ctx.fillRect(x + 4, y + 12, 10, 16);
+    ctx.fillRect(x + 38, y + 12, 10, 16);
+    ctx.fillStyle = C8.dnitOrange;
+    ctx.fillRect(x + 18, y + -4, 4, 8);
+    ctx.fillRect(x + 30, y + -4, 4, 8);
+  },
+};
+
 export function drawPokemonFront(ctx: CanvasRenderingContext2D, speciesId: number, x: number, y: number, visible = true) {
   if (!visible) return;
   SPRITES[speciesId]?.front(ctx, x, y);
@@ -3675,6 +4159,31 @@ export function drawNPCSprite(ctx: CanvasRenderingContext2D, type: string, x: nu
       ctx.fillStyle = '#181830';
       ctx.fillRect(x + 1, y + 8, 3, 8);
       ctx.fillRect(x + 12, y + 8, 3, 8);
+      break;
+    case 'gymLeader6':
+      // Koga: ninja master, dark scarf, purple accents
+      ctx.fillStyle = '#282040'; // dark ninja hood
+      ctx.fillRect(x + 3, y + 0, 10, 5);
+      ctx.fillRect(x + 2, y + 2, 12, 4); // wider hood
+      ctx.fillStyle = '#f8d8b0'; // face (only eyes visible)
+      ctx.fillRect(x + 5, y + 3, 6, 3);
+      // Intense eyes
+      ctx.fillStyle = '#e04040';
+      ctx.fillRect(x + 6, y + 4, 2, 1);
+      ctx.fillRect(x + 9, y + 4, 2, 1);
+      // Ninja scarf wrapping lower face
+      ctx.fillStyle = '#483868';
+      ctx.fillRect(x + 4, y + 5, 8, 2);
+      // Dark body (ninja gi)
+      ctx.fillStyle = '#282040';
+      ctx.fillRect(x + 3, y + 7, 10, 6);
+      // Purple belt
+      ctx.fillStyle = '#8040c0';
+      ctx.fillRect(x + 4, y + 10, 8, 2);
+      // Legs
+      ctx.fillStyle = '#181830';
+      ctx.fillRect(x + 4, y + 13, 4, 3);
+      ctx.fillRect(x + 9, y + 13, 4, 3);
       break;
     default:
       // Generic NPC

@@ -443,6 +443,46 @@ function buildRoute6Bass(): MusicPattern {
   };
 }
 
+function buildRoute7Pattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 3.5,
+    notes: [
+      // Bar 1 - dark, industrial, poison-themed
+      { freq: n.C3, dur: 0.5 }, { freq: n.Eb3, dur: 0.25 },
+      { freq: n.C3, dur: 0.25 }, { freq: n.Eb3, dur: 0.5 },
+      { freq: n.Fs3, dur: 0.5 }, { freq: n.G3, dur: 0.5 },
+      // Bar 2 - toxic bubbling feel
+      { freq: n.Eb4, dur: 0.25 }, { freq: n.D4, dur: 0.25 },
+      { freq: n.C4, dur: 0.5 }, { freq: n.Bb3, dur: 0.25 },
+      { freq: n.Ab3, dur: 0.25 }, { freq: n.G3, dur: 0.5 },
+      { freq: n.Fs3, dur: 0.5 },
+      // Bar 3 - creeping chromatic ascent
+      { freq: n.C3, dur: 0.5 }, { freq: n.Db4, dur: 0.25 },
+      { freq: n.D4, dur: 0.25 }, { freq: n.Eb4, dur: 0.5 },
+      { freq: n.E4, dur: 0.25 }, { freq: n.F4, dur: 0.25 },
+      { freq: n.Fs4, dur: 0.5 },
+      // Bar 4 - descend and resolve darkly
+      { freq: n.G4, dur: 0.5 }, { freq: n.Eb4, dur: 0.5 },
+      { freq: n.C4, dur: 0.5 }, { freq: n.Ab3, dur: 0.5 },
+      { freq: n.G3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+    ],
+  };
+}
+
+function buildRoute7Bass(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 2,
+    notes: [
+      { freq: n.C3, dur: 1 }, { freq: n.Eb3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+      { freq: n.Ab3, dur: 0.5 }, { freq: n.G3, dur: 0.5 }, { freq: n.Fs3, dur: 0.5 }, { freq: n.G3, dur: 0.5 },
+      { freq: n.C3, dur: 1 }, { freq: n.Db4, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+      { freq: n.G3, dur: 1 }, { freq: n.C3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+    ],
+  };
+}
+
 function buildTitlePattern(): MusicPattern {
   const n = NOTE;
   return {
@@ -588,6 +628,14 @@ export const Music = {
     currentMusic = playMusicLoop([
       { pattern: buildRoute6Pattern(), type: 'triangle', gainVal: 0.1 },
       { pattern: buildRoute6Bass(), type: 'sine', gainVal: 0.08 },
+    ]);
+  },
+
+  route7() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildRoute7Pattern(), type: 'sawtooth', gainVal: 0.08 },
+      { pattern: buildRoute7Bass(), type: 'triangle', gainVal: 0.1 },
     ]);
   },
 

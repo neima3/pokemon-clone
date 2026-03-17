@@ -1,23 +1,25 @@
 // ── Pokemon Types ──
 
-export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice';
+export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice' | 'fighting' | 'dragon';
 
 export type StatusCondition = 'poison' | 'burn' | 'paralyze' | 'sleep';
 
 const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
-  fire:     { grass: 2, water: 0.5, bug: 2, fire: 0.5, rock: 0.5, ice: 2 },
-  water:    { fire: 2, grass: 0.5, water: 0.5, ground: 2, rock: 2, ice: 0.5 },
-  grass:    { water: 2, fire: 0.5, grass: 0.5, poison: 0.5, bug: 0.5, ground: 2, rock: 2, flying: 0.5 },
+  fire:     { grass: 2, water: 0.5, bug: 2, fire: 0.5, rock: 0.5, ice: 2, dragon: 0.5 },
+  water:    { fire: 2, grass: 0.5, water: 0.5, ground: 2, rock: 2, ice: 0.5, dragon: 0.5 },
+  grass:    { water: 2, fire: 0.5, grass: 0.5, poison: 0.5, bug: 0.5, ground: 2, rock: 2, flying: 0.5, dragon: 0.5 },
   poison:   { grass: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5 },
-  bug:      { grass: 2, fire: 0.5, poison: 0.5, flying: 0.5, ghost: 0.5 },
-  electric: { water: 2, electric: 0.5, ground: 0, flying: 2, grass: 0.5 },
+  bug:      { grass: 2, fire: 0.5, poison: 0.5, flying: 0.5, ghost: 0.5, fighting: 0.5 },
+  electric: { water: 2, electric: 0.5, ground: 0, flying: 2, grass: 0.5, dragon: 0.5 },
   ground:   { fire: 2, electric: 2, rock: 2, poison: 2, grass: 0.5, flying: 0, bug: 0.5, ice: 2 },
-  rock:     { fire: 2, bug: 2, flying: 2, ground: 0.5, ice: 2 },
-  flying:   { grass: 2, bug: 2, ground: 0, rock: 0.5, electric: 0.5, ice: 2 },
-  normal:   { rock: 0.5, ghost: 0 },
-  psychic:  { poison: 2, ghost: 0.5 },
+  rock:     { fire: 2, bug: 2, flying: 2, ground: 0.5, ice: 2, fighting: 0.5 },
+  flying:   { grass: 2, bug: 2, fighting: 2, ground: 0, rock: 0.5, electric: 0.5, ice: 2 },
+  normal:   { rock: 0.5, ghost: 0, fighting: 0.5 },
+  psychic:  { fighting: 2, poison: 2, ghost: 0.5 },
   ghost:    { ghost: 2, psychic: 2, normal: 0 },
-  ice:      { grass: 2, ground: 2, flying: 2, water: 0.5, ice: 0.5, fire: 0.5 },
+  ice:      { grass: 2, ground: 2, flying: 2, dragon: 2, water: 0.5, ice: 0.5, fire: 0.5 },
+  fighting: { normal: 2, rock: 2, ice: 2, flying: 0.5, poison: 0.5, bug: 0.5, psychic: 0.5, ghost: 0 },
+  dragon:   { dragon: 2 },
 };
 
 export function getTypeEffectiveness(atkType: PokemonType, defTypes: PokemonType[]): number {
@@ -107,10 +109,10 @@ export const MOVES: Record<string, MoveData> = {
   twineedle:    { name: 'TWINEEDLE',    type: 'bug',       power: 60,  accuracy: 100, maxPp: 20, category: 'physical', statusEffect: 'poison', statusChance: 20 },
   swift:        { name: 'SWIFT',        type: 'normal',    power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
   surf:         { name: 'SURF',         type: 'water',     power: 90,  accuracy: 100, maxPp: 15, category: 'physical' },
-  lowKick:      { name: 'LOW KICK',     type: 'normal',    power: 65,  accuracy: 100, maxPp: 20, category: 'physical' },
+  lowKick:      { name: 'LOW KICK',     type: 'fighting',  power: 65,  accuracy: 100, maxPp: 20, category: 'physical' },
   furySwipes:   { name: 'FURY SWIPES',  type: 'normal',    power: 50,  accuracy: 80,  maxPp: 15, category: 'physical' },
   megaPunch:    { name: 'MEGA PUNCH',   type: 'normal',    power: 80,  accuracy: 85,  maxPp: 20, category: 'physical' },
-  karatechop:   { name: 'KARATE CHOP',  type: 'normal',    power: 50,  accuracy: 100, maxPp: 25, category: 'physical' },
+  karatechop:   { name: 'KARATE CHOP',  type: 'fighting',  power: 50,  accuracy: 100, maxPp: 25, category: 'physical' },
   acidSpray:    { name: 'ACID SPRAY',   type: 'poison',    power: 40,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'lower_defense' },
   rapidSpin:    { name: 'RAPID SPIN',   type: 'normal',    power: 50,  accuracy: 100, maxPp: 40, category: 'physical' },
   recover:      { name: 'RECOVER',      type: 'normal',    power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'raise_defense' },
@@ -133,8 +135,8 @@ export const MOVES: Record<string, MoveData> = {
   disable:      { name: 'DISABLE',     type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'lower_speed' },
   hypnosis:     { name: 'HYPNOSIS',    type: 'psychic',  power: 0,   accuracy: 60,  maxPp: 20, category: 'status', effect: 'sleep' },
   headbutt2:    { name: 'HEADBUTT',    type: 'normal',   power: 70,  accuracy: 100, maxPp: 15, category: 'physical' },
-  submission:   { name: 'SUBMISSION',  type: 'normal',   power: 80,  accuracy: 80,  maxPp: 20, category: 'physical' },
-  dragonRage:   { name: 'DRAGON RAGE', type: 'normal',   power: 60,  accuracy: 100, maxPp: 10, category: 'physical' },
+  submission:   { name: 'SUBMISSION',  type: 'fighting', power: 80,  accuracy: 80,  maxPp: 20, category: 'physical' },
+  dragonRage:   { name: 'DRAGON RAGE', type: 'dragon',   power: 60,  accuracy: 100, maxPp: 10, category: 'physical' },
   wingAttack2:  { name: 'WING ATK',    type: 'flying',   power: 60,  accuracy: 100, maxPp: 35, category: 'physical' },
   // New moves — Sprint 008
   petalDance:   { name: 'PETAL DANCE', type: 'grass',    power: 120, accuracy: 100, maxPp: 10, category: 'physical' },
@@ -171,6 +173,28 @@ export const MOVES: Record<string, MoveData> = {
   powderSnow:   { name: 'POWDER SNOW', type: 'ice',      power: 40,  accuracy: 100, maxPp: 25, category: 'physical', statusEffect: 'paralyze', statusChance: 10 },
   barrier:      { name: 'BARRIER',     type: 'psychic',  power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'raise_defense' },
   dazzleGleam:  { name: 'DAZZLE GLAM', type: 'normal',   power: 80,  accuracy: 100, maxPp: 10, category: 'physical' },
+  // New moves — Sprint 010: Fighting + Dragon types
+  brickBreak:   { name: 'BRICK BREAK', type: 'fighting', power: 75,  accuracy: 100, maxPp: 15, category: 'physical' },
+  closeCombat:  { name: 'CLOSE COMBAT',type: 'fighting', power: 120, accuracy: 100, maxPp: 5,  category: 'physical' },
+  highJumpKick: { name: 'HI JUMP KCK', type: 'fighting', power: 130, accuracy: 90,  maxPp: 10, category: 'physical' },
+  crossChop:    { name: 'CROSS CHOP',  type: 'fighting', power: 100, accuracy: 80,  maxPp: 5,  category: 'physical' },
+  dragonClaw:   { name: 'DRAGON CLAW', type: 'dragon',   power: 80,  accuracy: 100, maxPp: 15, category: 'physical' },
+  dragonBreath: { name: 'DRAGON BRTH', type: 'dragon',   power: 60,  accuracy: 100, maxPp: 20, category: 'physical', statusEffect: 'paralyze', statusChance: 30 },
+  dragonPulse:  { name: 'DRAGON PLSE', type: 'dragon',   power: 85,  accuracy: 100, maxPp: 10, category: 'physical' },
+  outrage:      { name: 'OUTRAGE',     type: 'dragon',   power: 120, accuracy: 100, maxPp: 10, category: 'physical' },
+  sludgeWave:   { name: 'SLUDGE WAVE', type: 'poison',   power: 95,  accuracy: 100, maxPp: 10, category: 'physical', statusEffect: 'poison', statusChance: 10 },
+  venoshock:    { name: 'VENOSHOCK',   type: 'poison',    power: 65,  accuracy: 100, maxPp: 10, category: 'physical', statusEffect: 'poison', statusChance: 10 },
+  toxic:        { name: 'TOXIC',       type: 'poison',    power: 0,   accuracy: 90,  maxPp: 10, category: 'status', effect: 'poison' },
+  smog:         { name: 'SMOG',        type: 'poison',    power: 30,  accuracy: 70,  maxPp: 20, category: 'physical', statusEffect: 'poison', statusChance: 40 },
+  selfDestruct2:{ name: 'EXPLOSION',   type: 'normal',    power: 250, accuracy: 100, maxPp: 5,  category: 'physical' },
+  waterfall:    { name: 'WATERFALL',   type: 'water',     power: 80,  accuracy: 100, maxPp: 15, category: 'physical' },
+  hyperBeam:    { name: 'HYPER BEAM',  type: 'normal',    power: 150, accuracy: 90,  maxPp: 5,  category: 'physical' },
+  xScissor:     { name: 'X-SCISSOR',   type: 'bug',       power: 80,  accuracy: 100, maxPp: 15, category: 'physical' },
+  slash:        { name: 'SLASH',       type: 'normal',    power: 70,  accuracy: 100, maxPp: 20, category: 'physical' },
+  guillotine:   { name: 'GUILLOTINE', type: 'normal',    power: 120, accuracy: 50,  maxPp: 5,  category: 'physical' },
+  viceGrip:     { name: 'VICE GRIP',  type: 'normal',    power: 55,  accuracy: 100, maxPp: 30, category: 'physical' },
+  splash:       { name: 'SPLASH',     type: 'normal',    power: 0,   accuracy: 100, maxPp: 40, category: 'status' },
+  flail:        { name: 'FLAIL',      type: 'normal',    power: 30,  accuracy: 100, maxPp: 15, category: 'physical' },
 };
 
 // ── Species ──
@@ -409,19 +433,19 @@ export const SPECIES: Record<string, SpeciesData> = {
 
   // Mankey line
   mankey: {
-    id: 56, name: 'MANKEY', types: ['normal'],
+    id: 56, name: 'MANKEY', types: ['fighting'],
     baseHp: 40, baseAtk: 80, baseDef: 35, baseSpd: 70,
     learnedMoves: ['scratch', 'leer', 'karatechop'],
     baseExpYield: 61, catchRate: 190,
-    levelUpMoves: [{ level: 9, moveKey: 'karatechop' }, { level: 13, moveKey: 'furySwipes' }, { level: 17, moveKey: 'lowKick' }],
+    levelUpMoves: [{ level: 9, moveKey: 'karatechop' }, { level: 13, moveKey: 'furySwipes' }, { level: 17, moveKey: 'brickBreak' }],
     evolution: { level: 28, into: 'primeape' },
   },
   primeape: {
-    id: 57, name: 'PRIMEAPE', types: ['normal'],
+    id: 57, name: 'PRIMEAPE', types: ['fighting'],
     baseHp: 65, baseAtk: 105, baseDef: 60, baseSpd: 95,
-    learnedMoves: ['karatechop', 'furySwipes', 'lowKick', 'megaPunch'],
+    learnedMoves: ['karatechop', 'furySwipes', 'brickBreak', 'closeCombat'],
     baseExpYield: 159, catchRate: 75,
-    levelUpMoves: [{ level: 30, moveKey: 'megaPunch' }, { level: 35, moveKey: 'bodySlam' }],
+    levelUpMoves: [{ level: 30, moveKey: 'closeCombat' }, { level: 35, moveKey: 'crossChop' }],
   },
 
   // Abra line
@@ -530,19 +554,20 @@ export const SPECIES: Record<string, SpeciesData> = {
     evolution: { level: 26, into: 'hypno' },
   },
   machop: {
-    id: 66, name: 'MACHOP', types: ['normal'],
+    id: 66, name: 'MACHOP', types: ['fighting'],
     baseHp: 70, baseAtk: 80, baseDef: 50, baseSpd: 35,
     learnedMoves: ['karatechop', 'leer'],
     baseExpYield: 61, catchRate: 180,
-    levelUpMoves: [{ level: 7, moveKey: 'lowKick' }, { level: 13, moveKey: 'focusEnergy' }, { level: 19, moveKey: 'karatechop' }, { level: 25, moveKey: 'submission' }, { level: 32, moveKey: 'megaPunch' }],
+    levelUpMoves: [{ level: 7, moveKey: 'brickBreak' }, { level: 13, moveKey: 'focusEnergy' }, { level: 19, moveKey: 'karatechop' }, { level: 25, moveKey: 'submission' }, { level: 32, moveKey: 'crossChop' }],
     evolution: { level: 28, into: 'machoke' },
   },
   machoke: {
-    id: 67, name: 'MACHOKE', types: ['normal'],
+    id: 67, name: 'MACHOKE', types: ['fighting'],
     baseHp: 80, baseAtk: 100, baseDef: 70, baseSpd: 45,
-    learnedMoves: ['karatechop', 'lowKick', 'submission', 'megaPunch'],
+    learnedMoves: ['karatechop', 'brickBreak', 'submission', 'crossChop'],
     baseExpYield: 142, catchRate: 90,
-    levelUpMoves: [{ level: 34, moveKey: 'bodySlam' }],
+    levelUpMoves: [{ level: 34, moveKey: 'closeCombat' }],
+    evolution: { level: 40, into: 'machamp' },
   },
 
   // ── Sprint 008 Pokemon ──
@@ -761,24 +786,131 @@ export const SPECIES: Record<string, SpeciesData> = {
 
   // Dratini + Dragonair (using normal/flying as proxy since no dragon type)
   dratini: {
-    id: 147, name: 'DRATINI', types: ['normal'],
+    id: 147, name: 'DRATINI', types: ['dragon'],
     baseHp: 41, baseAtk: 64, baseDef: 45, baseSpd: 50,
     learnedMoves: ['wrapMove', 'tackle'],
     baseExpYield: 60, catchRate: 45,
-    levelUpMoves: [{ level: 5, moveKey: 'tackle' }, { level: 11, moveKey: 'dragonRage' }, { level: 15, moveKey: 'slam' }, { level: 21, moveKey: 'agility' }, { level: 25, moveKey: 'bodySlam' }],
+    levelUpMoves: [{ level: 5, moveKey: 'tackle' }, { level: 11, moveKey: 'dragonBreath' }, { level: 15, moveKey: 'slam' }, { level: 21, moveKey: 'agility' }, { level: 25, moveKey: 'dragonClaw' }],
     evolution: { level: 30, into: 'dragonair' },
   },
   dragonair: {
-    id: 148, name: 'DRAGONAIR', types: ['normal', 'flying'],
+    id: 148, name: 'DRAGONAIR', types: ['dragon'],
     baseHp: 61, baseAtk: 84, baseDef: 65, baseSpd: 70,
-    learnedMoves: ['dragonRage', 'slam', 'bodySlam', 'agility'],
+    learnedMoves: ['dragonBreath', 'dragonClaw', 'slam', 'agility'],
     baseExpYield: 147, catchRate: 27,
-    levelUpMoves: [{ level: 33, moveKey: 'takeDown' }, { level: 38, moveKey: 'hydroPump' }],
+    levelUpMoves: [{ level: 33, moveKey: 'dragonPulse' }, { level: 38, moveKey: 'hydroPump' }],
+    evolution: { level: 55, into: 'dragonite' },
+  },
+
+  // ── Sprint 010 Pokemon ──
+
+  // Machamp (Machoke evolution)
+  machamp: {
+    id: 68, name: 'MACHAMP', types: ['fighting'],
+    baseHp: 90, baseAtk: 130, baseDef: 80, baseSpd: 55,
+    learnedMoves: ['crossChop', 'closeCombat', 'submission', 'earthquake'],
+    baseExpYield: 227, catchRate: 45,
+    levelUpMoves: [{ level: 42, moveKey: 'closeCombat' }],
+  },
+
+  // Dragonite (Dragonair evolution)
+  dragonite: {
+    id: 149, name: 'DRAGONITE', types: ['dragon', 'flying'],
+    baseHp: 91, baseAtk: 134, baseDef: 95, baseSpd: 80,
+    learnedMoves: ['dragonClaw', 'dragonPulse', 'wingAttack', 'hyperBeam'],
+    baseExpYield: 270, catchRate: 9,
+    levelUpMoves: [{ level: 57, moveKey: 'outrage' }],
+  },
+
+  // Koffing + Weezing (Koga's gym)
+  koffing: {
+    id: 109, name: 'KOFFING', types: ['poison'],
+    baseHp: 40, baseAtk: 65, baseDef: 95, baseSpd: 35,
+    learnedMoves: ['tackle', 'smog', 'poisonSting'],
+    baseExpYield: 68, catchRate: 190,
+    levelUpMoves: [{ level: 6, moveKey: 'smog' }, { level: 10, moveKey: 'poisonSting' }, { level: 17, moveKey: 'acidSpray' }, { level: 22, moveKey: 'sludgeBomb' }, { level: 28, moveKey: 'selfDestruct' }],
+    evolution: { level: 35, into: 'weezing' },
+  },
+  weezing: {
+    id: 110, name: 'WEEZING', types: ['poison'],
+    baseHp: 65, baseAtk: 90, baseDef: 120, baseSpd: 60,
+    learnedMoves: ['sludgeBomb', 'sludgeWave', 'toxic', 'selfDestruct2'],
+    baseExpYield: 172, catchRate: 60,
+    levelUpMoves: [{ level: 38, moveKey: 'sludgeWave' }],
+  },
+
+  // Grimer + Muk
+  grimer: {
+    id: 88, name: 'GRIMER', types: ['poison'],
+    baseHp: 80, baseAtk: 80, baseDef: 50, baseSpd: 25,
+    learnedMoves: ['pound', 'poisonSting', 'smog'],
+    baseExpYield: 65, catchRate: 190,
+    levelUpMoves: [{ level: 7, moveKey: 'smog' }, { level: 12, moveKey: 'acid' }, { level: 17, moveKey: 'venoshock' }, { level: 23, moveKey: 'sludgeBomb' }],
+    evolution: { level: 38, into: 'muk' },
+  },
+  muk: {
+    id: 89, name: 'MUK', types: ['poison'],
+    baseHp: 105, baseAtk: 105, baseDef: 75, baseSpd: 50,
+    learnedMoves: ['sludgeBomb', 'venoshock', 'acid', 'bodySlam'],
+    baseExpYield: 175, catchRate: 75,
+    levelUpMoves: [{ level: 40, moveKey: 'sludgeWave' }],
+  },
+
+  // Tentacool + Tentacruel
+  tentacool: {
+    id: 72, name: 'TENTACOOL', types: ['water', 'poison'],
+    baseHp: 40, baseAtk: 40, baseDef: 35, baseSpd: 70,
+    learnedMoves: ['poisonSting', 'waterGun'],
+    baseExpYield: 67, catchRate: 190,
+    levelUpMoves: [{ level: 6, moveKey: 'waterGun' }, { level: 12, moveKey: 'acid' }, { level: 18, moveKey: 'bubbleBeam' }, { level: 24, moveKey: 'venoshock' }, { level: 30, moveKey: 'surf' }],
+    evolution: { level: 30, into: 'tentacruel' },
+  },
+  tentacruel: {
+    id: 73, name: 'TENTACRUEL', types: ['water', 'poison'],
+    baseHp: 80, baseAtk: 70, baseDef: 65, baseSpd: 100,
+    learnedMoves: ['surf', 'sludgeWave', 'venoshock', 'bubbleBeam'],
+    baseExpYield: 180, catchRate: 60,
+    levelUpMoves: [{ level: 34, moveKey: 'hydroPump' }],
+  },
+
+  // Magikarp + Gyarados
+  magikarp: {
+    id: 129, name: 'MAGIKARP', types: ['water'],
+    baseHp: 20, baseAtk: 10, baseDef: 55, baseSpd: 80,
+    learnedMoves: ['splash', 'tackle'],
+    baseExpYield: 20, catchRate: 255,
+    levelUpMoves: [{ level: 15, moveKey: 'flail' }, { level: 25, moveKey: 'tackle' }],
+    evolution: { level: 20, into: 'gyarados' },
+  },
+  gyarados: {
+    id: 130, name: 'GYARADOS', types: ['water', 'flying'],
+    baseHp: 95, baseAtk: 125, baseDef: 79, baseSpd: 81,
+    learnedMoves: ['bite', 'waterfall', 'crunch', 'hydroPump'],
+    baseExpYield: 189, catchRate: 45,
+    levelUpMoves: [{ level: 23, moveKey: 'crunch' }, { level: 30, moveKey: 'waterfall' }, { level: 38, moveKey: 'hydroPump' }, { level: 44, moveKey: 'hyperBeam' }],
+  },
+
+  // Scyther
+  scyther: {
+    id: 123, name: 'SCYTHER', types: ['bug', 'flying'],
+    baseHp: 70, baseAtk: 110, baseDef: 80, baseSpd: 105,
+    learnedMoves: ['quickAttack', 'wingAttack', 'slash'],
+    baseExpYield: 187, catchRate: 45,
+    levelUpMoves: [{ level: 6, moveKey: 'quickAttack' }, { level: 12, moveKey: 'slash' }, { level: 18, moveKey: 'wingAttack' }, { level: 24, moveKey: 'xScissor' }, { level: 30, moveKey: 'aerialAce' }, { level: 36, moveKey: 'airSlash' }],
+  },
+
+  // Pinsir
+  pinsir: {
+    id: 127, name: 'PINSIR', types: ['bug'],
+    baseHp: 65, baseAtk: 125, baseDef: 100, baseSpd: 85,
+    learnedMoves: ['viceGrip', 'focusEnergy', 'bugBite'],
+    baseExpYield: 175, catchRate: 45,
+    levelUpMoves: [{ level: 7, moveKey: 'bugBite' }, { level: 13, moveKey: 'viceGrip' }, { level: 18, moveKey: 'slash' }, { level: 25, moveKey: 'xScissor' }, { level: 33, moveKey: 'guillotine' }],
   },
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
@@ -847,12 +979,25 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
     { species: 'lapras', minLevel: 22, maxLevel: 25, weight: 2 },
     { species: 'mrMime', minLevel: 20, maxLevel: 23, weight: 5 },
   ],
+  route7: [
+    { species: 'koffing', minLevel: 22, maxLevel: 26, weight: 20 },
+    { species: 'grimer', minLevel: 22, maxLevel: 26, weight: 18 },
+    { species: 'tentacool', minLevel: 22, maxLevel: 25, weight: 15 },
+    { species: 'gastly', minLevel: 23, maxLevel: 27, weight: 12 },
+    { species: 'scyther', minLevel: 24, maxLevel: 28, weight: 5 },
+    { species: 'pinsir', minLevel: 24, maxLevel: 28, weight: 5 },
+    { species: 'machop', minLevel: 22, maxLevel: 26, weight: 10 },
+    { species: 'zubat', minLevel: 22, maxLevel: 25, weight: 10 },
+    { species: 'mankey', minLevel: 22, maxLevel: 26, weight: 5 },
+  ],
   fishing: [
-    { species: 'staryu', minLevel: 10, maxLevel: 18, weight: 40 },
-    { species: 'squirtle', minLevel: 10, maxLevel: 15, weight: 10 },
-    { species: 'seel', minLevel: 12, maxLevel: 18, weight: 15 },
-    { species: 'oddish', minLevel: 10, maxLevel: 14, weight: 15 },
-    { species: 'rattata', minLevel: 8, maxLevel: 12, weight: 20 },
+    { species: 'magikarp', minLevel: 5, maxLevel: 15, weight: 50 },
+    { species: 'staryu', minLevel: 10, maxLevel: 18, weight: 20 },
+    { species: 'tentacool', minLevel: 10, maxLevel: 16, weight: 10 },
+    { species: 'squirtle', minLevel: 10, maxLevel: 15, weight: 8 },
+    { species: 'seel', minLevel: 12, maxLevel: 18, weight: 7 },
+    { species: 'gyarados', minLevel: 20, maxLevel: 25, weight: 2 },
+    { species: 'rattata', minLevel: 8, maxLevel: 12, weight: 3 },
   ],
 };
 
@@ -891,10 +1036,12 @@ export interface ItemData {
 export const ITEMS: Record<string, ItemData> = {
   pokeball:    { name: 'POKé BALL',    type: 'pokeball', description: 'Catches wild POKéMON.', catchMultiplier: 1.0, price: 200 },
   greatBall:   { name: 'GREAT BALL',   type: 'pokeball', description: 'Better catch rate.', catchMultiplier: 1.5, price: 600 },
+  ultraBall:   { name: 'ULTRA BALL',   type: 'pokeball', description: 'Best catch rate!', catchMultiplier: 2.0, price: 1200 },
   potion:      { name: 'POTION',       type: 'medicine', description: 'Restores 20 HP.', healAmount: 20, price: 300 },
   superPotion: { name: 'SUPER POTION', type: 'medicine', description: 'Restores 50 HP.', healAmount: 50, price: 700 },
   antidote:    { name: 'ANTIDOTE',     type: 'medicine', description: 'Cures poison.', statusCure: 'cure_poison', price: 100 },
   fullHeal:    { name: 'FULL HEAL',    type: 'medicine', description: 'Cures any status.', statusCure: 'cure_all', price: 600 },
+  revive:      { name: 'REVIVE',       type: 'medicine', description: 'Revives fainted POKéMON to half HP.', price: 1500 },
   repel:       { name: 'REPEL',       type: 'repel',    description: 'Prevents encounters (100 steps).', price: 350 },
   oldRod:      { name: 'OLD ROD',    type: 'key',      description: 'Fish in water for POKéMON.', price: 0 },
 };
@@ -915,6 +1062,8 @@ export const TYPE_COLORS: Record<PokemonType, string> = {
   psychic:  '#f85888',
   ghost:    '#705898',
   ice:      '#98d8d8',
+  fighting: '#c03028',
+  dragon:   '#7038f8',
 };
 
 // ── EXP ──
@@ -941,7 +1090,7 @@ export interface TrainerData {
   team: Array<{ species: string; level: number }>;
   reward: number; // money
   defeatMessage: string;
-  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3' | 'gymLeader4' | 'gymLeader5';
+  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3' | 'gymLeader4' | 'gymLeader5' | 'gymLeader6';
   isGymLeader?: boolean;
   badgeName?: string;
 }
@@ -1097,5 +1246,37 @@ export const TRAINERS: Record<string, TrainerData> = {
     sprite: 'gymLeader5',
     isGymLeader: true,
     badgeName: 'MARSH BADGE',
+  },
+  // Route 7 trainers
+  lass_claire: {
+    name: 'LASS CLAIRE',
+    team: [{ species: 'tentacool', level: 24 }, { species: 'grimer', level: 25 }],
+    reward: 560,
+    defeatMessage: "Eww, your POKéMON are too strong!",
+    sprite: 'lass',
+  },
+  youngster_kai: {
+    name: 'YOUNGSTER KAI',
+    team: [{ species: 'koffing', level: 24 }, { species: 'machop', level: 24 }, { species: 'koffing', level: 26 }],
+    reward: 600,
+    defeatMessage: "Poison is tricky to deal with!",
+    sprite: 'youngster',
+  },
+  hiker_bruce: {
+    name: 'HIKER BRUCE',
+    team: [{ species: 'grimer', level: 25 }, { species: 'geodude', level: 25 }, { species: 'koffing', level: 27 }],
+    reward: 700,
+    defeatMessage: "The toxic fumes got to me...",
+    sprite: 'hiker',
+  },
+  // Sixth gym leader — Koga
+  gym_koga: {
+    name: 'LEADER KOGA',
+    team: [{ species: 'koffing', level: 33 }, { species: 'grimer', level: 34 }, { species: 'tentacruel', level: 36 }, { species: 'weezing', level: 39 }],
+    reward: 6800,
+    defeatMessage: "Humph! You have proven your worth! Take the SOUL BADGE!",
+    sprite: 'gymLeader6',
+    isGymLeader: true,
+    badgeName: 'SOUL BADGE',
   },
 };

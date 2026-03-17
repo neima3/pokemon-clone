@@ -1,9 +1,9 @@
 import { Tile } from './tiles';
 import { NPCData } from './NPC';
 
-/** 50×40 overworld map — expanded with a town, routes, and buildings */
+/** 50×48 overworld map — expanded with a town, routes, and buildings */
 export const MAP_WIDTH = 50;
-export const MAP_HEIGHT = 40;
+export const MAP_HEIGHT = 48;
 
 const T = Tile.Tree;
 const G = Tile.Grass;
@@ -64,16 +64,26 @@ export const MAP_DATA: Tile[] = [
   T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, P, G, G, G, T, T, G, g, g, P, G, W, W, G, T,  // 36
   T, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, P, G, G, G, T, T, G, G, F, P, G, G, G, G, T,  // 37
   T, G, G, G, G, G, g, g, g, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, E, E, P, E, E, G, P, G, G, G, T, T, G, G, G, P, G, G, G, G, T,  // 38
-  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 39
+  T, T, T, T, P, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 39
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 40
+  T, G, G, g, P, g, g, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, F, G, G, G, G, G, G, G, G, G, G, T,  // 41
+  T, G, g, g, P, g, g, g, G, G, G, G, G, G, G, G, G, G, G, W, W, G, G, G, G, G, G, G, G, G, G, G, G, g, g, g, G, G, G, G, E, Y, Y, Y, E, G, G, G, G, T,  // 42
+  T, G, G, g, P, g, g, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, E, B, y, B, E, G, G, G, G, T,  // 43
+  T, G, G, G, P, P, P, P, P, P, P, P, S, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, E, E, P, E, E, G, G, G, G, T,  // 44
+  T, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, F, G, G, G, T,  // 45
+  T, G, G, G, G, G, g, g, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, T,  // 46
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 47
 ];
 
 /** Get the route zone for a given grid position */
 export function getRouteZone(gx: number, gy: number): string {
   // Town area: roughly rows 4-15, cols 8-22
   if (gy >= 4 && gy <= 15 && gx >= 8 && gx <= 22) return 'town';
+  // Route 7: rows 39+ (poison swamp area)
+  if (gy >= 39) return 'route7';
   // Route 6: bottom-right area
   if (gy >= 29 && gx >= 39) return 'route6';
-  // Route 5: bottom section rows 29+
+  // Route 5: bottom section rows 29-38
   if (gy >= 29) return 'route5';
   // Route 4: far east section
   if (gx >= 38) return 'route4';
@@ -356,5 +366,52 @@ export const MAP_NPCS: NPCData[] = [
     dialogue: ['I am SABRINA, the master of Psychic POKéMON.', 'I foresaw your arrival...', 'Your mind is no match for mine!'],
     isTrainer: true,
     trainerId: 'gym_sabrina',
+  },
+  // Route 7 trainers
+  {
+    id: 'trainer_claire',
+    gx: 8, gy: 42,
+    sprite: 'lass',
+    facing: 'right',
+    dialogue: ['The air here is so thick!', 'My Poison POKéMON love it!'],
+    isTrainer: true,
+    trainerId: 'lass_claire',
+  },
+  {
+    id: 'trainer_kai',
+    gx: 25, gy: 41,
+    sprite: 'youngster',
+    facing: 'left',
+    dialogue: ['Poison types are underrated!', 'Let me show you their power!'],
+    isTrainer: true,
+    trainerId: 'youngster_kai',
+  },
+  {
+    id: 'trainer_bruce',
+    gx: 35, gy: 45,
+    sprite: 'hiker',
+    facing: 'left',
+    dialogue: ['Even the rocks here are toxic!', 'My POKéMON thrive in this!'],
+    isTrainer: true,
+    trainerId: 'hiker_bruce',
+  },
+  // Route 7 helper
+  {
+    id: 'route7_helper',
+    gx: 4, gy: 45,
+    sprite: 'youngster',
+    facing: 'right',
+    dialogue: ['KOGA\'s GYM is to the east.', 'He uses Poison-type POKéMON!', 'Ground and Psychic types work well!'],
+    isTrainer: false,
+  },
+  // Gym Leader — Koga
+  {
+    id: 'gym_leader_koga',
+    gx: 42, gy: 43,
+    sprite: 'gymLeader6',
+    facing: 'down',
+    dialogue: ['I am KOGA, the Poisonous Ninja Master!', 'My toxic arts will leave you paralyzed!', 'Prepare for the ultimate poison trap!'],
+    isTrainer: true,
+    trainerId: 'gym_koga',
   },
 ];

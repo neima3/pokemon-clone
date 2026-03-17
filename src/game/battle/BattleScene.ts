@@ -337,10 +337,12 @@ export class BattleScene implements Scene {
     this.bagItems = [
       { key: 'pokeball' as keyof Inventory, count: this.gameState.inventory.pokeball },
       { key: 'greatBall' as keyof Inventory, count: this.gameState.inventory.greatBall },
+      { key: 'ultraBall' as keyof Inventory, count: this.gameState.inventory.ultraBall },
       { key: 'potion' as keyof Inventory, count: this.gameState.inventory.potion },
       { key: 'superPotion' as keyof Inventory, count: this.gameState.inventory.superPotion },
       { key: 'antidote' as keyof Inventory, count: this.gameState.inventory.antidote },
       { key: 'fullHeal' as keyof Inventory, count: this.gameState.inventory.fullHeal },
+      { key: 'revive' as keyof Inventory, count: this.gameState.inventory.revive },
     ].filter((i) => i.count > 0);
     this.phase = 'bag';
     this.cursor = 0;
@@ -371,10 +373,12 @@ export class BattleScene implements Scene {
 
       const item = this.bagItems[this.cursor];
       SFX.menuConfirm();
-      if (item.key === 'pokeball' || item.key === 'greatBall') {
+      if (item.key === 'pokeball' || item.key === 'greatBall' || item.key === 'ultraBall') {
         this.usePokeball(item.key);
       } else if (item.key === 'antidote' || item.key === 'fullHeal') {
         this.useStatusHeal(item.key);
+      } else if (item.key === 'revive') {
+        this.useRevive();
       } else {
         this.usePotion(item.key);
       }
@@ -448,6 +452,30 @@ export class BattleScene implements Scene {
 
     this.queueMessages(
       [`Used ${itemData.name}!`, `${this.playerMon.name} recovered ${healed} HP!`],
+      () => {
+        this.doEnemyTurn();
+      },
+    );
+  }
+
+  private useRevive() {
+    // Find first fainted team Pokemon
+    const faintedIdx = this.gameState.team.findIndex(p => !p.isAlive);
+    if (faintedIdx < 0) {
+      SFX.bump();
+      this.queueMessages(['No fainted POKéMON to revive!'], () => {
+        this.openBag();
+      });
+      return;
+    }
+    if (!this.gameState.useItem('revive')) return;
+
+    const fainted = this.gameState.team[faintedIdx];
+    fainted.hp = Math.floor(fainted.maxHp / 2);
+    SFX.heal();
+
+    this.queueMessages(
+      [`Used REVIVE!`, `${fainted.name} was revived!`],
       () => {
         this.doEnemyTurn();
       },

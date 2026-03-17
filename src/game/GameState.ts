@@ -6,10 +6,12 @@ const MAX_TEAM_SIZE = 6;
 export interface Inventory {
   pokeball: number;
   greatBall: number;
+  ultraBall: number;
   potion: number;
   superPotion: number;
   antidote: number;
   fullHeal: number;
+  revive: number;
   repel: number;
 }
 
@@ -30,7 +32,7 @@ interface SaveData {
 export class GameState {
   team: Pokemon[] = [];
   pcBox: Pokemon[] = [];
-  inventory: Inventory = { pokeball: 5, greatBall: 0, potion: 3, superPotion: 0, antidote: 0, fullHeal: 0, repel: 0 };
+  inventory: Inventory = { pokeball: 5, greatBall: 0, ultraBall: 0, potion: 3, superPotion: 0, antidote: 0, fullHeal: 0, revive: 0, repel: 0 };
   playerPosition = { x: 15, y: 13 };
   money = 1000;
   defeatedTrainers: Set<string> = new Set();
@@ -170,10 +172,12 @@ export class GameState {
       this.inventory = {
         pokeball: data.inventory.pokeball ?? 0,
         greatBall: data.inventory.greatBall ?? 0,
+        ultraBall: data.inventory.ultraBall ?? 0,
         potion: data.inventory.potion ?? 0,
         superPotion: data.inventory.superPotion ?? 0,
         antidote: data.inventory.antidote ?? 0,
         fullHeal: data.inventory.fullHeal ?? 0,
+        revive: data.inventory.revive ?? 0,
         repel: data.inventory.repel ?? 0,
       };
       this.playerPosition = data.playerPosition ?? { x: 15, y: 13 };
