@@ -3,7 +3,30 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/2.0.0.html).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.26.0] - 2026-03-17
+
+### Added
+- Sprint 027: Entry Hazards & Strategic Items
+- Entry hazard system: Spikes (1-3 layers), Stealth Rock, Toxic Spikes (1-2 layers)
+- Hazard damage on Pokemon entry with type-based calculations
+- New held items: Choice Specs (+50% Sp.Atk), Choice Scarf (+50% Speed), Rocky Helmet (1/6 HP contact damage), Air Balloon (Ground immunity, pops on hit), Black Sludge (heals Poison types, damages others)
+- New abilities: Prankster (+1 priority on status moves), Magic Guard (no indirect damage), Magic Bounce (reflects status moves)
+- New moves: U-turn, Volt Switch (pivot moves), Baton Pass (passes stat changes), Rapid Spin now clears hazards
+- Visual hazard indicators: spike icons (▲), stealth rock (◆), toxic spikes (◇) near Pokemon
+
+### Changed
+- Rapid Spin now properly clears all entry hazards from user's side
+- Hazard state is now tracked per-side in BattleScene
+
+### Technical
+- Added FieldHazards interface and createEmptyHazards(), applyEntryHazards() functions to BattleEngine
+- Extended TurnResult with hazardSet, hazardsCleared, rockyHelmetDamage, airBalloonPopped fields
+- Updated determineTurnOrder to handle Prankster ability priority boost for status moves
+- Added drawHazardIndicators() method for visual hazard feedback
+- Extended HeldItem effect types: contact_damage, ground_immune, poison_heal, boost_spd
+- Added getContactDamage(), hasGroundImmunityItem(), getBlackSludgeHeal(), getSpeedBoost() helper functions
 
 ## [0.25.0] - 2026-03-17
 

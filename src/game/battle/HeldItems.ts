@@ -1,7 +1,7 @@
 export interface HeldItem {
   key: string;
   name: string;
-  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move' | 'boost_atk' | 'survive_ko' | 'super_effective_boost' | 'life_orb';
+  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move' | 'boost_atk' | 'survive_ko' | 'super_effective_boost' | 'life_orb' | 'contact_damage' | 'ground_immune' | 'poison_heal' | 'boost_spd';
   boostType?: string;
   boostAmount?: number;
 }
@@ -26,12 +26,22 @@ export const HELD_ITEMS: Record<string, HeldItem> = {
   scopeLens: { key: 'scopeLens', name: 'SCOPE LENS', effect: 'boost_crit', boostAmount: 2 },
   leftovers: { key: 'leftovers', name: 'LEFTOVERS', effect: 'heal_on_turn', boostAmount: 0.0625 },
   lumBerry: { key: 'lumBerry', name: 'LUM BERRY', effect: 'cure_status' },
-  // Sprint 026: New held items
   choiceBand: { key: 'choiceBand', name: 'CHOICE BAND', effect: 'boost_atk', boostAmount: 1.5 },
   focusSash: { key: 'focusSash', name: 'FOCUS SASH', effect: 'survive_ko' },
   expertBelt: { key: 'expertBelt', name: 'EXPERT BELT', effect: 'super_effective_boost', boostAmount: 1.2 },
   lifeOrb: { key: 'lifeOrb', name: 'LIFE ORB', effect: 'life_orb', boostAmount: 1.3 },
+  choiceSpecs: { key: 'choiceSpecs', name: 'CHOICE SPECS', effect: 'boost_atk', boostAmount: 1.5 },
+  choiceScarf: { key: 'choiceScarf', name: 'CHOICE SCARF', effect: 'boost_spd', boostAmount: 1.5 },
+  rockyHelmet: { key: 'rockyHelmet', name: 'ROCKY HELMET', effect: 'contact_damage', boostAmount: 0.1667 },
+  airBalloon: { key: 'airBalloon', name: 'AIR BALLOON', effect: 'ground_immune' },
+  blackSludge: { key: 'blackSludge', name: 'BLACK SLUDGE', effect: 'poison_heal', boostAmount: 0.0625 },
 };
+
+let maxHpForItem: number = 100;
+
+export function setContextMaxHp(maxHp: number) {
+  maxHpForItem = maxHp;
+}
 
 export function getHeldItemDamageBoost(item: HeldItem | null, moveType: string): number {
   if (!item) return 1;
@@ -49,10 +59,10 @@ export function getCritBoost(item: HeldItem | null): number {
   return 1;
 }
 
-export function getLeftoversHeal(item: HeldItem | null, maxHp: number): number {
+export function getLeftoversHeal(item: HeldItem | null): number {
   if (!item) return 0;
   if (item.effect === 'heal_on_turn') {
-    return Math.max(1, Math.floor(maxHp * (item.boostAmount ?? 0)));
+    return Math.max(1, Math.floor(maxHpForItem * (item.boostAmount ?? 0.0625)));
   }
   return 0;
 }
@@ -68,7 +78,6 @@ export function getAttackBoost(item: HeldItem | null): number {
   }
   return 1;
 }
-
 export function checkFocusSash(item: HeldItem | null, currentHp: number, maxHp: number, damage: number): { survived: boolean; consumed: boolean } {
   if (!item || item.effect !== 'survive_ko') return { survived: false, consumed: false };
   if (currentHp === maxHp && damage >= currentHp) {
@@ -76,7 +85,6 @@ export function checkFocusSash(item: HeldItem | null, currentHp: number, maxHp: 
   }
   return { survived: false, consumed: false };
 }
-
 export function getSuperEffectiveBoost(item: HeldItem | null, effectiveness: number): number {
   if (!item) return 1;
   if (item.effect === 'super_effective_boost' && effectiveness > 1) {
@@ -84,7 +92,6 @@ export function getSuperEffectiveBoost(item: HeldItem | null, effectiveness: num
   }
   return 1;
 }
-
 export function getLifeOrbBoost(item: HeldItem | null): number {
   if (!item) return 1;
   if (item.effect === 'life_orb') {
@@ -92,8 +99,30 @@ export function getLifeOrbBoost(item: HeldItem | null): number {
   }
   return 1;
 }
-
-export function getLifeOrbRecoil(item: HeldItem | null, maxHp: number): number {
+export function getLifeOrbRecoil(item: HeldItem | null): number {
   if (!item || item.effect !== 'life_orb') return 0;
-  return Math.max(1, Math.floor(maxHp * 0.1));
+  return Math.max(1, Math.floor(maxHpForItem * 0.1));
+}
+export function getSpeedBoost(item: HeldItem | null): number {
+  if (!item) return 1;
+  if (item.effect === 'boost_spd') {
+    return item.boostAmount ?? 1;
+  }
+  return 1;
+}
+export function getContactDamage(item: HeldItem | null): number {
+  if (!item || item.effect !== 'contact_damage') return 0;
+  return Math.max(1, Math.floor(maxHpForItem * (item.boostAmount ?? 0)));
+}
+export function hasGroundImmunityItem(item: HeldItem | null): boolean {
+  return item?.effect === 'ground_immune';
+}
+export function getBlackSludgeHeal(item: HeldItem | null, maxHp: number, isPoison: boolean): { heal: number; damage: number } {
+  if (!item || item.effect !== 'poison_heal') return { heal: 0, damage: 0 };
+  const amount = Math.max(1, Math.floor(maxHp * (item.boostAmount ?? 0.0625)));
+  if (isPoison) {
+    return { heal: amount, damage: 0 };
+  } else {
+    return { heal: 0, damage: Math.floor(amount * 1.5) };
+  }
 }

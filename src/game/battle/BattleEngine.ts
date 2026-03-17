@@ -2,7 +2,74 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { getTypeEffectiveness, MOVES, StatusCondition } from './data';
 import type { PokemonType } from './data';
 import type { WeatherType } from '../Weather';
-import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash } from './HeldItems';
+import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash, getContactDamage, hasGroundImmunityItem, getBlackSludgeHeal, setContextMaxHp, getSpeedBoost } from './HeldItems';
+
+export interface FieldHazards {
+  spikes: number;
+  toxicSpikes: number;
+  stealthRock: boolean;
+}
+
+export function createEmptyHazards(): FieldHazards {
+  return { spikes: 0, toxicSpikes: 0, stealthRock: false };
+}
+
+export function applyEntryHazards(mon: Pokemon, hazards: FieldHazards): { damage: number; messages: string[]; toxic: boolean } {
+  const result = { damage: 0, messages: [] as string[], toxic: false };
+  
+  if (mon.ability?.effect === 'no_indirect_damage') {
+    return result;
+  }
+  
+  const isFloating = mon.ability?.effect === 'ground_immune' || 
+                     mon.species.types.includes('flying') ||
+                     hasGroundImmunityItem(mon.heldItem);
+  
+  if (hazards.spikes > 0 && !isFloating) {
+    const damagePerLayer = [0, 0.125, 0.167, 0.25];
+    const dmg = Math.floor(mon.maxHp * damagePerLayer[hazards.spikes]);
+    mon.hp = Math.max(0, mon.hp - dmg);
+    result.damage += dmg;
+    result.messages.push(`${mon.name} was hurt by the SPIKES!`);
+  }
+  
+  if (hazards.stealthRock) {
+    const types = mon.species.types;
+    let multiplier = 1;
+    for (const t of types) {
+      const eff = getTypeEffectiveness('rock', [t]);
+      multiplier *= eff;
+    }
+    const dmg = Math.floor(mon.maxHp * 0.125 * multiplier);
+    mon.hp = Math.max(0, mon.hp - dmg);
+    result.damage += dmg;
+    if (dmg > 0) {
+      result.messages.push(`${mon.name} was hurt by STEALTH ROCK!`);
+    }
+  }
+  
+  if (hazards.toxicSpikes > 0 && !mon.status) {
+    const isImmune = mon.species.types.includes('poison') || 
+                      mon.species.types.includes('steel') ||
+                      mon.ability?.effect === 'poison_immune' ||
+                      mon.isImmuneToStatus('poison');
+    
+    if (!isImmune) {
+      if (hazards.toxicSpikes >= 2) {
+        result.messages.push(`${mon.name} was badly poisoned by TOXIC SPIKES!`);
+        mon.status = 'toxic';
+      } else {
+        result.messages.push(`${mon.name} was poisoned by TOXIC SPIKES!`);
+        mon.status = 'poison';
+      }
+      result.toxic = true;
+    } else if (mon.species.types.includes('poison')) {
+      result.messages.push(`${mon.name} absorbed the TOXIC SPIKES!`);
+    }
+  }
+  
+  return result;
+}
 
 export interface TurnResult {
   damage: number;
@@ -25,6 +92,12 @@ export interface TurnResult {
   snappedOut?: boolean;
   charging?: boolean;
   invulnerable?: boolean;
+  hazardSet?: 'spikes' | 'stealth_rock' | 'toxic_spikes';
+  hazardsCleared?: boolean;
+  batonPass?: boolean;
+  pivotSwitch?: boolean;
+  rockyHelmetDamage?: number;
+  airBalloonPopped?: boolean;
 }
 
   
@@ -91,10 +164,19 @@ export interface StatusDamageResult {
 export function applyStatusDamage(mon: Pokemon): StatusDamageResult | null {
   if (!mon.status || mon.hp <= 0) return null;
   
+  if (mon.ability?.effect === 'no_indirect_damage') return null;
+  
   if (mon.status === 'poison') {
     const dmg = Math.max(1, Math.floor(mon.maxHp / 8));
     mon.hp = Math.max(0, mon.hp - dmg);
     return { damage: dmg, message: `${mon.name} is hurt by poison!` };
+  }
+  
+  if (mon.status === 'toxic') {
+    mon.toxicCounter = (mon.toxicCounter || 0) + 1;
+    const dmg = Math.max(1, Math.floor(mon.maxHp * mon.toxicCounter / 16));
+    mon.hp = Math.max(0, mon.hp - dmg);
+    return { damage: dmg, message: `${mon.name} is hurt by toxic!` };
   }
   
   if (mon.status === 'burn') {
@@ -107,8 +189,15 @@ export function applyStatusDamage(mon: Pokemon): StatusDamageResult | null {
 }
 
 export function determineTurnOrder(player: Pokemon, enemy: Pokemon, playerMove?: MoveInstance, enemyMove?: MoveInstance, weather?: WeatherType): 'player' | 'enemy' {
-  const playerPriority = playerMove?.data.priority ?? 0;
-  const enemyPriority = enemyMove?.data.priority ?? 0;
+  let playerPriority = playerMove?.data.priority ?? 0;
+  let enemyPriority = enemyMove?.data.priority ?? 0;
+  
+  if (player.ability?.effect === 'status_priority' && playerMove?.data.category === 'status') {
+    playerPriority += 1;
+  }
+  if (enemy.ability?.effect === 'status_priority' && enemyMove?.data.category === 'status') {
+    enemyPriority += 1;
+  }
   
   if (playerPriority > enemyPriority) return 'player';
   if (enemyPriority > playerPriority) return 'enemy';
@@ -313,6 +402,14 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
   };
   
   if (move.data.category === 'status') {
+    if (defender.ability?.effect === 'reflect_status') {
+      const bouncerName = defender.name;
+      const temp = attacker;
+      attacker = defender;
+      defender = temp;
+      result.statusMessage = `${bouncerName}'s MAGIC BOUNCE reflected the move!`;
+    }
+    
     if (move.data.accuracy < 100 && Math.random() * 100 >= move.data.accuracy) {
       result.missed = true;
       return result;
@@ -366,6 +463,23 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
       defender.confused = true;
       defender.confuseTurns = 1 + Math.floor(Math.random() * 4);
       result.statusMessage = `${defender.name} became confused!`;
+    } else if (effect === 'spikes') {
+      result.statusMessage = `SPIKES were scattered around the opposing team!`;
+      result.hazardSet = 'spikes';
+    } else if (effect === 'stealth_rock') {
+      result.statusMessage = `Pointed stones float around ${defender.name}!`;
+      result.hazardSet = 'stealth_rock';
+    } else if (effect === 'toxic_spikes') {
+      result.statusMessage = `TOXIC SPIKES were scattered around the opposing team!`;
+      result.hazardSet = 'toxic_spikes';
+    } else if (effect === 'clear_hazards') {
+      result.statusMessage = `${attacker.name} blew away the hazards!`;
+      result.hazardsCleared = true;
+    } else if (effect === 'baton_pass') {
+      result.statusMessage = `${attacker.name} used BATON PASS!`;
+      result.batonPass = true;
+    } else if (effect === 'u_turn') {
+      result.pivotSwitch = true;
     }
     return result;
   }
@@ -532,7 +646,7 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
   result.damage = damage;
   
   if (getLifeOrbBoost(attacker.heldItem) > 1 && damage > 0) {
-    const lifeOrbRecoil = getLifeOrbRecoil(attacker.heldItem, attacker.maxHp);
+    const lifeOrbRecoil = getLifeOrbRecoil(attacker.heldItem);
     attacker.hp = Math.max(0, attacker.hp - lifeOrbRecoil);
     result.recoilDamage = lifeOrbRecoil;
     result.recoilMessage = `${attacker.name} was hurt by its LIFE ORB!`;
@@ -561,6 +675,24 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
         const contactMsg = checkContactAbility(attacker, defender);
         if (contactMsg) {
             result.abilityMessage = contactMsg;
+        }
+        
+        setContextMaxHp(attacker.maxHp);
+        const rockyHelmetDmg = getContactDamage(defender.heldItem);
+        if (rockyHelmetDmg > 0 && damage > 0 && move.data.category === 'physical') {
+            attacker.hp = Math.max(0, attacker.hp - rockyHelmetDmg);
+            result.rockyHelmetDamage = rockyHelmetDmg;
+            result.heldItemMessage = `${attacker.name} was hurt by ${defender.name}'s ROCKY HELMET!`;
+        }
+        
+        if (defender.heldItem?.effect === 'ground_immune' && damage > 0) {
+            defender.heldItem = null;
+            result.airBalloonPopped = true;
+            if (!result.heldItemMessage) {
+                result.heldItemMessage = `${defender.name}'s AIR BALLOON popped!`;
+            } else {
+                result.heldItemMessage += ` ${defender.name}'s AIR BALLOON popped!`;
+            }
         }
         
         if (move.data.statusEffect && !defender.status && Math.random() * 100 < (move.data.statusChance || 10)) {
@@ -653,7 +785,8 @@ export interface HeldItemResult {
 export function checkTurnEndHeldItems(mon: Pokemon): HeldItemResult | null {
   if (mon.hp <= 0) return null;
   
-  const healAmount = getLeftoversHeal(mon.heldItem, mon.maxHp);
+  setContextMaxHp(mon.maxHp);
+  const healAmount = getLeftoversHeal(mon.heldItem);
   if (healAmount > 0 && mon.hp < mon.maxHp) {
     mon.hp = Math.min(mon.maxHp, mon.hp + healAmount);
     return {
@@ -662,6 +795,20 @@ export function checkTurnEndHeldItems(mon: Pokemon): HeldItemResult | null {
     };
   }
   
+  const sludge = getBlackSludgeHeal(mon.heldItem, mon.maxHp, mon.species.types.includes('poison'));
+  if (sludge.heal > 0 && mon.hp < mon.maxHp) {
+    mon.hp = Math.min(mon.maxHp, mon.hp + sludge.heal);
+    return {
+      message: `${mon.name}'s BLACK SLUDGE restored HP!`,
+      healed: sludge.heal,
+    };
+  } else if (sludge.damage > 0) {
+    mon.hp = Math.max(0, mon.hp - sludge.damage);
+    return {
+      message: `${mon.name} was hurt by BLACK SLUDGE!`,
+    };
+  }
+
   return null;
 }
 

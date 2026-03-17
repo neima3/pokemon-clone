@@ -42,6 +42,7 @@ export class Pokemon {
 
   status: StatusCondition | null = null;
   sleepTurns = 0;
+  toxicCounter = 0;
   isShiny = false;
   heldItem: HeldItem | null = null;
   ability: AbilityData | null = null;
@@ -164,9 +165,14 @@ export class Pokemon {
   }
 
   isImmuneToStatus(status: StatusCondition): boolean {
-    if (status === 'poison' && this.hasAbilityEffect('poison_immune')) return true;
+    if (status === 'poison' || status === 'toxic') {
+      if (this.hasAbilityEffect('poison_immune')) return true;
+      if (this.species.types.includes('poison')) return true;
+      if (this.species.types.includes('steel')) return true;
+    }
     if (status === 'paralyze' && this.hasAbilityEffect('paralyze_immune')) return true;
     if (status === 'sleep' && this.hasAbilityEffect('sleep_immune')) return true;
+    if (status === 'burn' && this.species.types.includes('fire')) return true;
     return false;
   }
 
@@ -182,6 +188,7 @@ export class Pokemon {
     this.isSwitching = false;
     this.damageTakenThisTurn = 0;
     this.lastIncomingMoveWasPhysical = null;
+    this.toxicCounter = 0;
   }
 
   heal() {
@@ -196,6 +203,7 @@ export class Pokemon {
     this.protected = false;
     this.consecutiveProtect = 0;
     this.isSwitching = false;
+    this.toxicCounter = 0;
     for (const m of this.moves) m.pp = m.data.maxPp;
   }
 

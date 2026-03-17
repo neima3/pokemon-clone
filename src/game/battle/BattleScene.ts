@@ -4,7 +4,7 @@ import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
-import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection } from './BattleEngine';
+import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition } from './data';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
@@ -116,6 +116,23 @@ export class BattleScene implements Scene {
   // Flinch state for current turn
   private playerFlinched = false;
   private enemyFlinched = false;
+
+  // Entry hazards
+  private playerHazards: FieldHazards = createEmptyHazards();
+  private enemyHazards: FieldHazards = createEmptyHazards();
+
+  private applyHazardsOnEntry(mon: Pokemon, isPlayer: boolean): string[] {
+    const hazards = isPlayer ? this.playerHazards : this.enemyHazards;
+    const result = applyEntryHazards(mon, hazards);
+    if (result.damage > 0) {
+      if (isPlayer) {
+        this.playerDisplayHp = this.playerMon.hp;
+      } else {
+        this.enemyDisplayHp = this.enemyMon.hp;
+      }
+    }
+    return result.messages;
+  }
 
   constructor(input: Input, gameState: GameState, enemyMon: Pokemon, onEnd: (won: boolean) => void, trainerId?: string) {
     this.input = input;
@@ -488,6 +505,12 @@ export class BattleScene implements Scene {
       const playerEntry = checkEntryAbilities(this.playerMon, this.enemyMon);
       if (playerEntry?.message) msgs.push(playerEntry.message);
       
+      const enemyHazardMsgs = this.applyHazardsOnEntry(this.enemyMon, false);
+      msgs.push(...enemyHazardMsgs);
+      
+      const playerHazardMsgs = this.applyHazardsOnEntry(this.playerMon, true);
+      msgs.push(...playerHazardMsgs);
+      
       this.queueMessages(
         msgs,
         () => {
@@ -817,10 +840,17 @@ export class BattleScene implements Scene {
       const msgs: string[] = [`Come back, ${oldMon.name}!`, `Go! ${this.playerMon.name}!`];
       const playerEntry = checkEntryAbilities(this.playerMon, this.enemyMon);
       if (playerEntry?.message) msgs.push(playerEntry.message);
+      
+      const hazardMsgs = this.applyHazardsOnEntry(this.playerMon, true);
+      msgs.push(...hazardMsgs);
 
       this.queueMessages(
         msgs,
         () => {
+          if (!this.playerMon.isAlive) {
+            this.handleFaint(this.playerMon);
+            return;
+          }
           this.doEnemyTurn();
         },
       );
@@ -1305,11 +1335,37 @@ export class BattleScene implements Scene {
     if (result.abilityMessage) {
       messages.push(result.abilityMessage);
     }
+    if (result.heldItemMessage) {
+      messages.push(result.heldItemMessage);
+    }
+    if (result.rockyHelmetDamage && result.rockyHelmetDamage > 0) {
+      this.damageNumbers.push(DamageNumbers.create(result.rockyHelmetDamage, isPlayer, false, false));
+    }
 
     this.playAttackAnim(isPlayer, move.data.type as PokemonType, result.critical, () => {
       if (result.damage > 0) {
         this.damageNumbers.push(DamageNumbers.create(result.damage, !isPlayer, false, result.critical));
       }
+      
+      if (result.hazardSet) {
+        const targetHazards = isPlayer ? this.enemyHazards : this.playerHazards;
+        if (result.hazardSet === 'spikes') {
+          if (targetHazards.spikes < 3) targetHazards.spikes++;
+        } else if (result.hazardSet === 'stealth_rock') {
+          targetHazards.stealthRock = true;
+        } else if (result.hazardSet === 'toxic_spikes') {
+          if (targetHazards.toxicSpikes < 2) targetHazards.toxicSpikes++;
+        }
+      }
+      
+      if (result.hazardsCleared) {
+        if (isPlayer) {
+          this.playerHazards = createEmptyHazards();
+        } else {
+          this.enemyHazards = createEmptyHazards();
+        }
+      }
+      
       this.queueMessages(messages, then);
     });
   }
@@ -1345,9 +1401,16 @@ export class BattleScene implements Scene {
               const enemyEntry = checkEntryAbilities(next, this.playerMon);
               if (enemyEntry?.message) entryMsgs.push(enemyEntry.message);
               
+              const hazardMsgs = this.applyHazardsOnEntry(next, false);
+              entryMsgs.push(...hazardMsgs);
+              
               this.queueMessages(
                 entryMsgs,
                 () => {
+                  if (!next.isAlive) {
+                    this.handleFaint(next);
+                    return;
+                  }
                   this.phase = 'action';
                   this.cursor = 0;
                 },
@@ -1611,6 +1674,10 @@ export class BattleScene implements Scene {
     drawPokemonBack(ctx, this.playerMon.species.id, Math.round(psx), 76, pVisible);
     drawPokemonFront(ctx, this.enemyMon.species.id, Math.round(esx), 14, eVisible);
 
+    // Draw hazard indicators
+    this.drawHazardIndicators(ctx, Math.round(psx), 76, true);
+    this.drawHazardIndicators(ctx, Math.round(esx), 14, false);
+
     // Shiny sparkle particles
     if (this.shinyParticles.length > 0) {
       for (const p of this.shinyParticles) {
@@ -1863,6 +1930,33 @@ export class BattleScene implements Scene {
       ctx.fillText('CANCEL', 32, newY + 34);
     }
     ctx.textAlign = 'left';
+  }
+
+  private drawHazardIndicators(ctx: CanvasRenderingContext2D, spriteX: number, spriteY: number, isPlayer: boolean) {
+    const hazards = isPlayer ? this.playerHazards : this.enemyHazards;
+    let offsetX = 0;
+    
+    ctx.font = 'bold 7px monospace';
+    ctx.textBaseline = 'top';
+    
+    if (hazards.spikes > 0) {
+      ctx.fillStyle = '#a0a0a0';
+      const spikeText = hazards.spikes === 1 ? '▲' : hazards.spikes === 2 ? '▲▲' : '▲▲▲';
+      ctx.fillText(spikeText, spriteX + offsetX, spriteY + 55);
+      offsetX += 15;
+    }
+    
+    if (hazards.stealthRock) {
+      ctx.fillStyle = '#b08050';
+      ctx.fillText('◆', spriteX + offsetX, spriteY + 55);
+      offsetX += 10;
+    }
+    
+    if (hazards.toxicSpikes > 0) {
+      ctx.fillStyle = '#a040a0';
+      const toxicText = hazards.toxicSpikes === 1 ? '◇' : '◇◇';
+      ctx.fillText(toxicText, spriteX + offsetX, spriteY + 55);
+    }
   }
 
   private drawTrainerBalls(ctx: CanvasRenderingContext2D) {

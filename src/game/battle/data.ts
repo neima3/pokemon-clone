@@ -2,7 +2,7 @@
 
 export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bug' | 'electric' | 'ground' | 'rock' | 'flying' | 'psychic' | 'ghost' | 'ice' | 'fighting' | 'dragon' | 'steel' | 'dark';
 
-export type StatusCondition = 'poison' | 'burn' | 'paralyze' | 'sleep';
+export type StatusCondition = 'poison' | 'burn' | 'paralyze' | 'sleep' | 'toxic';
 
 // ── Abilities ──
 
@@ -388,6 +388,24 @@ export const ABILITIES: Record<string, AbilityData> = {
     trigger: 'passive',
     effect: 'drain_hurt',
   },
+  prankster: {
+    name: 'PRANKSTER',
+    description: 'Status moves have +1 priority.',
+    trigger: 'passive',
+    effect: 'status_priority',
+  },
+  magicGuard: {
+    name: 'MAGIC GUARD',
+    description: 'Prevents all indirect damage.',
+    trigger: 'passive',
+    effect: 'no_indirect_damage',
+  },
+  magicBounce: {
+    name: 'MAGIC BOUNCE',
+    description: 'Reflects status moves back.',
+    trigger: 'passive',
+    effect: 'reflect_status',
+  },
 };
 
 const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
@@ -426,30 +444,20 @@ export interface MoveData {
   accuracy: number;
   maxPp: number;
   category: 'physical' | 'status';
-  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect';
-  /** Secondary status effect on damaging moves (e.g. Ember 10% burn) */
+  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect' | 'spikes' | 'stealth_rock' | 'toxic_spikes' | 'clear_hazards' | 'baton_pass' | 'u_turn';
   statusEffect?: StatusCondition;
   statusChance?: number;
-  /** Secondary confusion chance on damaging moves */
   confuseChance?: number;
-  /** Priority bracket: +1 goes before normal moves, -1 goes after */
   priority?: number;
-  /** Percentage of damage dealt that heals the user (e.g., 50 for drain moves) */
   drain?: number;
-  /** Percentage of damage dealt that hurts the user (e.g., 25 for recoil moves) */
   recoil?: number;
-  /** Multi-hit moves: [min, max] hits (e.g., [2, 5] for Double Slap) */
   hits?: [number, number];
-  /** Flinch chance percentage (e.g., 30 for Headbutt) */
   flinchChance?: number;
-  /** Two-turn move type: 'charge' for Solar Beam, 'fly' for Fly, 'dig' for Dig */
   twoTurn?: 'charge' | 'fly' | 'dig';
-  /** Pursuit: double damage when target is switching */
   pursuit?: boolean;
-  /** Counter move: returns damage multiplier based on damage taken this turn */
   counter?: 'physical' | 'special' | 'any';
-  /** Counter damage multiplier (e.g., 2 for Counter/Mirror Coat, 1.5 for Metal Burst) */
   counterMult?: number;
+  pivot?: boolean;
 }
 
 export const MOVES: Record<string, MoveData> = {
@@ -525,7 +533,7 @@ export const MOVES: Record<string, MoveData> = {
   megaPunch:    { name: 'MEGA PUNCH',   type: 'normal',    power: 80,  accuracy: 85,  maxPp: 20, category: 'physical' },
   karatechop:   { name: 'KARATE CHOP',  type: 'fighting',  power: 50,  accuracy: 100, maxPp: 25, category: 'physical' },
   acidSpray:    { name: 'ACID SPRAY',   type: 'poison',    power: 40,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'lower_defense' },
-  rapidSpin:    { name: 'RAPID SPIN',   type: 'normal',    power: 50,  accuracy: 100, maxPp: 40, category: 'physical' },
+  rapidSpin:    { name: 'RAPID SPIN',   type: 'normal',    power: 50,  accuracy: 100, maxPp: 40, category: 'physical', effect: 'clear_hazards' },
   recover:      { name: 'RECOVER',      type: 'normal',    power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'raise_defense' },
   psychic:      { name: 'PSYCHIC',      type: 'psychic',   power: 90,  accuracy: 100, maxPp: 15, category: 'physical' },
   teleport:     { name: 'TELEPORT',     type: 'psychic',   power: 0,   accuracy: 100, maxPp: 20, category: 'status' },
@@ -649,6 +657,14 @@ export const MOVES: Record<string, MoveData> = {
   metalBurst:   { name: 'METAL BURST', type: 'steel',    power: 0,   accuracy: 100, maxPp: 10, category: 'physical', priority: 0, counter: 'any', counterMult: 1.5 },
   avalanche:    { name: 'AVALANCHE',   type: 'ice',      power: 60,  accuracy: 100, maxPp: 10, category: 'physical', priority: -4 },
   payback:      { name: 'PAYBACK',     type: 'dark',     power: 50,  accuracy: 100, maxPp: 10, category: 'physical' },
+  // Sprint 027: Entry hazards
+  spikes:       { name: 'SPIKES',      type: 'ground',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'spikes' },
+  stealthRock:  { name: 'STEALTH RK',  type: 'rock',     power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'stealth_rock' },
+  toxicSpikes:  { name: 'TOXIC SPKS',  type: 'poison',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'toxic_spikes' },
+  // Sprint 027: Pivot moves
+  uTurn:        { name: 'U-TURN',      type: 'bug',      power: 70,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'u_turn', pivot: true },
+  voltSwitch:   { name: 'VOLT SWCH',   type: 'electric', power: 70,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'u_turn', pivot: true },
+  batonPass:    { name: 'BATON PASS',  type: 'normal',   power: 0,   accuracy: 100, maxPp: 40, category: 'status', effect: 'baton_pass' },
 };
 
 // ── Species ──

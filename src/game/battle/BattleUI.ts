@@ -43,6 +43,7 @@ function drawHpBarGradient(ctx: CanvasRenderingContext2D, x: number, y: number, 
 
 const STATUS_COLORS: Record<StatusCondition, { bg: string; text: string; label: string }> = {
   poison:   { bg: '#a040a0', text: '#f8f8f0', label: 'PSN' },
+  toxic:    { bg: '#9030a0', text: '#f8f8f0', label: 'TXC' },
   burn:     { bg: '#f08030', text: '#f8f8f0', label: 'BRN' },
   paralyze: { bg: '#f8d030', text: '#081820', label: 'PAR' },
   sleep:    { bg: '#a8a878', text: '#f8f8f0', label: 'SLP' },
@@ -929,7 +930,7 @@ export interface StatusParticle {
   maxLife: number;
   size: number;
   color: string;
-  type: 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confusion';
+  type: 'poison' | 'toxic' | 'burn' | 'paralyze' | 'sleep' | 'confusion';
 }
 
 export interface HealParticle {
