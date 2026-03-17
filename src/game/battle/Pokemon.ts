@@ -42,12 +42,18 @@ export class Pokemon {
   status: StatusCondition | null = null;
   /** Turns remaining for sleep */
   sleepTurns = 0;
-  /** Shiny variant (1/256 chance) */
+  /** Shiny variant (1/256 base chance, improved by badges) */
   isShiny = false;
   /** Held item */
   heldItem: HeldItem | null = null;
 
-  constructor(speciesKey: string, level: number) {
+  /**
+   * Create a new Pokemon instance
+   * @param speciesKey The species identifier
+   * @param level The Pokemon's level
+   * @param badgeCount Optional badge count to improve shiny odds (each badge adds ~10% cumulative chance)
+   */
+  constructor(speciesKey: string, level: number, badgeCount: number = 0) {
     const species = SPECIES[speciesKey];
     if (!species) throw new Error(`Unknown species: ${speciesKey}`);
 
@@ -63,7 +69,14 @@ export class Pokemon {
     this.speed = Math.floor((species.baseSpd * 2 * level) / 100) + 5;
 
     this.hp = this.maxHp;
-    this.isShiny = Math.random() < 1 / 256;
+    
+    // Badge-based shiny odds: base 1/256, each badge improves by 10%
+    // 0 badges: 1/256 (0.39%)
+    // 4 badges: 1/175 (0.57%)
+    // 8 badges: 1/119 (0.84%)
+    const baseShinyChance = 1 / 256;
+    const badgeBonus = 1 + (badgeCount * 0.1);
+    this.isShiny = Math.random() < baseShinyChance * badgeBonus;
 
     this.moves = species.learnedMoves.map((key) => ({
       data: MOVES[key],

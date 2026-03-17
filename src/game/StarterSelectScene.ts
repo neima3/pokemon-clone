@@ -32,7 +32,7 @@ export class StarterSelectScene implements Scene {
       this.confirmTimer += dt;
       if (this.confirmTimer >= 1.0) {
         const key = STARTERS[this.cursor];
-        const pokemon = new Pokemon(key, 5);
+        const pokemon = new Pokemon(key, 5, 0);
         this.onChoose(pokemon);
       }
       return;

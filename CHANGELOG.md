@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-03-17
+
+### Added
+- Sprint 018: Audio Optimization & Battle Enhancements
+- Pokemon cry sounds: unique audio cries for each Pokemon species when entering battle
+- Badge-based shiny odds: each badge improves shiny encounter rate by 10% cumulative
+- Faint cry sound: Pokemon play a descending cry when they faint
+
+### Changed
+- Optimized audio system with gain node pooling to reduce garbage collection
+- Encounter rate system now supports terrain-based variance (configurable per tile type)
+
+### Technical
+- Added `pokemonCry()` and `pokemonFaintCry()` methods to Audio.ts
+- Pokemon constructor now accepts optional `badgeCount` parameter for shiny odds
+- Created reusable gain node pool in Audio.ts for better performance
+
 ## [0.17.0] - 2026-03-17
 
 ### Added

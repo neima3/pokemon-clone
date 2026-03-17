@@ -38,7 +38,8 @@ export default function GameCanvas() {
     window.addEventListener('keydown', initAudioOnce);
 
     const startEncounter = (speciesKey: string, level: number) => {
-      const wild = new Pokemon(speciesKey, level);
+      const badgeCount = gameState.badges.size;
+      const wild = new Pokemon(speciesKey, level, badgeCount);
 
       transition.battleEnter(() => {
         const battle = new BattleScene(input, gameState, wild, (won) => {
@@ -53,8 +54,8 @@ export default function GameCanvas() {
     };
 
     const startTrainerBattle = (trainerId: string, npcId: string) => {
-      // Create a dummy enemy (the BattleScene constructor builds the trainer team)
-      const dummyMon = new Pokemon('rattata', 1);
+      const badgeCount = gameState.badges.size;
+      const dummyMon = new Pokemon('rattata', 1, badgeCount);
 
       transition.battleEnter(() => {
         const battle = new BattleScene(input, gameState, dummyMon, (won) => {

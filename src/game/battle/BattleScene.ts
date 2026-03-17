@@ -35,6 +35,8 @@ export class BattleScene implements Scene {
   // Intro animation
   private introTimer = 0;
   private shinySparkled = false;
+  private playerCryPlayed = false;
+  private enemyCryPlayed = false;
   private shinyParticles: Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number }> = [];
 
   // Message system
@@ -122,7 +124,8 @@ export class BattleScene implements Scene {
     if (trainerId && TRAINERS[trainerId]) {
       this.isTrainerBattle = true;
       this.trainerData = TRAINERS[trainerId];
-      this.trainerTeam = this.trainerData.team.map((t) => new Pokemon(t.species, t.level));
+      const badgeCount = gameState.badges.size;
+      this.trainerTeam = this.trainerData.team.map((t) => new Pokemon(t.species, t.level, badgeCount));
       this.trainerTeamIndex = 0;
       this.enemyMon = this.trainerTeam[0];
       this.enemyDisplayHp = this.enemyMon.hp;
@@ -258,6 +261,18 @@ export class BattleScene implements Scene {
       this.flashAlpha = Math.floor(this.introTimer / 0.08) % 2 === 0 ? 0.8 : 0;
     } else {
       this.flashAlpha = 0;
+    }
+
+    // Play enemy Pokemon cry when sprite slides in
+    if (!this.enemyCryPlayed && this.introTimer >= 1.0) {
+      this.enemyCryPlayed = true;
+      SFX.pokemonCry(this.enemyMon.species.id, true);
+    }
+
+    // Play player Pokemon cry when it enters
+    if (!this.playerCryPlayed && this.introTimer >= 1.4) {
+      this.playerCryPlayed = true;
+      SFX.pokemonCry(this.playerMon.species.id, false);
     }
 
     // Shiny sparkle sound once sprites have mostly slid in
@@ -653,16 +668,17 @@ export class BattleScene implements Scene {
       } else {
         if (this.catchCaught) {
           this.enemyVisible = false;
-          SFX.catchSuccess();
-          this.queueMessages(
-            [`Gotcha! ${this.enemyMon.name} was caught!`],
-            () => {
-              const caught = new Pokemon(this.enemyMon.speciesKey, this.enemyMon.level);
-              caught.hp = this.enemyMon.hp;
-              caught.status = this.enemyMon.status;
-              // Track caught in pokedex
-              this.gameState.pokedexCaught.add(this.enemyMon.speciesKey);
-              if (this.gameState.addToTeam(caught)) {
+              SFX.catchSuccess();
+              this.queueMessages(
+                [`Gotcha! ${this.enemyMon.name} was caught!`],
+                () => {
+                  const badgeCount = this.gameState.badges.size;
+                  const caught = new Pokemon(this.enemyMon.speciesKey, this.enemyMon.level, badgeCount);
+                  caught.hp = this.enemyMon.hp;
+                  caught.status = this.enemyMon.status;
+                  // Track caught in pokedex
+                  this.gameState.pokedexCaught.add(this.enemyMon.speciesKey);
+                  if (this.gameState.addToTeam(caught)) {
                 this.queueMessages(
                   [`${caught.name} was added to your team!`],
                   () => { this.phase = 'result'; this.battleWon = true; this.resultTimer = 0; },
@@ -1026,6 +1042,7 @@ export class BattleScene implements Scene {
   private handleFaint(fainted: Pokemon) {
     const isEnemy = fainted === this.enemyMon;
     SFX.faint();
+    SFX.pokemonFaintCry(fainted.species.id);
 
     if (isEnemy) {
       // Check for next trainer Pokemon

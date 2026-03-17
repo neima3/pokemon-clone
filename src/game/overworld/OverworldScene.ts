@@ -14,7 +14,12 @@ import { drawPokemonFront } from '../battle/sprites';
 export const VIEW_W = 320;
 export const VIEW_H = 240;
 
-const ENCOUNTER_RATE = 0.15;
+const BASE_ENCOUNTER_RATE = 0.15; // ~1/6 steps in grass
+const ENCOUNTER_RATES: Partial<Record<Tile, number>> = {
+  [Tile.TallGrass]: BASE_ENCOUNTER_RATE,       // Standard grass rate
+  // Water encounters would be lower rate when surfing
+  // Cave areas would be higher rate
+};
 const FONT = 'bold 9px monospace';
 const FONT_SM = 'bold 8px monospace';
 
@@ -744,7 +749,9 @@ export class OverworldScene implements Scene {
 
   private checkEncounter() {
     const tile = MAP_DATA[this.player.gy * MAP_WIDTH + this.player.gx];
-    if (tile === Tile.TallGrass) {
+    const encounterRate = ENCOUNTER_RATES[tile as Tile] ?? 0;
+    
+    if (encounterRate > 0) {
       // Check repel
       if (this.gameState.repelSteps > 0) {
         const wasActive = this.gameState.tickRepel();
@@ -754,7 +761,7 @@ export class OverworldScene implements Scene {
         }
         return;
       }
-      if (Math.random() >= ENCOUNTER_RATE) return;
+      if (Math.random() >= encounterRate) return;
 
       this.frozen = true;
       if (this.gameState) {

@@ -1,6 +1,8 @@
 /**
  * Chip-tune audio system using Web Audio API.
  * All sounds are procedurally generated — no external files needed.
+ * 
+ * Optimized to reduce garbage collection by reusing gain nodes.
  */
 
 let ctx: AudioContext | null = null;
@@ -8,6 +10,10 @@ let masterGain: GainNode | null = null;
 let musicGain: GainNode | null = null;
 let sfxGain: GainNode | null = null;
 let currentMusic: { stop: () => void } | null = null;
+
+// Pool of reusable gain nodes for SFX
+const gainPool: GainNode[] = [];
+const MAX_POOL_SIZE = 20;
 
 function getCtx(): AudioContext {
   if (!ctx) {
@@ -28,6 +34,26 @@ function getCtx(): AudioContext {
   return ctx;
 }
 
+// Get a gain node from pool or create new one
+function getPooledGain(): GainNode {
+  if (gainPool.length > 0) {
+    return gainPool.pop()!;
+  }
+  const c = getCtx();
+  const gain = c.createGain();
+  return gain;
+}
+
+// Return a gain node to the pool
+function returnGain(gain: GainNode) {
+  if (gainPool.length < MAX_POOL_SIZE) {
+    try {
+      gain.disconnect();
+    } catch { /* already disconnected */ }
+    gainPool.push(gain);
+  }
+}
+
 // ── Helpers ──
 
 type WaveType = OscillatorType;
@@ -35,7 +61,7 @@ type WaveType = OscillatorType;
 function playTone(freq: number, duration: number, type: WaveType = 'square', dest?: AudioNode, startTime?: number): OscillatorNode {
   const c = getCtx();
   const osc = c.createOscillator();
-  const gain = c.createGain();
+  const gain = getPooledGain();
   osc.type = type;
   osc.frequency.value = freq;
   gain.gain.setValueAtTime(0.3, c.currentTime);
@@ -45,6 +71,8 @@ function playTone(freq: number, duration: number, type: WaveType = 'square', des
   const start = c.currentTime + (startTime ?? 0);
   osc.start(start);
   osc.stop(start + duration);
+  // Return gain to pool after sound finishes
+  setTimeout(() => returnGain(gain), (duration + (startTime ?? 0)) * 1000 + 50);
   return osc;
 }
 
@@ -288,6 +316,73 @@ export const SFX = {
       playTone(n, durs[i], 'square', sfxGain!, time);
       time += durs[i] * 0.85;
     });
+  },
+
+  pokemonCry(speciesId: number, isEnemy: boolean = true) {
+    // Generate a unique cry based on species ID using frequency modulation
+    // Each species gets a distinctive sound based on its Pokedex number
+    const c = getCtx();
+    const baseFreq = 150 + (speciesId % 30) * 20;
+    const duration = 0.15 + (speciesId % 10) * 0.02;
+    const vibrato = 3 + (speciesId % 5);
+    const waveType: OscillatorType = speciesId % 4 === 0 ? 'square' : speciesId % 4 === 1 ? 'triangle' : speciesId % 4 === 2 ? 'sawtooth' : 'sine';
+    
+    // Create cry with frequency sweep
+    const osc = c.createOscillator();
+    const gain = getPooledGain();
+    osc.type = waveType;
+    osc.frequency.setValueAtTime(baseFreq, c.currentTime);
+    osc.frequency.linearRampToValueAtTime(baseFreq * 1.5, c.currentTime + duration * 0.3);
+    osc.frequency.linearRampToValueAtTime(baseFreq * 0.8, c.currentTime + duration);
+    
+    gain.gain.setValueAtTime(isEnemy ? 0.15 : 0.12, c.currentTime);
+    gain.gain.linearRampToValueAtTime(isEnemy ? 0.2 : 0.15, c.currentTime + duration * 0.2);
+    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration + 0.05);
+    
+    osc.connect(gain);
+    gain.connect(sfxGain!);
+    osc.start(c.currentTime);
+    osc.stop(c.currentTime + duration + 0.1);
+    
+    // Add harmonics for richer sound
+    const osc2 = c.createOscillator();
+    const gain2 = getPooledGain();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(baseFreq * 2, c.currentTime);
+    osc2.frequency.linearRampToValueAtTime(baseFreq * 1.8, c.currentTime + duration);
+    gain2.gain.setValueAtTime(0.05, c.currentTime);
+    gain2.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
+    osc2.connect(gain2);
+    gain2.connect(sfxGain!);
+    osc2.start(c.currentTime);
+    osc2.stop(c.currentTime + duration + 0.05);
+    
+    // Return gains to pool
+    setTimeout(() => returnGain(gain), (duration + 0.2) * 1000);
+    setTimeout(() => returnGain(gain2), (duration + 0.15) * 1000);
+  },
+
+  pokemonFaintCry(speciesId: number) {
+    // Faint cry - descending pitch, sadder sound
+    const c = getCtx();
+    const baseFreq = 200 + (speciesId % 25) * 15;
+    const duration = 0.4;
+    
+    const osc = c.createOscillator();
+    const gain = getPooledGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(baseFreq, c.currentTime);
+    osc.frequency.linearRampToValueAtTime(baseFreq * 0.4, c.currentTime + duration);
+    
+    gain.gain.setValueAtTime(0.1, c.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
+    
+    osc.connect(gain);
+    gain.connect(sfxGain!);
+    osc.start(c.currentTime);
+    osc.stop(c.currentTime + duration + 0.05);
+    
+    setTimeout(() => returnGain(gain), (duration + 0.1) * 1000);
   },
 };
 
