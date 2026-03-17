@@ -4,7 +4,7 @@ import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
-import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities } from './BattleEngine';
+import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType } from './data';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
@@ -112,6 +112,10 @@ export class BattleScene implements Scene {
   private learnMoveKey: string = '';
   private learnMovePendingQueue: Array<{ mon: Pokemon; moveKey: string }> = [];
   private learnMoveConfirm = false; // true = asking "forget which move?"
+
+  // Flinch state for current turn
+  private playerFlinched = false;
+  private enemyFlinched = false;
 
   constructor(input: Input, gameState: GameState, enemyMon: Pokemon, onEnd: (won: boolean) => void, trainerId?: string) {
     this.input = input;
@@ -1069,6 +1073,27 @@ export class BattleScene implements Scene {
     const enemyAbility = checkTurnEndAbilities(this.enemyMon);
     if (enemyAbility?.message) msgs.push(enemyAbility.message);
 
+    // Held item effects (Leftovers)
+    const playerItem = checkTurnEndHeldItems(this.playerMon);
+    if (playerItem?.message) {
+      msgs.push(playerItem.message);
+      if (playerItem.healed && playerItem.healed > 0) {
+        this.healParticles.push(...HealParticles.create(this.playerSpriteX + 20, 100, 8));
+      }
+    }
+
+    const enemyItem = checkTurnEndHeldItems(this.enemyMon);
+    if (enemyItem?.message) {
+      msgs.push(enemyItem.message);
+      if (enemyItem.healed && enemyItem.healed > 0) {
+        this.healParticles.push(...HealParticles.create(this.enemySpriteX + 20, 40, 8));
+      }
+    }
+
+    // Reset flinch state for next turn
+    this.playerFlinched = false;
+    this.enemyFlinched = false;
+
     if (msgs.length > 0) {
       this.queueMessages(msgs, () => {
         if (!this.playerMon.isAlive) {
@@ -1554,6 +1579,7 @@ export class BattleScene implements Scene {
       this.playerDisplayExp,
       this.playerMon.status,
       this.playerMon.ability?.name,
+      this.playerMon.heldItem?.name,
     );
 
     // Trainer team indicator

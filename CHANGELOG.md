@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2026-03-17
+
+### Added
+- Sprint 023: Held Items Integration & Battle Polish
+- Held items now affect battles: type-boosting items increase damage by 20%
+- Scope Lens doubles critical hit rate
+- Leftovers heals 1/16 max HP at end of each turn
+- Lum Berry cures status conditions when first inflicted
+- Held item display in battle UI showing equipped item name
+- Flinch mechanic: Headbutt, Bite, Rock Slide, Air Slash have 30% flinch chance
+
+### Technical
+- Integrated getHeldItemDamageBoost in executeMove for damage calculation
+- Integrated getCritBoost for critical hit rate modification
+- Added checkTurnEndHeldItems function for Leftovers healing
+- Added checkLumBerry function for status cure on infliction
+- Added flinchChance field to MoveData interface
+- Extended TurnResult with flinched field
+- Added playerFlinched and enemyFlinched state tracking in BattleScene
+- Updated drawPlayerInfo to display held item name
+
 ## [0.21.0] - 2026-03-17
 
 ### Added

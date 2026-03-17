@@ -438,6 +438,10 @@ export interface MoveData {
   recoil?: number;
   /** Multi-hit moves: [min, max] hits (e.g., [2, 5] for Double Slap) */
   hits?: [number, number];
+  /** Flinch chance percentage (e.g., 30 for Headbutt) */
+  flinchChance?: number;
+  /** Two-turn move type: 'charge' for Solar Beam, 'fly' for Fly, 'dig' for Dig */
+  twoTurn?: 'charge' | 'fly' | 'dig';
 }
 
 export const MOVES: Record<string, MoveData> = {
@@ -448,9 +452,9 @@ export const MOVES: Record<string, MoveData> = {
   tailWhip:     { name: 'TAIL WHIP',    type: 'normal',   power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'lower_defense' },
   gust:         { name: 'GUST',         type: 'flying',   power: 40,  accuracy: 100, maxPp: 35, category: 'physical' },
   quickAttack:  { name: 'QUICK ATK',    type: 'normal',   power: 40,  accuracy: 100, maxPp: 30, category: 'physical', priority: 1 },
-  bite:         { name: 'BITE',         type: 'normal',   power: 60,  accuracy: 100, maxPp: 25, category: 'physical' },
+  bite:         { name: 'BITE',         type: 'normal',   power: 60,  accuracy: 100, maxPp: 25, category: 'physical', flinchChance: 30 },
   slam:         { name: 'SLAM',         type: 'normal',   power: 80,  accuracy: 75,  maxPp: 20, category: 'physical' },
-  headbutt:     { name: 'HEADBUTT',     type: 'normal',   power: 70,  accuracy: 100, maxPp: 15, category: 'physical' },
+  headbutt:     { name: 'HEADBUTT',     type: 'normal',   power: 70,  accuracy: 100, maxPp: 15, category: 'physical', flinchChance: 30 },
   // Grass
   vineWhip:     { name: 'VINE WHIP',    type: 'grass',    power: 45,  accuracy: 100, maxPp: 25, category: 'physical' },
   razorLeaf:    { name: 'RAZOR LEAF',   type: 'grass',    power: 55,  accuracy: 95,  maxPp: 25, category: 'physical' },
@@ -473,7 +477,7 @@ export const MOVES: Record<string, MoveData> = {
   // Ground/Rock
   rockThrow:    { name: 'ROCK THROW',   type: 'rock',      power: 50,  accuracy: 90,  maxPp: 15, category: 'physical' },
   mudSlap:      { name: 'MUD-SLAP',     type: 'ground',    power: 20,  accuracy: 100, maxPp: 10, category: 'physical' },
-  rockSlide:    { name: 'ROCK SLIDE',   type: 'rock',      power: 75,  accuracy: 90,  maxPp: 10, category: 'physical' },
+  rockSlide:    { name: 'ROCK SLIDE',   type: 'rock',      power: 75,  accuracy: 90,  maxPp: 10, category: 'physical', flinchChance: 30 },
   // Poison
   poisonSting:  { name: 'POISON STING', type: 'poison',    power: 15,  accuracy: 100, maxPp: 35, category: 'physical', statusEffect: 'poison', statusChance: 30 },
   // Flying
@@ -489,7 +493,7 @@ export const MOVES: Record<string, MoveData> = {
   stunSpore:    { name: 'STUN SPORE',   type: 'grass',     power: 0,   accuracy: 75,  maxPp: 30, category: 'status', effect: 'paralyze' },
   poisonPowder: { name: 'PSN POWDER',   type: 'poison',    power: 0,   accuracy: 75,  maxPp: 35, category: 'status', effect: 'poison' },
   hyperFang:    { name: 'HYPER FANG',   type: 'normal',    power: 80,  accuracy: 90,  maxPp: 15, category: 'physical' },
-  airSlash:     { name: 'AIR SLASH',    type: 'flying',    power: 75,  accuracy: 95,  maxPp: 15, category: 'physical' },
+  airSlash:     { name: 'AIR SLASH',    type: 'flying',    power: 75,  accuracy: 95,  maxPp: 15, category: 'physical', flinchChance: 30 },
   bind:         { name: 'BIND',         type: 'normal',    power: 15,  accuracy: 85,  maxPp: 20, category: 'physical' },
   rockTomb:     { name: 'ROCK TOMB',    type: 'rock',      power: 60,  accuracy: 95,  maxPp: 15, category: 'physical', effect: 'lower_speed' },
   ironTail:     { name: 'IRON TAIL',    type: 'steel',     power: 100, accuracy: 75,  maxPp: 15, category: 'physical', effect: 'lower_defense' },

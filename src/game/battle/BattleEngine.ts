@@ -2,6 +2,7 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { getTypeEffectiveness, MOVES, StatusCondition } from './data';
 import type { PokemonType } from './data';
 import type { WeatherType } from '../Weather';
+import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus } from './HeldItems';
 
 export interface TurnResult {
   damage: number;
@@ -18,6 +19,8 @@ export interface TurnResult {
   drainHeal?: number;
   drainMessage?: string;
   hits?: number;
+  heldItemMessage?: string;
+  flinched?: boolean;
 }
 
   
@@ -351,6 +354,7 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
   }
   
   let critRate = 0.0625;
+  critRate *= getCritBoost(attacker.heldItem);
   if (Math.random() < critRate) {
     result.critical = true;
   }
@@ -409,6 +413,11 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
       }
     }
     
+    const itemBoost = getHeldItemDamageBoost(attacker.heldItem, move.data.type);
+    if (itemBoost > 1) {
+      hitDamage = Math.floor(hitDamage * itemBoost);
+    }
+    
     hitDamage = Math.max(1, hitDamage);
     totalDamage += hitDamage;
   }
@@ -452,10 +461,21 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
         
         if (move.data.statusEffect && !defender.status && Math.random() * 100 < (move.data.statusChance || 10)) {
             if (!defender.isImmuneToStatus(move.data.statusEffect)) {
-                defender.status = move.data.statusEffect;
-                if (move.data.statusEffect === 'sleep') {
-                    defender.sleepTurns = 1 + Math.floor(Math.random() * 2);
+                const lumResult = checkLumBerry(defender, move.data.statusEffect);
+                if (lumResult.cured) {
+                    result.statusMessage = lumResult.message;
+                } else {
+                    defender.status = move.data.statusEffect;
+                    if (move.data.statusEffect === 'sleep') {
+                        defender.sleepTurns = 1 + Math.floor(Math.random() * 2);
+                    }
                 }
+            }
+        }
+        
+        if (move.data.flinchChance && damage > 0 && Math.random() * 100 < move.data.flinchChance) {
+            if (defender.ability?.effect !== 'no_flinch') {
+                result.flinched = true;
             }
         }
         
@@ -513,4 +533,35 @@ export function checkTurnEndAbilities(mon: Pokemon): TurnEndResult | null {
   }
   
   return null;
+}
+
+export interface HeldItemResult {
+  message?: string;
+  healed?: number;
+}
+
+export function checkTurnEndHeldItems(mon: Pokemon): HeldItemResult | null {
+  if (mon.hp <= 0) return null;
+  
+  const healAmount = getLeftoversHeal(mon.heldItem, mon.maxHp);
+  if (healAmount > 0 && mon.hp < mon.maxHp) {
+    mon.hp = Math.min(mon.maxHp, mon.hp + healAmount);
+    return {
+      message: `${mon.name}'s LEFTOVERS restored HP!`,
+      healed: healAmount,
+    };
+  }
+  
+  return null;
+}
+
+export function checkLumBerry(mon: Pokemon, status: StatusCondition): { cured: boolean; message?: string } {
+  if (shouldCureStatus(mon.heldItem)) {
+    mon.heldItem = null;
+    return {
+      cured: true,
+      message: `${mon.name}'s LUM BERRY cured its ${status}!`,
+    };
+  }
+  return { cured: false };
 }

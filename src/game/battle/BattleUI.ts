@@ -101,6 +101,7 @@ export const BattleUI = {
     expPct: number,
     status?: StatusCondition | null,
     abilityName?: string,
+    heldItemName?: string | null,
   ) {
     const bx = 156, by = 92, bw = 156, bh = 58;
 
@@ -172,6 +173,13 @@ export const BattleUI = {
       ctx.font = 'bold 6px monospace';
       ctx.fillStyle = '#787878';
       ctx.fillText(`ABILITY: ${abilityName}`, bx + 6, by + 52);
+    }
+    
+    // Held item display (if provided)
+    if (heldItemName) {
+      ctx.font = 'bold 6px monospace';
+      ctx.fillStyle = '#b89038';
+      ctx.fillText(`ITEM: ${heldItemName}`, bx + 80, by + 52);
     }
   },
 
