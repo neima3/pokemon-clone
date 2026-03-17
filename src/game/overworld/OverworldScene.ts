@@ -48,6 +48,7 @@ export class OverworldScene implements Scene {
     { key: 'superPotion', name: 'SUPER POTION', price: 700 },
     { key: 'antidote', name: 'ANTIDOTE', price: 100 },
     { key: 'fullHeal', name: 'FULL HEAL', price: 600 },
+    { key: 'repel', name: 'REPEL', price: 350 },
   ];
 
   // Heal animation
@@ -61,6 +62,9 @@ export class OverworldScene implements Scene {
   // PC state
   private pcCursor = 0;
   private pcMode: 'select' | 'withdraw' | 'deposit' = 'select';
+
+  // Bag cursor
+  private bagCursor = 0;
 
   // HUD
   private showMiniStatus = true;
@@ -101,7 +105,12 @@ export class OverworldScene implements Scene {
       }
     }
 
-    Music.overworld();
+    const zone = getRouteZone(this.player.gx, this.player.gy);
+    if (zone === 'route4') {
+      Music.route4();
+    } else {
+      Music.overworld();
+    }
   }
 
   onExit() {
@@ -152,6 +161,7 @@ export class OverworldScene implements Scene {
         if (this.tryInteract()) return;
       }
 
+      this.player.setRunning(this.input.isRunning());
       const dir = this.input.getDirection();
       if (dir) {
         this.player.tryMove(dir, (gx, gy) => {
@@ -248,6 +258,10 @@ export class OverworldScene implements Scene {
           this.startDialogue(['PALLET TOWN', 'A quiet place to start your journey.']);
         } else if (zone === 'route1') {
           this.startDialogue(['ROUTE 1', 'Wild POKéMON ahead! Be prepared!']);
+        } else if (zone === 'route3') {
+          this.startDialogue(['ROUTE 3', 'The path to CERULEAN GYM.']);
+        } else if (zone === 'route4') {
+          this.startDialogue(['ROUTE 4', 'Electric currents fill the air!']);
         } else {
           this.startDialogue(['ROUTE 2', 'Stronger POKéMON live here.']);
         }
@@ -274,8 +288,14 @@ export class OverworldScene implements Scene {
       if (tile === Tile.GymDoor) {
         SFX.menuConfirm();
         // Determine which gym based on position
-        const isMistyGym = fy >= 20;
-        if (isMistyGym) {
+        if (fx >= 38) {
+          // Lt. Surge's Gym
+          if (this.gameState.hasBadge('THUNDER BADGE')) {
+            this.startDialogue(['VERMILION GYM', 'LEADER: LT. SURGE', 'You already have the THUNDER BADGE!']);
+          } else {
+            this.startDialogue(['VERMILION GYM', 'LEADER: LT. SURGE', 'Specializes in Electric-type POKéMON.']);
+          }
+        } else if (fy >= 20) {
           if (this.gameState.hasBadge('CASCADE BADGE')) {
             this.startDialogue(['CERULEAN GYM', 'LEADER: MISTY', 'You already have the CASCADE BADGE!']);
           } else {
@@ -395,7 +415,7 @@ export class OverworldScene implements Scene {
       SFX.menuConfirm();
       switch (this.menuCursor) {
         case 0: this.menuSubPhase = 'pokemon'; this.menuPokemonCursor = 0; break;
-        case 1: this.menuSubPhase = 'bag'; break;
+        case 1: this.menuSubPhase = 'bag'; this.bagCursor = 0; break;
         case 2: this.menuSubPhase = 'pokedex'; break;
         case 3: this.menuSubPhase = 'save'; break;
         case 4: this.phase = 'explore'; break;
@@ -416,10 +436,84 @@ export class OverworldScene implements Scene {
   }
 
   private updateMenuBag() {
-    if (this.input.getCancelPressed() || this.input.getActionPressed()) {
+    const items = this.getBagItems();
+    const totalItems = items.length + 1; // +1 for BACK
+
+    const dir = this.input.getDirectionPressed();
+    if (dir === 'up' && this.bagCursor > 0) { this.bagCursor--; SFX.menuSelect(); }
+    if (dir === 'down' && this.bagCursor < totalItems - 1) { this.bagCursor++; SFX.menuSelect(); }
+
+    if (this.input.getCancelPressed()) {
       SFX.menuCancel();
       this.menuSubPhase = 'main';
+      this.bagCursor = 0;
+      return;
     }
+
+    if (this.input.getActionPressed()) {
+      if (this.bagCursor >= items.length) {
+        SFX.menuCancel();
+        this.menuSubPhase = 'main';
+        this.bagCursor = 0;
+        return;
+      }
+
+      const item = items[this.bagCursor];
+      if (item.key === 'repel') {
+        if (this.gameState.useItem('repel')) {
+          this.gameState.useRepel();
+          SFX.menuConfirm();
+          this.phase = 'explore';
+          this.startDialogue(['Used REPEL!', 'Wild POKéMON will be repelled for a while!']);
+        }
+      } else if (item.key === 'potion' || item.key === 'superPotion') {
+        // Use healing item on lead Pokemon
+        const lead = this.gameState.leadPokemon;
+        if (lead && lead.hp < lead.maxHp) {
+          if (this.gameState.useItem(item.key)) {
+            const healAmount = item.key === 'potion' ? 20 : 50;
+            const before = lead.hp;
+            lead.hp = Math.min(lead.maxHp, lead.hp + healAmount);
+            const healed = lead.hp - before;
+            SFX.heal();
+            this.phase = 'explore';
+            this.startDialogue([`Used ${item.name}!`, `${lead.name} recovered ${healed} HP!`]);
+          }
+        } else {
+          SFX.bump();
+        }
+      } else if (item.key === 'antidote' || item.key === 'fullHeal') {
+        const lead = this.gameState.leadPokemon;
+        if (lead && lead.status) {
+          if (item.key === 'antidote' && lead.status !== 'poison') {
+            SFX.bump();
+          } else if (this.gameState.useItem(item.key)) {
+            lead.status = null;
+            lead.sleepTurns = 0;
+            SFX.heal();
+            this.phase = 'explore';
+            this.startDialogue([`Used ${item.name}!`, `${lead.name} was cured!`]);
+          }
+        } else {
+          SFX.bump();
+        }
+      } else {
+        SFX.bump();
+      }
+    }
+  }
+
+  private getBagItems(): Array<{ key: keyof Inventory; name: string; count: number }> {
+    const all: Array<{ key: keyof Inventory; name: string; count: number }> = [
+      { key: 'pokeball', name: 'POKé BALL', count: this.gameState.inventory.pokeball },
+      { key: 'greatBall', name: 'GREAT BALL', count: this.gameState.inventory.greatBall },
+      { key: 'potion', name: 'POTION', count: this.gameState.inventory.potion },
+      { key: 'superPotion', name: 'SUPER POTION', count: this.gameState.inventory.superPotion },
+      { key: 'antidote', name: 'ANTIDOTE', count: this.gameState.inventory.antidote },
+      { key: 'fullHeal', name: 'FULL HEAL', count: this.gameState.inventory.fullHeal },
+      { key: 'repel', name: 'REPEL', count: this.gameState.inventory.repel },
+    ];
+    return all.filter(i => i.count > 0);
   }
 
   private updateMenuPokedex() {
@@ -484,7 +578,18 @@ export class OverworldScene implements Scene {
 
   private checkEncounter() {
     const tile = MAP_DATA[this.player.gy * MAP_WIDTH + this.player.gx];
-    if (tile === Tile.TallGrass && Math.random() < ENCOUNTER_RATE) {
+    if (tile === Tile.TallGrass) {
+      // Check repel
+      if (this.gameState.repelSteps > 0) {
+        const wasActive = this.gameState.tickRepel();
+        if (!wasActive) {
+          // Repel just wore off
+          this.startDialogue(['REPEL wore off!']);
+        }
+        return;
+      }
+      if (Math.random() >= ENCOUNTER_RATE) return;
+
       this.frozen = true;
       if (this.gameState) {
         this.gameState.playerPosition = { x: this.player.gx, y: this.player.gy };
@@ -579,7 +684,7 @@ export class OverworldScene implements Scene {
 
     // Zone indicator
     const zone = getRouteZone(this.player.gx, this.player.gy);
-    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3' };
+    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3', route4: 'ROUTE 4' };
     const zoneName = zoneNames[zone] ?? zone.toUpperCase();
 
     ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';
@@ -923,7 +1028,7 @@ export class OverworldScene implements Scene {
     ctx.fillStyle = '#283848';
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-    const bx = 40, by = 30, bw = VIEW_W - 80, bh = 160;
+    const bx = 40, by = 30, bw = VIEW_W - 80, bh = 170;
     ctx.fillStyle = '#f8f8f0';
     ctx.fillRect(bx, by, bw, bh);
     ctx.strokeStyle = COLORS.dark;
@@ -937,33 +1042,38 @@ export class OverworldScene implements Scene {
     ctx.fillText('BAG', bx + bw / 2, by + 8);
     ctx.textAlign = 'left';
 
-    const items: Array<{ name: string; count: number; desc: string }> = [
-      { name: 'POKé BALL', count: this.gameState.inventory.pokeball, desc: 'Catches wild POKéMON.' },
-      { name: 'GREAT BALL', count: this.gameState.inventory.greatBall, desc: 'Better catch rate (1.5x).' },
-      { name: 'POTION', count: this.gameState.inventory.potion, desc: 'Restores 20 HP.' },
-      { name: 'SUPER POTION', count: this.gameState.inventory.superPotion, desc: 'Restores 50 HP.' },
-      { name: 'ANTIDOTE', count: this.gameState.inventory.antidote, desc: 'Cures poison.' },
-      { name: 'FULL HEAL', count: this.gameState.inventory.fullHeal, desc: 'Cures all status.' },
-    ];
+    const items = this.getBagItems();
 
     for (let i = 0; i < items.length; i++) {
-      const y = by + 30 + i * 20;
+      const y = by + 28 + i * 18;
+      if (i === this.bagCursor) {
+        ctx.fillStyle = COLORS.dark;
+        ctx.fillText('\u25b6', bx + 8, y);
+      }
       ctx.fillStyle = COLORS.dark;
       ctx.font = FONT;
-      ctx.fillText(items[i].name, bx + 14, y);
+      ctx.fillText(items[i].name, bx + 22, y);
       ctx.font = FONT_SM;
       ctx.textAlign = 'right';
       ctx.fillText(`x${items[i].count}`, bx + bw - 14, y + 1);
       ctx.textAlign = 'left';
-      ctx.fillStyle = COLORS.mid;
-      ctx.font = 'bold 7px monospace';
-      ctx.fillText(items[i].desc, bx + 14, y + 12);
     }
+
+    // BACK option
+    const backY = by + 28 + items.length * 18;
+    if (this.bagCursor === items.length) {
+      ctx.fillStyle = COLORS.dark;
+      ctx.font = FONT;
+      ctx.fillText('\u25b6', bx + 8, backY);
+    }
+    ctx.fillStyle = COLORS.dark;
+    ctx.font = FONT;
+    ctx.fillText('BACK', bx + 22, backY);
 
     ctx.fillStyle = '#88c070';
     ctx.font = 'bold 7px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Press any key to go back', bx + bw / 2, by + bh - 14);
+    ctx.fillText('Z: Use  X: Back', bx + bw / 2, by + bh - 14);
     ctx.textAlign = 'left';
   }
 

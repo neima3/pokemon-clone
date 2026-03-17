@@ -64,6 +64,9 @@ export class BattleScene implements Scene {
   // Flash overlay
   private flashAlpha = 0;
 
+  // Screen shake
+  private screenShake = 0;
+
   // Catch animation state
   private catchTimer = 0;
   private catchShakes = 0;
@@ -155,6 +158,12 @@ export class BattleScene implements Scene {
       }
     } else {
       this.playerDisplayExp = targetExp;
+    }
+
+    // Decay screen shake
+    if (this.screenShake > 0) {
+      this.screenShake *= 0.85;
+      if (this.screenShake < 0.5) this.screenShake = 0;
     }
 
     switch (this.phase) {
@@ -796,6 +805,7 @@ export class BattleScene implements Scene {
   private playAttackAnim(isPlayer: boolean, moveType: PokemonType, critical: boolean, callback: () => void) {
     this.phase = 'animating';
     this.anim = { active: true, isPlayer, timer: 0, done: callback, moveType, critical };
+    this.screenShake = critical ? 8 : 4;
   }
 
   private handleFaint(fainted: Pokemon) {
@@ -911,6 +921,7 @@ export class BattleScene implements Scene {
     this.playerDisplayExp = this.playerMon.expPercent;
 
     if (events.length === 0) {
+      Music.victory();
       this.queueMessages(['You won!'], () => {
         this.checkTeamEvolution();
       });
@@ -932,6 +943,7 @@ export class BattleScene implements Scene {
 
     this.playerDisplayHp = this.playerMon.hp;
 
+    Music.victory();
     this.queueMessages(msgs, () => {
       this.checkTeamEvolution();
     });
@@ -950,6 +962,14 @@ export class BattleScene implements Scene {
     if (this.phase === 'evolving' && this.evolvingMon) {
       this.renderEvolution(ctx);
       return;
+    }
+
+    // Apply screen shake
+    if (this.screenShake > 0) {
+      const shakeX = (Math.random() - 0.5) * this.screenShake * 2;
+      const shakeY = (Math.random() - 0.5) * this.screenShake * 2;
+      ctx.save();
+      ctx.translate(shakeX, shakeY);
     }
 
     BattleUI.drawBackground(ctx);
@@ -1052,6 +1072,11 @@ export class BattleScene implements Scene {
     if (this.flashAlpha > 0) {
       ctx.fillStyle = `rgba(255,255,255,${this.flashAlpha})`;
       ctx.fillRect(0, 0, 320, 240);
+    }
+
+    // Restore screen shake transform
+    if (this.screenShake > 0) {
+      ctx.restore();
     }
   }
 

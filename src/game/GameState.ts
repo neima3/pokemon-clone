@@ -10,6 +10,7 @@ export interface Inventory {
   superPotion: number;
   antidote: number;
   fullHeal: number;
+  repel: number;
 }
 
 interface SaveData {
@@ -22,18 +23,20 @@ interface SaveData {
   badges: string[];
   pokedexSeen: string[];
   pokedexCaught: string[];
+  repelSteps?: number;
 }
 
 export class GameState {
   team: Pokemon[] = [];
   pcBox: Pokemon[] = [];
-  inventory: Inventory = { pokeball: 5, greatBall: 0, potion: 3, superPotion: 0, antidote: 0, fullHeal: 0 };
+  inventory: Inventory = { pokeball: 5, greatBall: 0, potion: 3, superPotion: 0, antidote: 0, fullHeal: 0, repel: 0 };
   playerPosition = { x: 15, y: 13 };
   money = 1000;
   defeatedTrainers: Set<string> = new Set();
   badges: Set<string> = new Set();
   pokedexSeen: Set<string> = new Set();
   pokedexCaught: Set<string> = new Set();
+  repelSteps = 0;
 
   get hasStarter() {
     return this.team.length > 0;
@@ -111,6 +114,21 @@ export class GameState {
     return this.badges.has(badgeName);
   }
 
+  /** Use a repel (100 steps of no wild encounters) */
+  useRepel() {
+    this.repelSteps = 100;
+  }
+
+  /** Tick repel counter. Returns true if repel is active */
+  tickRepel(): boolean {
+    if (this.repelSteps > 0) {
+      this.repelSteps--;
+      if (this.repelSteps === 0) return false; // just expired
+      return true; // still active
+    }
+    return false;
+  }
+
   /** Heal all team Pokemon */
   healTeam() {
     for (const p of this.team) p.heal();
@@ -128,6 +146,7 @@ export class GameState {
       badges: [...this.badges],
       pokedexSeen: [...this.pokedexSeen],
       pokedexCaught: [...this.pokedexCaught],
+      repelSteps: this.repelSteps,
     };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -152,11 +171,13 @@ export class GameState {
         superPotion: data.inventory.superPotion ?? 0,
         antidote: data.inventory.antidote ?? 0,
         fullHeal: data.inventory.fullHeal ?? 0,
+        repel: data.inventory.repel ?? 0,
       };
       this.playerPosition = data.playerPosition ?? { x: 15, y: 13 };
       this.money = data.money ?? 1000;
       this.defeatedTrainers = new Set(data.defeatedTrainers ?? []);
       this.badges = new Set(data.badges ?? []);
+      this.repelSteps = data.repelSteps ?? 0;
       this.pokedexSeen = new Set(data.pokedexSeen ?? []);
       this.pokedexCaught = new Set(data.pokedexCaught ?? []);
       return this.team.length > 0;

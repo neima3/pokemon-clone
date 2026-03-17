@@ -2,7 +2,8 @@ import { Direction } from '@/engine/Input';
 import { COLORS } from './tiles';
 
 const TILE = 16;
-const SPEED = 4; // tiles per second
+const BASE_SPEED = 4; // tiles per second
+const RUN_SPEED = 8;  // tiles per second when running
 
 export class Player {
   /** Grid position */
@@ -14,6 +15,7 @@ export class Player {
   facing: Direction = 'down';
 
   private moving = false;
+  private speed = BASE_SPEED;
   private targetPx = 0;
   private targetPy = 0;
   private moveProgress = 0;
@@ -68,10 +70,14 @@ export class Player {
     return true;
   }
 
+  setRunning(running: boolean) {
+    this.speed = running ? RUN_SPEED : BASE_SPEED;
+  }
+
   update(dt: number) {
     if (!this.moving) return;
 
-    this.moveProgress += dt * SPEED;
+    this.moveProgress += dt * this.speed;
     if (this.moveProgress >= 1) {
       this.moveProgress = 1;
       this.moving = false;

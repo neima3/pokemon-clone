@@ -116,6 +116,24 @@ export const MOVES: Record<string, MoveData> = {
   teleport:     { name: 'TELEPORT',     type: 'psychic',   power: 0,   accuracy: 100, maxPp: 20, category: 'status' },
   swiftStar:    { name: 'SWIFT STAR',   type: 'water',     power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
   powerGem:     { name: 'POWER GEM',    type: 'rock',      power: 80,  accuracy: 100, maxPp: 20, category: 'physical' },
+  // New moves — Sprint 007
+  fireBlast:    { name: 'FIRE BLAST',  type: 'fire',     power: 110, accuracy: 85,  maxPp: 5,  category: 'physical', statusEffect: 'burn', statusChance: 10 },
+  hydroPump:    { name: 'HYDRO PUMP',  type: 'water',    power: 110, accuracy: 80,  maxPp: 5,  category: 'physical' },
+  solarBeam:    { name: 'SOLAR BEAM',  type: 'grass',    power: 120, accuracy: 100, maxPp: 10, category: 'physical' },
+  earthquake:   { name: 'EARTHQUAKE',  type: 'ground',   power: 100, accuracy: 100, maxPp: 10, category: 'physical' },
+  thunderPunch: { name: 'THNDR PUNCH', type: 'electric', power: 75,  accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'paralyze', statusChance: 10 },
+  sonicBoom:    { name: 'SONIC BOOM',  type: 'normal',   power: 40,  accuracy: 90,  maxPp: 20, category: 'physical' },
+  selfDestruct: { name: 'SELFDSTRCT',  type: 'normal',   power: 200, accuracy: 100, maxPp: 5,  category: 'physical' },
+  dig:          { name: 'DIG',         type: 'ground',   power: 80,  accuracy: 100, maxPp: 10, category: 'physical' },
+  sing:         { name: 'SING',        type: 'normal',   power: 0,   accuracy: 55,  maxPp: 15, category: 'status', effect: 'sleep' },
+  doubleSlap:   { name: 'DOUBLESLAP',  type: 'normal',   power: 45,  accuracy: 85,  maxPp: 10, category: 'physical' },
+  pound:        { name: 'POUND',       type: 'normal',   power: 40,  accuracy: 100, maxPp: 35, category: 'physical' },
+  disable:      { name: 'DISABLE',     type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'lower_speed' },
+  hypnosis:     { name: 'HYPNOSIS',    type: 'psychic',  power: 0,   accuracy: 60,  maxPp: 20, category: 'status', effect: 'sleep' },
+  headbutt2:    { name: 'HEADBUTT',    type: 'normal',   power: 70,  accuracy: 100, maxPp: 15, category: 'physical' },
+  submission:   { name: 'SUBMISSION',  type: 'normal',   power: 80,  accuracy: 80,  maxPp: 20, category: 'physical' },
+  dragonRage:   { name: 'DRAGON RAGE', type: 'normal',   power: 60,  accuracy: 100, maxPp: 10, category: 'physical' },
+  wingAttack2:  { name: 'WING ATK',    type: 'flying',   power: 60,  accuracy: 100, maxPp: 35, category: 'physical' },
 };
 
 // ── Species ──
@@ -161,6 +179,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'vineWhip', 'razorLeaf', 'poisonSting'],
     baseExpYield: 142, catchRate: 45,
     levelUpMoves: [{ level: 18, moveKey: 'seedBomb' }],
+    evolution: { level: 32, into: 'venusaur' },
   },
   charmander: {
     id: 4, name: 'CHARMANDER', types: ['fire'],
@@ -176,6 +195,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['scratch', 'ember', 'fireFang', 'bite'],
     baseExpYield: 142, catchRate: 45,
     levelUpMoves: [{ level: 19, moveKey: 'flamethrower' }],
+    evolution: { level: 36, into: 'charizard' },
   },
   squirtle: {
     id: 7, name: 'SQUIRTLE', types: ['water'],
@@ -191,6 +211,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'waterGun', 'bubbleBeam', 'bite'],
     baseExpYield: 143, catchRate: 45,
     levelUpMoves: [{ level: 18, moveKey: 'waterPulse' }],
+    evolution: { level: 36, into: 'blastoise' },
   },
 
   // ── Wild Pokemon ──
@@ -398,10 +419,95 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 182, catchRate: 60,
     levelUpMoves: [{ level: 28, moveKey: 'surf' }, { level: 33, moveKey: 'powerGem' }],
   },
+
+  // ── Sprint 007 Pokemon ──
+
+  // Complete starter evolutions
+  venusaur: {
+    id: 3, name: 'VENUSAUR', types: ['grass', 'poison'],
+    baseHp: 80, baseAtk: 82, baseDef: 83, baseSpd: 80,
+    learnedMoves: ['vineWhip', 'razorLeaf', 'seedBomb', 'solarBeam'],
+    baseExpYield: 236, catchRate: 45,
+    levelUpMoves: [{ level: 32, moveKey: 'solarBeam' }],
+  },
+  charizard: {
+    id: 6, name: 'CHARIZARD', types: ['fire', 'flying'],
+    baseHp: 78, baseAtk: 84, baseDef: 78, baseSpd: 100,
+    learnedMoves: ['fireFang', 'flamethrower', 'wingAttack', 'dragonRage'],
+    baseExpYield: 240, catchRate: 45,
+    levelUpMoves: [{ level: 36, moveKey: 'fireBlast' }],
+  },
+  blastoise: {
+    id: 9, name: 'BLASTOISE', types: ['water'],
+    baseHp: 79, baseAtk: 83, baseDef: 100, baseSpd: 78,
+    learnedMoves: ['waterGun', 'bubbleBeam', 'waterPulse', 'surf'],
+    baseExpYield: 239, catchRate: 45,
+    levelUpMoves: [{ level: 36, moveKey: 'hydroPump' }],
+  },
+
+  // New Pokemon for Route 4
+  magnemite: {
+    id: 81, name: 'MAGNEMITE', types: ['electric'],
+    baseHp: 25, baseAtk: 35, baseDef: 70, baseSpd: 45,
+    learnedMoves: ['tackle', 'thunderShock'],
+    baseExpYield: 65, catchRate: 190,
+    levelUpMoves: [{ level: 6, moveKey: 'thunderShock' }, { level: 11, moveKey: 'sonicBoom' }, { level: 16, moveKey: 'spark' }, { level: 21, moveKey: 'thunderbolt' }],
+  },
+  voltorb: {
+    id: 100, name: 'VOLTORB', types: ['electric'],
+    baseHp: 40, baseAtk: 30, baseDef: 50, baseSpd: 100,
+    learnedMoves: ['tackle', 'thunderShock', 'screech'],
+    baseExpYield: 66, catchRate: 190,
+    levelUpMoves: [{ level: 8, moveKey: 'sonicBoom' }, { level: 12, moveKey: 'spark' }, { level: 22, moveKey: 'selfDestruct' }],
+  },
+  diglett: {
+    id: 50, name: 'DIGLETT', types: ['ground'],
+    baseHp: 10, baseAtk: 55, baseDef: 25, baseSpd: 95,
+    learnedMoves: ['scratch', 'mudSlap'],
+    baseExpYield: 53, catchRate: 255,
+    levelUpMoves: [{ level: 5, moveKey: 'mudSlap' }, { level: 9, moveKey: 'dig' }, { level: 15, moveKey: 'rockSlide' }, { level: 22, moveKey: 'earthquake' }],
+    evolution: { level: 26, into: 'dugtrio' },
+  },
+  dugtrio: {
+    id: 51, name: 'DUGTRIO', types: ['ground'],
+    baseHp: 35, baseAtk: 100, baseDef: 50, baseSpd: 120,
+    learnedMoves: ['scratch', 'mudSlap', 'dig', 'earthquake'],
+    baseExpYield: 149, catchRate: 50,
+    levelUpMoves: [{ level: 28, moveKey: 'rockSlide' }],
+  },
+  jigglypuff: {
+    id: 39, name: 'JIGGLYPUFF', types: ['normal'],
+    baseHp: 115, baseAtk: 45, baseDef: 20, baseSpd: 20,
+    learnedMoves: ['pound', 'sing'],
+    baseExpYield: 95, catchRate: 170,
+    levelUpMoves: [{ level: 5, moveKey: 'pound' }, { level: 9, moveKey: 'sing' }, { level: 14, moveKey: 'doubleSlap' }, { level: 19, moveKey: 'bodySlam' }],
+  },
+  drowzee: {
+    id: 96, name: 'DROWZEE', types: ['psychic'],
+    baseHp: 60, baseAtk: 48, baseDef: 45, baseSpd: 42,
+    learnedMoves: ['pound', 'hypnosis'],
+    baseExpYield: 66, catchRate: 190,
+    levelUpMoves: [{ level: 5, moveKey: 'hypnosis' }, { level: 9, moveKey: 'confusion' }, { level: 17, moveKey: 'headbutt' }, { level: 21, moveKey: 'psybeam' }, { level: 29, moveKey: 'psychic' }],
+  },
+  machop: {
+    id: 66, name: 'MACHOP', types: ['normal'],
+    baseHp: 70, baseAtk: 80, baseDef: 50, baseSpd: 35,
+    learnedMoves: ['karatechop', 'leer'],
+    baseExpYield: 61, catchRate: 180,
+    levelUpMoves: [{ level: 7, moveKey: 'lowKick' }, { level: 13, moveKey: 'focusEnergy' }, { level: 19, moveKey: 'karatechop' }, { level: 25, moveKey: 'submission' }, { level: 32, moveKey: 'megaPunch' }],
+    evolution: { level: 28, into: 'machoke' },
+  },
+  machoke: {
+    id: 67, name: 'MACHOKE', types: ['normal'],
+    baseHp: 80, baseAtk: 100, baseDef: 70, baseSpd: 45,
+    learnedMoves: ['karatechop', 'lowKick', 'submission', 'megaPunch'],
+    baseExpYield: 142, catchRate: 90,
+    levelUpMoves: [{ level: 34, moveKey: 'bodySlam' }],
+  },
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
@@ -436,6 +542,16 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
     { species: 'staryu', minLevel: 8, maxLevel: 11, weight: 10 },
     { species: 'zubat', minLevel: 8, maxLevel: 11, weight: 5 },
   ],
+  route4: [
+    { species: 'magnemite', minLevel: 11, maxLevel: 15, weight: 20 },
+    { species: 'voltorb', minLevel: 11, maxLevel: 14, weight: 15 },
+    { species: 'diglett', minLevel: 11, maxLevel: 14, weight: 15 },
+    { species: 'machop', minLevel: 11, maxLevel: 14, weight: 15 },
+    { species: 'drowzee', minLevel: 11, maxLevel: 14, weight: 10 },
+    { species: 'jigglypuff', minLevel: 10, maxLevel: 13, weight: 10 },
+    { species: 'pidgey', minLevel: 11, maxLevel: 14, weight: 10 },
+    { species: 'geodude', minLevel: 12, maxLevel: 15, weight: 5 },
+  ],
 };
 
 /** Pick a random encounter from a route table */
@@ -456,7 +572,7 @@ export function rollEncounter(route: string): { species: string; level: number }
 
 // ── Items ──
 
-export type ItemType = 'pokeball' | 'medicine';
+export type ItemType = 'pokeball' | 'medicine' | 'repel';
 
 export type StatusItemEffect = 'cure_poison' | 'cure_all';
 
@@ -477,6 +593,7 @@ export const ITEMS: Record<string, ItemData> = {
   superPotion: { name: 'SUPER POTION', type: 'medicine', description: 'Restores 50 HP.', healAmount: 50, price: 700 },
   antidote:    { name: 'ANTIDOTE',     type: 'medicine', description: 'Cures poison.', statusCure: 'cure_poison', price: 100 },
   fullHeal:    { name: 'FULL HEAL',    type: 'medicine', description: 'Cures any status.', statusCure: 'cure_all', price: 600 },
+  repel:       { name: 'REPEL',       type: 'repel',    description: 'Prevents encounters (100 steps).', price: 350 },
 };
 
 // ── Type colors (for UI) ──
@@ -519,7 +636,7 @@ export interface TrainerData {
   team: Array<{ species: string; level: number }>;
   reward: number; // money
   defeatMessage: string;
-  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2';
+  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3';
   isGymLeader?: boolean;
   badgeName?: string;
 }
@@ -586,5 +703,30 @@ export const TRAINERS: Record<string, TrainerData> = {
     sprite: 'gymLeader2',
     isGymLeader: true,
     badgeName: 'CASCADE BADGE',
+  },
+  // Route 4 trainers
+  engineer_tom: {
+    name: 'ENGINEER TOM',
+    team: [{ species: 'magnemite', level: 14 }, { species: 'voltorb', level: 14 }],
+    reward: 450,
+    defeatMessage: "Shocking result!",
+    sprite: 'hiker',
+  },
+  lass_jenny: {
+    name: 'LASS JENNY',
+    team: [{ species: 'jigglypuff', level: 13 }, { species: 'oddish', level: 14 }],
+    reward: 320,
+    defeatMessage: "My cute POK\u00e9MON lost!",
+    sprite: 'lass',
+  },
+  // Third gym leader
+  gym_surge: {
+    name: 'LT. SURGE',
+    team: [{ species: 'voltorb', level: 21 }, { species: 'magnemite', level: 22 }, { species: 'pikachu', level: 24 }],
+    reward: 3000,
+    defeatMessage: "Now that's a real shock! The THUNDER BADGE is yours!",
+    sprite: 'gymLeader3',
+    isGymLeader: true,
+    badgeName: 'THUNDER BADGE',
   },
 };

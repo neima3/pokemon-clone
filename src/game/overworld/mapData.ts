@@ -1,8 +1,8 @@
 import { Tile } from './tiles';
 import { NPCData } from './NPC';
 
-/** 40×30 overworld map — expanded with a town, two routes, and buildings */
-export const MAP_WIDTH = 40;
+/** 50×30 overworld map — expanded with a town, routes, and buildings */
+export const MAP_WIDTH = 50;
 export const MAP_HEIGHT = 30;
 
 const T = Tile.Tree;
@@ -24,43 +24,45 @@ const y = Tile.GymDoor;
 
 // prettier-ignore
 export const MAP_DATA: Tile[] = [
-// 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 0
-  T, G, G, G, G, G, T, T, g, g, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 1
-  T, G, G, g, g, G, G, T, g, g, g, G, G, G, G, F, G, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 2
-  T, G, g, g, g, g, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, G, G, G, G, T,  // 3
-  T, G, G, g, g, G, G, G, G, G, G, G, G, G, P, P, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, T,  // 4
-  T, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 5
-  T, G, G, G, G, G, G, G, G, G, E, E, E, E, P, G, G, P, E, E, E, E, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 6
-  T, G, F, G, G, G, G, G, G, G, E, R, R, R, P, G, G, M, M, M, E, G, G, G, W, W, W, G, G, E, Y, Y, Y, E, G, G, G, G, G, T,  // 7
-  T, G, G, G, G, G, G, G, G, G, E, B, D, B, P, G, G, B, m, B, E, G, G, W, W, W, W, W, G, E, B, y, B, E, G, G, G, G, G, T,  // 8
-  T, T, T, G, G, G, G, G, G, G, E, E, P, E, P, G, G, E, P, E, E, G, G, G, W, W, W, G, G, E, E, P, E, E, G, G, G, G, G, T,  // 9
-  T, G, G, G, G, G, G, G, G, G, G, G, P, P, P, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 10
-  T, G, G, G, P, P, P, P, P, P, P, P, P, G, G, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T,  // 11
-  T, G, G, G, P, G, G, G, G, G, G, G, S, G, G, F, G, G, S, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 12
-  T, G, G, G, P, G, G, G, G, G, G, G, G, G, F, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 13
-  T, G, F, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, F, G, T,  // 14
-  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 15
-  T, T, T, T, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, T, T, T, T,  // 16
-  T, G, G, G, P, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, P, G, G, G, T,  // 17
-  T, G, G, G, P, g, g, g, g, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, g, g, g, g, G, G, G, G, P, G, G, G, T,  // 18
-  T, G, G, G, P, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, F, G, G, P, G, G, G, T,  // 19
-  T, G, F, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 20
-  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, G, G, G, G, G, G, P, G, G, G, T,  // 21
-  T, G, G, G, P, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, G, G, G, G, G, G, P, G, G, G, T,  // 22
-  T, G, G, G, P, G, G, G, G, g, g, g, G, G, G, G, G, G, G, G, G, G, G, E, E, P, E, E, G, G, G, g, g, G, G, P, G, G, G, T,  // 23
-  T, G, G, G, P, G, G, G, G, G, g, g, G, G, G, G, F, G, G, G, G, G, G, G, G, P, G, G, G, G, g, g, g, g, G, P, G, G, G, T,  // 24
-  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, G, G, G, G, P, P, P, P, P, P, g, g, G, G, P, G, G, G, T,  // 25
-  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 26
-  T, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T,  // 27
-  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 28
-  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 29
+// 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 0
+  T, G, G, G, G, G, T, T, g, g, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, T,  // 1
+  T, G, G, g, g, G, G, T, g, g, g, G, G, G, G, F, G, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, g, g, G, G, G, T,  // 2
+  T, G, g, g, g, g, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, G, G, G, G, T, T, G, G, g, g, g, G, G, G, T,  // 3
+  T, G, G, g, g, G, G, G, G, G, G, G, G, G, P, P, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, T, T, G, G, g, g, G, G, G, G, T,  // 4
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, F, G, T,  // 5
+  T, G, G, G, G, G, G, G, G, G, E, E, E, E, P, G, G, P, E, E, E, E, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, T,  // 6
+  T, G, F, G, G, G, G, G, G, G, E, R, R, R, P, G, G, M, M, M, E, G, G, G, W, W, W, G, G, E, Y, Y, Y, E, G, G, G, G, G, T, T, G, E, Y, Y, Y, E, G, G, T,  // 7
+  T, G, G, G, G, G, G, G, G, G, E, B, D, B, P, G, G, B, m, B, E, G, G, W, W, W, W, W, G, E, B, y, B, E, G, G, G, G, G, T, T, G, E, B, y, B, E, G, G, T,  // 8
+  T, T, T, G, G, G, G, G, G, G, E, E, P, E, P, G, G, E, P, E, E, G, G, G, W, W, W, G, G, E, E, P, E, E, G, G, G, G, G, T, T, G, E, E, P, E, E, G, G, T,  // 9
+  T, G, G, G, G, G, G, G, G, G, G, G, P, P, P, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, P, G, G, G, G, T,  // 10
+  T, G, G, G, P, P, P, P, P, P, P, P, P, G, G, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T,  // 11
+  T, G, G, G, P, G, G, G, G, G, G, G, S, G, G, F, G, G, S, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 12
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, F, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T, T, G, G, G, G, P, G, F, G, T,  // 13
+  T, G, F, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, F, G, T, T, G, G, F, G, P, G, G, G, T,  // 14
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 15
+  T, T, T, T, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, T, T, T, T, T, G, G, G, G, P, G, G, G, T,  // 16
+  T, G, G, G, P, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, G, G, G, P, G, G, G, T, T, G, g, g, G, P, G, G, G, T,  // 17
+  T, G, G, G, P, g, g, g, g, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, g, g, g, g, G, G, G, G, P, G, G, G, T, T, G, g, g, g, P, G, G, G, T,  // 18
+  T, G, G, G, P, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, F, G, G, P, G, G, G, T, T, G, g, g, G, P, G, G, G, T,  // 19
+  T, G, F, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 20
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, G, G, G, G, G, G, P, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 21
+  T, G, G, G, P, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, G, G, G, G, G, G, P, G, G, G, T, T, G, G, G, g, P, g, G, G, T,  // 22
+  T, G, G, G, P, G, G, G, G, g, g, g, G, G, G, G, G, G, G, G, G, G, G, E, E, P, E, E, G, G, G, g, g, G, G, P, G, G, G, T, T, G, G, g, g, P, g, g, G, T,  // 23
+  T, G, G, G, P, G, G, G, G, G, g, g, G, G, G, G, F, G, G, G, G, G, G, G, G, P, G, G, G, G, g, g, g, g, G, P, G, G, G, T, T, G, G, G, g, P, g, G, G, T,  // 24
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, G, G, G, G, P, P, P, P, P, P, g, g, G, G, P, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 25
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T, T, G, G, G, G, P, G, G, G, T,  // 26
+  T, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T,  // 27
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, T,  // 28
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 29
 ];
 
 /** Get the route zone for a given grid position */
 export function getRouteZone(gx: number, gy: number): string {
   // Town area: roughly rows 4-15, cols 8-22
   if (gy >= 4 && gy <= 15 && gx >= 8 && gx <= 22) return 'town';
+  // Route 4: far east section
+  if (gx >= 38) return 'route4';
   // Route 3: far south-east section (near Misty's gym)
   if (gy >= 20 && gx >= 22) return 'route3';
   // Route 2: bottom section rows 16+
@@ -199,5 +201,43 @@ export const MAP_NPCS: NPCData[] = [
     facing: 'up',
     dialogue: ['This is the POKéMON STORAGE SYSTEM.', 'You can deposit or withdraw POKéMON here.'],
     isTrainer: false,
+  },
+  // Route 4 trainers
+  {
+    id: 'trainer_tom',
+    gx: 43, gy: 15,
+    sprite: 'hiker',
+    facing: 'left',
+    dialogue: ['Electric types are the future!', 'Let me show you!'],
+    isTrainer: true,
+    trainerId: 'engineer_tom',
+  },
+  {
+    id: 'trainer_jenny',
+    gx: 42, gy: 20,
+    sprite: 'lass',
+    facing: 'right',
+    dialogue: ['My POKéMON are so adorable!', 'Battle me!'],
+    isTrainer: true,
+    trainerId: 'lass_jenny',
+  },
+  // Route 4 helper
+  {
+    id: 'route4_helper',
+    gx: 46, gy: 12,
+    sprite: 'youngster',
+    facing: 'down',
+    dialogue: ['LT. SURGE\'s GYM is north of here.', 'His Electric-type POKéMON are intense!', 'Ground types are your best bet!'],
+    isTrainer: false,
+  },
+  // Gym Leader — Lt. Surge
+  {
+    id: 'gym_leader_surge',
+    gx: 44, gy: 8,
+    sprite: 'gymLeader3',
+    facing: 'down',
+    dialogue: ['I\'m LT. SURGE, the Lightning American!', 'My Electric POKéMON will zap you!', 'Let\'s battle, soldier!'],
+    isTrainer: true,
+    trainerId: 'gym_surge',
   },
 ];

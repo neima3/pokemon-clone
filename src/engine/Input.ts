@@ -15,6 +15,7 @@ export class Input {
   private held = new Set<Direction>();
   private queue: Direction[] = [];
   private pressed = new Set<string>();
+  private shiftHeld = false;
 
   constructor() {
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -32,6 +33,7 @@ export class Input {
   }
 
   private onKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Shift') this.shiftHeld = true;
     const dir = KEY_MAP[e.key];
     if (dir) {
       e.preventDefault();
@@ -50,6 +52,7 @@ export class Input {
   }
 
   private onKeyUp(e: KeyboardEvent) {
+    if (e.key === 'Shift') this.shiftHeld = false;
     const dir = KEY_MAP[e.key];
     if (dir) {
       this.held.delete(dir);
@@ -111,6 +114,11 @@ export class Input {
       }
     }
     return false;
+  }
+
+  /** Returns true if Shift is held (running shoes) */
+  isRunning(): boolean {
+    return this.shiftHeld;
   }
 
   /** Clear all buffered input. Call when switching scenes. */

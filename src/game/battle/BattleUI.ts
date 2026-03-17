@@ -500,6 +500,14 @@ export const BattleUI = {
     }
   },
 
+  /** Draw screen-wide impact flash for powerful moves */
+  drawImpactFlash(ctx: CanvasRenderingContext2D, timer: number) {
+    if (timer < 0.1 || timer > 0.25) return;
+    const alpha = 0.6 * (1 - (timer - 0.1) / 0.15);
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctx.fillRect(0, 0, 320, 240);
+  },
+
   /** Draw critical hit star burst effect */
   drawCriticalEffect(ctx: CanvasRenderingContext2D, timer: number, isPlayerAttacking: boolean) {
     if (timer < 0.2 || timer > 0.4) return;

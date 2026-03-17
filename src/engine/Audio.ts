@@ -204,6 +204,17 @@ export const SFX = {
     playTone(NOTE.B4, 0.06, 'square', sfxGain!, 0.12);
     playTone(NOTE.C5, 0.1, 'square', sfxGain!, 0.18);
   },
+
+  victory() {
+    // Classic Pokemon victory fanfare
+    const notes = [NOTE.C5, NOTE.C5, NOTE.C5, NOTE.C5, NOTE.A4, NOTE.B4, NOTE.C5, NOTE.B4, NOTE.C5];
+    const durs = [0.12, 0.12, 0.12, 0.2, 0.12, 0.12, 0.2, 0.1, 0.3];
+    let time = 0;
+    notes.forEach((n, i) => {
+      playTone(n, durs[i], 'square', sfxGain!, time);
+      time += durs[i];
+    });
+  },
 };
 
 // ── Music ──
@@ -324,6 +335,30 @@ function buildGymBattleBass(): MusicPattern {
   };
 }
 
+function buildRoute4Pattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 5,
+    notes: [
+      // Energetic, electric-themed
+      { freq: n.E4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.A4, dur: 0.5 },
+      { freq: n.G4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.D4, dur: 0.5 },
+      // Second phrase
+      { freq: n.C4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.B4, dur: 0.25 }, { freq: n.C5, dur: 0.5 },
+      { freq: n.B4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      // Resolve
+      { freq: n.G4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.C4, dur: 0.5 }, { freq: n.D4, dur: 0.25 },
+      { freq: n.E4, dur: 0.25 }, { freq: n.G4, dur: 0.5 },
+      { freq: n.E4, dur: 0.5 },
+    ],
+  };
+}
+
 function playMusicLoop(patterns: Array<{ pattern: MusicPattern; type: WaveType; gainVal: number }>): { stop: () => void } {
   const c = getCtx();
   let running = true;
@@ -398,6 +433,18 @@ export const Music = {
     currentMusic = playMusicLoop([
       { pattern: buildOverworldPattern(), type: 'square', gainVal: 0.1 },
     ]);
+  },
+
+  route4() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildRoute4Pattern(), type: 'square', gainVal: 0.12 },
+    ]);
+  },
+
+  victory() {
+    Music.stop();
+    SFX.victory();
   },
 
   stop() {
