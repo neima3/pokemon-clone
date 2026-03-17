@@ -134,6 +134,18 @@ export class Input {
     return false;
   }
 
+  /** Returns true if Z-Move activation key (C) was just pressed. Consumed on read. */
+  getZMovePressed(): boolean {
+    const keys = ['c', 'C'];
+    for (const k of keys) {
+      if (this.pressed.has(k)) {
+        keys.forEach((k2) => this.pressed.delete(k2));
+        return true;
+      }
+    }
+    return false;
+  }
+
   /** Clear all buffered input. Call when switching scenes. */
   clear() {
     this.held.clear();

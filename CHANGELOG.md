@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.0] - 2026-03-17
+
+### Added
+- Sprint 032: Z-Moves System
+- Z-Crystals as held items: 18 type-specific crystals (Firium Z, Waterium Z, etc.)
+- Z-Move activation with C key when holding matching Z-Crystal
+- Z-Move power boost: 1.5x base power with minimum 120 power
+- Z-Moves always hit (bypass accuracy check)
+- One-time use per battle per Pokemon
+- Dramatic Z-Move visual effects: screen flash, particle burst, custom message
+- Z-Move compatibility check: requires matching type move and physical category
+
+### Technical
+- Added z_crystal effect type to HeldItem interface
+- Added zMoveName and zMoveType fields to HeldItem
+- Added isZCrystal(), getZCrystalType(), getZMoveData(), calculateZMovePower() helper functions to HeldItems
+- Added zMoveUsed state to Pokemon class
+- Added canUseZMove() and getZMoveCompatibleMove() methods to Pokemon
+- Extended TurnResult interface with zMoveActive and zMoveName fields
+- Updated executeMove() signature to accept useZMove parameter
+- Added getZMovePressed() method to Input class (C key)
+- Added Z-Move particle system and renderZMove() method to BattleScene
+- Added zMoveParticles, zMoveActive, zMoveFlashAlpha, zMoveTimer state to BattleScene
+
 ## [0.30.0] - 2026-03-17
 
 ### Added

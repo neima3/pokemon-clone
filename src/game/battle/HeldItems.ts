@@ -1,9 +1,11 @@
 export interface HeldItem {
   key: string;
   name: string;
-  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move' | 'boost_atk' | 'survive_ko' | 'super_effective_boost' | 'life_orb' | 'contact_damage' | 'ground_immune' | 'poison_heal' | 'boost_spd';
+  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move' | 'boost_atk' | 'survive_ko' | 'super_effective_boost' | 'life_orb' | 'contact_damage' | 'ground_immune' | 'poison_heal' | 'boost_spd' | 'z_crystal';
   boostType?: string;
   boostAmount?: number;
+  zMoveName?: string;
+  zMoveType?: string;
 }
 
 export const HELD_ITEMS: Record<string, HeldItem> = {
@@ -35,6 +37,26 @@ export const HELD_ITEMS: Record<string, HeldItem> = {
   rockyHelmet: { key: 'rockyHelmet', name: 'ROCKY HELMET', effect: 'contact_damage', boostAmount: 0.1667 },
   airBalloon: { key: 'airBalloon', name: 'AIR BALLOON', effect: 'ground_immune' },
   blackSludge: { key: 'blackSludge', name: 'BLACK SLUDGE', effect: 'poison_heal', boostAmount: 0.0625 },
+  
+  // Z-Crystals
+  firiumZ: { key: 'firiumZ', name: 'FIRIUM Z', effect: 'z_crystal', boostType: 'fire', zMoveName: 'INFERNO OVRDRIVE', zMoveType: 'fire' },
+  wateriumZ: { key: 'wateriumZ', name: 'WATERIUM Z', effect: 'z_crystal', boostType: 'water', zMoveName: 'HYDRO VORTEX', zMoveType: 'water' },
+  grassiumZ: { key: 'grassiumZ', name: 'GRASSIUM Z', effect: 'z_crystal', boostType: 'grass', zMoveName: 'BLOOM DOOM', zMoveType: 'grass' },
+  electriumZ: { key: 'electriumZ', name: 'ELECTRIUM Z', effect: 'z_crystal', boostType: 'electric', zMoveName: 'GIGAVOLT HVOC', zMoveType: 'electric' },
+  psychiumZ: { key: 'psychiumZ', name: 'PSYCHIUM Z', effect: 'z_crystal', boostType: 'psychic', zMoveName: 'SHATTERED PSY', zMoveType: 'psychic' },
+  ghostiumZ: { key: 'ghostiumZ', name: 'GHOSTIUM Z', effect: 'z_crystal', boostType: 'ghost', zMoveName: 'NEVER-END NIGHM', zMoveType: 'ghost' },
+  darkiniumZ: { key: 'darkiniumZ', name: 'DARKINIUM Z', effect: 'z_crystal', boostType: 'dark', zMoveName: 'BLACK HOLE ECLP', zMoveType: 'dark' },
+  dragoniumZ: { key: 'dragoniumZ', name: 'DRAGONIUM Z', effect: 'z_crystal', boostType: 'dragon', zMoveName: 'DEVASTATING DRK', zMoveType: 'dragon' },
+  fightiniumZ: { key: 'fightiniumZ', name: 'FIGHTINIUM Z', effect: 'z_crystal', boostType: 'fighting', zMoveName: 'ALL-OUT PUMMEL', zMoveType: 'fighting' },
+  steeliumZ: { key: 'steeliumZ', name: 'STEELIUM Z', effect: 'z_crystal', boostType: 'steel', zMoveName: 'CORKSCREW CRSH', zMoveType: 'steel' },
+  flyiniumZ: { key: 'flyiniumZ', name: 'FLYINIUM Z', effect: 'z_crystal', boostType: 'flying', zMoveName: 'SUPERSONIC SKY', zMoveType: 'flying' },
+  poisoniumZ: { key: 'poisoniumZ', name: 'POISONIUM Z', effect: 'z_crystal', boostType: 'poison', zMoveName: 'ACID DOWNPOUR', zMoveType: 'poison' },
+  groundiumZ: { key: 'groundiumZ', name: 'GROUNDIUM Z', effect: 'z_crystal', boostType: 'ground', zMoveName: 'TECTONIC RAGE', zMoveType: 'ground' },
+  rockiumZ: { key: 'rockiumZ', name: 'ROCKIUM Z', effect: 'z_crystal', boostType: 'rock', zMoveName: 'CONTINENTL CRSH', zMoveType: 'rock' },
+  iciumZ: { key: 'iciumZ', name: 'ICIUM Z', effect: 'z_crystal', boostType: 'ice', zMoveName: 'SUBZERO SLAMMR', zMoveType: 'ice' },
+  buginiumZ: { key: 'buginiumZ', name: 'BUGINIUM Z', effect: 'z_crystal', boostType: 'bug', zMoveName: 'SAVAGE SPIN-OUT', zMoveType: 'bug' },
+  fairiumZ: { key: 'fairiumZ', name: 'FAIRIUM Z', effect: 'z_crystal', boostType: 'fairy', zMoveName: 'TWINKLE TACKLE', zMoveType: 'fairy' },
+  normaliumZ: { key: 'normaliumZ', name: 'NORMALIUM Z', effect: 'z_crystal', boostType: 'normal', zMoveName: 'BREAKNECK BLITZ', zMoveType: 'normal' },
 };
 
 let maxHpForItem: number = 100;
@@ -125,4 +147,24 @@ export function getBlackSludgeHeal(item: HeldItem | null, maxHp: number, isPoiso
   } else {
     return { heal: 0, damage: Math.floor(amount * 1.5) };
   }
+}
+
+export function isZCrystal(item: HeldItem | null): boolean {
+  return item?.effect === 'z_crystal';
+}
+
+export function getZCrystalType(item: HeldItem | null): string | null {
+  if (!item || item.effect !== 'z_crystal') return null;
+  return item.boostType ?? null;
+}
+
+export function getZMoveData(item: HeldItem | null): { name: string; type: string } | null {
+  if (!item || item.effect !== 'z_crystal') return null;
+  return { name: item.zMoveName ?? 'Z-MOVE', type: item.zMoveType ?? 'normal' };
+}
+
+export function calculateZMovePower(baseMovePower: number): number {
+  const minPower = 120;
+  const zPower = Math.floor(baseMovePower * 1.5);
+  return Math.max(minPower, zPower);
 }

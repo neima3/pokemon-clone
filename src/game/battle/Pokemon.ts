@@ -100,6 +100,8 @@ export class Pokemon {
   
   destinyBond = false;
   perishSongTurns = 0;
+  
+  zMoveUsed = false;
 
   constructor(speciesKey: string, level: number, badgeCount: number = 0) {
     const species = SPECIES[speciesKey];
@@ -250,6 +252,7 @@ export class Pokemon {
     this.doomDesireAttacker = null;
     this.destinyBond = false;
     this.perishSongTurns = 0;
+    this.zMoveUsed = false;
   }
 
   heal() {
@@ -290,7 +293,25 @@ export class Pokemon {
     this.doomDesireAttacker = null;
     this.destinyBond = false;
     this.perishSongTurns = 0;
+    this.zMoveUsed = false;
     for (const m of this.moves) m.pp = m.data.maxPp;
+  }
+
+  canUseZMove(): boolean {
+    return !this.zMoveUsed && this.heldItem?.effect === 'z_crystal';
+  }
+  
+  getZMoveCompatibleMove(): string | null {
+    if (!this.canUseZMove()) return null;
+    const zType = this.heldItem?.boostType;
+    if (!zType) return null;
+    
+    for (const move of this.moves) {
+      if (move.data.type === zType && move.data.category === 'physical' && move.data.power > 0) {
+        return move.key;
+      }
+    }
+    return null;
   }
 
   private recalcStats(): number {

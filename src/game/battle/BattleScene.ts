@@ -5,7 +5,8 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
 import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters, checkDrowsy, checkWish, checkFutureSight, checkDoomDesire, checkDestinyBond, checkPerishSong, getTerrainHeal } from './BattleEngine';
-import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition, TerrainType } from './data';
+import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition, TerrainType, TYPE_COLORS } from './data';
+import { isZCrystal, getZCrystalType } from './HeldItems';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
 
@@ -125,6 +126,12 @@ export class BattleScene implements Scene {
   // Entry hazards
   private playerHazards: FieldHazards = createEmptyHazards();
   private enemyHazards: FieldHazards = createEmptyHazards();
+  
+  // Z-Move state
+  private zMoveActive = false;
+  private zMoveTimer = 0;
+  private zMoveParticles: Array<{ x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number; color: string; angle: number }> = [];
+  private zMoveFlashAlpha = 0;
 
   private applyHazardsOnEntry(mon: Pokemon, isPlayer: boolean): string[] {
     const hazards = isPlayer ? this.playerHazards : this.enemyHazards;
@@ -248,6 +255,9 @@ export class BattleScene implements Scene {
     
     // Update terrain particles
     this.updateTerrainParticles(dt);
+    
+    // Update Z-Move particles
+    this.updateZMoveParticles(dt);
 
     // Spawn status particles for Pokemon with status conditions
     if (this.playerMon.status && this.phase !== 'intro' && Math.random() < dt * 2) {
@@ -569,6 +579,74 @@ export class BattleScene implements Scene {
     }
   }
 
+  private updateZMoveParticles(dt: number) {
+    if (!this.zMoveActive) return;
+    
+    this.zMoveTimer += dt;
+    
+    // Spawn dramatic particles during Z-Move animation
+    if (this.zMoveTimer < 1.0) {
+      for (let i = 0; i < 8; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 80 + Math.random() * 120;
+        this.zMoveParticles.push({
+          x: 160 + (Math.random() - 0.5) * 60,
+          y: 78 + (Math.random() - 0.5) * 40,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 0.4 + Math.random() * 0.3,
+          maxLife: 0.4 + Math.random() * 0.3,
+          size: 3 + Math.random() * 5,
+          color: '#f8f8f8',
+          angle: 0,
+        });
+      }
+    }
+    
+    // Update particles
+    for (const p of this.zMoveParticles) {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.angle += dt * 10;
+      p.life -= dt;
+    }
+    
+    this.zMoveParticles = this.zMoveParticles.filter(p => p.life > 0);
+    
+    // Fade out flash
+    if (this.zMoveFlashAlpha > 0) {
+      this.zMoveFlashAlpha -= dt * 2;
+      if (this.zMoveFlashAlpha < 0) this.zMoveFlashAlpha = 0;
+    }
+    
+    // End Z-Move animation
+    if (this.zMoveTimer >= 1.5) {
+      this.zMoveActive = false;
+      this.zMoveParticles = [];
+    }
+  }
+  
+  private renderZMove(ctx: CanvasRenderingContext2D) {
+    if (!this.zMoveActive && this.zMoveParticles.length === 0) return;
+    
+    // Render particles
+    for (const p of this.zMoveParticles) {
+      const alpha = Math.min(1, p.life / p.maxLife);
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+      ctx.restore();
+    }
+    
+    // Render flash overlay
+    if (this.zMoveFlashAlpha > 0) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.zMoveFlashAlpha * 0.6})`;
+      ctx.fillRect(0, 0, 320, 144);
+    }
+  }
+
   private updateIntro(dt: number) {
     this.introTimer += dt;
 
@@ -737,7 +815,23 @@ export class BattleScene implements Scene {
         return;
       }
       SFX.menuConfirm();
-      this.executeTurn(move);
+      this.executeTurn(move, false);
+    }
+    
+    // Z-Move activation with C key
+    if (this.input.getZMovePressed()) {
+      if (this.playerMon.canUseZMove()) {
+        const move = this.playerMon.moves[this.cursor];
+        const zType = getZCrystalType(this.playerMon.heldItem);
+        if (move.data.type === zType && move.data.category === 'physical' && move.data.power > 0 && move.pp > 0) {
+          SFX.menuConfirm();
+          this.executeTurn(move, true);
+        } else {
+          SFX.bump();
+        }
+      } else {
+        SFX.bump();
+      }
     }
   }
 
@@ -1217,7 +1311,7 @@ export class BattleScene implements Scene {
 
     if (msgs.length > 0) {
       this.queueMessages(msgs, () => {
-        this.doAttack(this.enemyMon, this.playerMon, enemyMove, false, () => {
+        this.doAttack(this.enemyMon, this.playerMon, enemyMove, false, false, () => {
           if (!this.playerMon.isAlive) {
             this.handleFaint(this.playerMon);
             return;
@@ -1229,7 +1323,7 @@ export class BattleScene implements Scene {
         });
       });
     } else {
-      this.doAttack(this.enemyMon, this.playerMon, enemyMove, false, () => {
+      this.doAttack(this.enemyMon, this.playerMon, enemyMove, false, false, () => {
         if (!this.playerMon.isAlive) {
           this.handleFaint(this.playerMon);
           return;
@@ -1424,25 +1518,25 @@ export class BattleScene implements Scene {
 
   // ── Turn execution ──
 
-  private executeTurn(playerMove: MoveInstance) {
+  private executeTurn(playerMove: MoveInstance, useZMove: boolean = false) {
     const enemyMove = getEnemyMove(this.enemyMon, this.playerMon) ?? { data: MOVES['tackle'], key: 'tackle', pp: 0 };
     const order = determineTurnOrder(this.playerMon, this.enemyMon, playerMove, enemyMove, this.weather);
 
     const first = order === 'player'
-      ? { mon: this.playerMon, move: playerMove, isPlayer: true }
-      : { mon: this.enemyMon, move: enemyMove!, isPlayer: false };
+      ? { mon: this.playerMon, move: playerMove, isPlayer: true, useZMove }
+      : { mon: this.enemyMon, move: enemyMove!, isPlayer: false, useZMove: false };
 
     const second = order === 'player'
-      ? { mon: this.enemyMon, move: enemyMove!, isPlayer: false }
-      : { mon: this.playerMon, move: playerMove, isPlayer: true };
+      ? { mon: this.enemyMon, move: enemyMove!, isPlayer: false, useZMove: false }
+      : { mon: this.playerMon, move: playerMove, isPlayer: true, useZMove };
 
-    this.executeOneAttack(first.mon, first.isPlayer ? this.enemyMon : this.playerMon, first.move, first.isPlayer, () => {
+    this.executeOneAttack(first.mon, first.isPlayer ? this.enemyMon : this.playerMon, first.move, first.isPlayer, first.useZMove, () => {
       const defender = first.isPlayer ? this.enemyMon : this.playerMon;
       if (!defender.isAlive) {
         this.handleFaint(defender);
         return;
       }
-      this.executeOneAttack(second.mon, second.isPlayer ? this.enemyMon : this.playerMon, second.move, second.isPlayer, () => {
+      this.executeOneAttack(second.mon, second.isPlayer ? this.enemyMon : this.playerMon, second.move, second.isPlayer, second.useZMove, () => {
         const def2 = second.isPlayer ? this.enemyMon : this.playerMon;
         if (!def2.isAlive) {
           this.handleFaint(def2);
@@ -1458,7 +1552,7 @@ export class BattleScene implements Scene {
   }
 
   /** Execute one attack, checking status conditions first */
-  private executeOneAttack(attacker: Pokemon, defender: Pokemon, move: MoveInstance, isPlayer: boolean, then: () => void) {
+  private executeOneAttack(attacker: Pokemon, defender: Pokemon, move: MoveInstance, isPlayer: boolean, useZMove: boolean, then: () => void) {
     const prefix = isPlayer ? '' : (this.isTrainerBattle ? 'Foe ' : 'Wild ');
     
     if (attacker.twoTurnState !== 'none') {
@@ -1475,7 +1569,7 @@ export class BattleScene implements Scene {
       }
       if (msgs.length > 0) {
         this.queueMessages(msgs, () => {
-          this.doAttack(attacker, defender, move, isPlayer, then);
+          this.doAttack(attacker, defender, move, isPlayer, useZMove, then);
         });
         return;
       }
@@ -1531,14 +1625,14 @@ export class BattleScene implements Scene {
 
     if (actCheck.message) {
       this.queueMessages([actCheck.message], () => {
-        this.doAttack(attacker, defender, move, isPlayer, then);
+        this.doAttack(attacker, defender, move, isPlayer, useZMove, then);
       });
     } else {
-      this.doAttack(attacker, defender, move, isPlayer, then);
+      this.doAttack(attacker, defender, move, isPlayer, useZMove, then);
     }
   }
 
-  private doAttack(attacker: Pokemon, defender: Pokemon, move: MoveInstance, isPlayer: boolean, then: () => void) {
+  private doAttack(attacker: Pokemon, defender: Pokemon, move: MoveInstance, isPlayer: boolean, useZMove: boolean, then: () => void) {
     const prefix = isPlayer ? '' : (this.isTrainerBattle ? 'Foe ' : 'Wild ');
     
     if (defender.twoTurnState === 'flying' || defender.twoTurnState === 'underground') {
@@ -1551,10 +1645,19 @@ export class BattleScene implements Scene {
       return;
     }
     
-    const result = executeMove(attacker, defender, move, this.weather, this.terrain);
+    const result = executeMove(attacker, defender, move, this.weather, this.terrain, useZMove);
     const messages: string[] = [];
-
-    messages.push(`${prefix}${attacker.name} used ${move.data.name}!`);
+    
+    // Z-Move activation
+    if (result.zMoveActive && result.zMoveName) {
+      this.zMoveActive = true;
+      this.zMoveTimer = 0;
+      this.zMoveFlashAlpha = 1;
+      messages.push(`${prefix}${attacker.name} unleashed ${result.zMoveName}!`);
+      SFX.criticalHit();
+    } else {
+      messages.push(`${prefix}${attacker.name} used ${move.data.name}!`);
+    }
     
     if (result.hits && result.hits > 1) {
       messages.push(`Hit ${result.hits} times!`);
@@ -1906,6 +2009,9 @@ export class BattleScene implements Scene {
     
     // Render terrain effects
     this.renderTerrain(ctx);
+    
+    // Render Z-Move effects
+    this.renderZMove(ctx);
 
     // Calculate sprite positions with animation offsets
     let psx = this.playerSpriteX;

@@ -2,7 +2,7 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { getTypeEffectiveness, MOVES, StatusCondition, TerrainType } from './data';
 import type { PokemonType } from './data';
 import type { WeatherType } from '../Weather';
-import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash, getContactDamage, hasGroundImmunityItem, getBlackSludgeHeal, setContextMaxHp, getSpeedBoost } from './HeldItems';
+import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash, getContactDamage, hasGroundImmunityItem, getBlackSludgeHeal, setContextMaxHp, getSpeedBoost, isZCrystal, getZCrystalType, calculateZMovePower, getZMoveData } from './HeldItems';
 
 export interface FieldHazards {
   spikes: number;
@@ -122,6 +122,8 @@ export interface TurnResult {
   perishSongCount?: number;
   terrainSet?: TerrainType;
   terrainTurns?: number;
+  zMoveActive?: boolean;
+  zMoveName?: string;
 }
 
   
@@ -523,7 +525,7 @@ export function blocksPriorityMoves(terrain: TerrainType, defender: Pokemon): bo
   return isGrounded;
 }
 
-export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInstance, weather?: WeatherType, terrain: TerrainType = 'none'): TurnResult {
+export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInstance, weather?: WeatherType, terrain: TerrainType = 'none', useZMove: boolean = false): TurnResult {
   move.pp = Math.max(0, move.pp - 1);
   
   const result: TurnResult = {
@@ -532,6 +534,15 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     missed: false,
     critical: false,
   };
+  
+  if (useZMove && isZCrystal(attacker.heldItem)) {
+    attacker.zMoveUsed = true;
+    const zMoveData = getZMoveData(attacker.heldItem);
+    if (zMoveData) {
+      result.zMoveActive = true;
+      result.zMoveName = zMoveData.name;
+    }
+  }
   
   if (move.data.category === 'status') {
     if (defender.ability?.effect === 'reflect_status') {
@@ -753,6 +764,11 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     accuracy = 100;
   }
   
+  // Z-Moves always hit
+  if (useZMove && result.zMoveActive) {
+    accuracy = 100;
+  }
+  
   const evasion = defender.getEvasionWithWeather(weather);
   const effectiveAccuracy = accuracy / evasion;
   
@@ -781,6 +797,11 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
   let effectivePower = move.data.power;
   if (move.data.pursuit && defender.isSwitching) {
     effectivePower *= 2;
+  }
+  
+  // Z-Move power boost
+  if (useZMove && result.zMoveActive && effectivePower > 0) {
+    effectivePower = calculateZMovePower(effectivePower);
   }
   
   if (move.data.counter && attacker.damageTakenThisTurn > 0) {
