@@ -111,7 +111,11 @@ export class BattleScene implements Scene {
     this.input.clear();
     this.phase = 'intro';
     this.introTimer = 0;
-    Music.battle();
+    if (this.trainerData?.isGymLeader) {
+      Music.gymBattle();
+    } else {
+      Music.battle();
+    }
   }
 
   // ── Message helpers ──
@@ -316,8 +320,11 @@ export class BattleScene implements Scene {
   private openBag() {
     this.bagItems = [
       { key: 'pokeball' as keyof Inventory, count: this.gameState.inventory.pokeball },
+      { key: 'greatBall' as keyof Inventory, count: this.gameState.inventory.greatBall },
       { key: 'potion' as keyof Inventory, count: this.gameState.inventory.potion },
       { key: 'superPotion' as keyof Inventory, count: this.gameState.inventory.superPotion },
+      { key: 'antidote' as keyof Inventory, count: this.gameState.inventory.antidote },
+      { key: 'fullHeal' as keyof Inventory, count: this.gameState.inventory.fullHeal },
     ].filter((i) => i.count > 0);
     this.phase = 'bag';
     this.cursor = 0;
@@ -348,18 +355,20 @@ export class BattleScene implements Scene {
 
       const item = this.bagItems[this.cursor];
       SFX.menuConfirm();
-      if (item.key === 'pokeball') {
-        this.usePokeball();
+      if (item.key === 'pokeball' || item.key === 'greatBall') {
+        this.usePokeball(item.key);
+      } else if (item.key === 'antidote' || item.key === 'fullHeal') {
+        this.useStatusHeal(item.key);
       } else {
         this.usePotion(item.key);
       }
     }
   }
 
-  private usePokeball() {
-    if (!this.gameState.useItem('pokeball')) return;
+  private usePokeball(key: keyof Inventory = 'pokeball') {
+    if (!this.gameState.useItem(key)) return;
 
-    const itemData = ITEMS.pokeball;
+    const itemData = ITEMS[key];
     SFX.catchBall();
     const result = attemptCatch(this.enemyMon, itemData.catchMultiplier!);
     this.catchTargetShakes = result.shakes;
@@ -373,6 +382,41 @@ export class BattleScene implements Scene {
       this.phase = 'catching';
       this.catchTimer = 0;
     });
+  }
+
+  private useStatusHeal(key: keyof Inventory) {
+    if (!this.playerMon.status) {
+      SFX.bump();
+      this.queueMessages([`${this.playerMon.name} has no status problem!`], () => {
+        this.openBag();
+      });
+      return;
+    }
+    if (!this.gameState.useItem(key)) return;
+
+    const itemData = ITEMS[key];
+
+    // Antidote only cures poison
+    if (itemData.statusCure === 'cure_poison' && this.playerMon.status !== 'poison') {
+      // Refund the item — can't use antidote on non-poison
+      this.gameState.inventory[key]++;
+      SFX.bump();
+      this.queueMessages([`It won't have any effect!`], () => {
+        this.openBag();
+      });
+      return;
+    }
+
+    this.playerMon.status = null;
+    this.playerMon.sleepTurns = 0;
+    SFX.heal();
+
+    this.queueMessages(
+      [`Used ${itemData.name}!`, `${this.playerMon.name} was cured!`],
+      () => {
+        this.doEnemyTurn();
+      },
+    );
   }
 
   private usePotion(key: keyof Inventory) {
@@ -497,8 +541,9 @@ export class BattleScene implements Scene {
                   () => { this.phase = 'result'; this.battleWon = true; this.resultTimer = 0; },
                 );
               } else {
+                this.gameState.addToPC(caught);
                 this.queueMessages(
-                  [`But your team is full!`],
+                  [`Your team is full!`, `${caught.name} was sent to the PC!`],
                   () => { this.phase = 'result'; this.battleWon = true; this.resultTimer = 0; },
                 );
               }
@@ -583,7 +628,7 @@ export class BattleScene implements Scene {
     }
 
     // If enemy woke up, show message then let them move
-    const enemyMove = getEnemyMove(this.enemyMon);
+    const enemyMove = getEnemyMove(this.enemyMon, this.playerMon);
     if (!enemyMove) {
       this.phase = 'action';
       this.cursor = 0;
@@ -654,7 +699,7 @@ export class BattleScene implements Scene {
   // ── Turn execution ──
 
   private executeTurn(playerMove: MoveInstance) {
-    const enemyMove = getEnemyMove(this.enemyMon);
+    const enemyMove = getEnemyMove(this.enemyMon, this.playerMon);
     const order = determineTurnOrder(this.playerMon, this.enemyMon);
 
     const first = order === 'player'
@@ -993,7 +1038,7 @@ export class BattleScene implements Scene {
         BattleUI.drawActionMenu(ctx, this.cursor);
         break;
       case 'moves':
-        BattleUI.drawMoveMenu(ctx, this.playerMon.moves, this.cursor);
+        BattleUI.drawMoveMenu(ctx, this.playerMon.moves, this.cursor, this.enemyMon.species.types as PokemonType[]);
         break;
       case 'bag':
         BattleUI.drawBagMenu(ctx, this.gameState.inventory, this.cursor);

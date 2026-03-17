@@ -1,7 +1,7 @@
 import { COLORS } from '../overworld/tiles';
 import { MoveInstance } from './Pokemon';
 import { Inventory } from '../GameState';
-import { ITEMS, TYPE_COLORS, PokemonType, StatusCondition } from './data';
+import { ITEMS, TYPE_COLORS, PokemonType, StatusCondition, getTypeEffectiveness } from './data';
 import { Pokemon } from './Pokemon';
 
 const W = 320;
@@ -239,8 +239,8 @@ export const BattleUI = {
     ctx.fillText(`${name} do?`, bx + 12, by + 36);
   },
 
-  /** Draw move selection menu with type colors */
-  drawMoveMenu(ctx: CanvasRenderingContext2D, moves: MoveInstance[], cursor: number) {
+  /** Draw move selection menu with type colors and effectiveness indicator */
+  drawMoveMenu(ctx: CanvasRenderingContext2D, moves: MoveInstance[], cursor: number, enemyTypes?: PokemonType[]) {
     const bx = 4, by = 156, bw = 312, bh = 80;
 
     ctx.fillStyle = '#f8f8f0';
@@ -269,6 +269,20 @@ export const BattleUI = {
       ctx.fillStyle = i === cursor ? typeColor : COLORS.dark;
       ctx.font = FONT;
       ctx.fillText(moves[i].data.name, mx, my);
+
+      // Effectiveness dot indicator next to each move
+      if (enemyTypes && moves[i].data.power > 0) {
+        const eff = getTypeEffectiveness(moves[i].data.type, enemyTypes);
+        let dotColor = '';
+        if (eff >= 2) dotColor = '#48b048';       // super effective — green
+        else if (eff > 1) dotColor = '#88c070';    // effective
+        else if (eff === 0) dotColor = '#808080';   // immune — gray
+        else if (eff < 1) dotColor = '#e04040';     // not effective — red
+        if (dotColor) {
+          ctx.fillStyle = dotColor;
+          ctx.fillRect(mx + (col === 0 ? 78 : 68), my + 3, 6, 6);
+        }
+      }
     }
 
     // PP display and type for selected move
@@ -282,6 +296,22 @@ export const BattleUI = {
       ctx.fillStyle = '#f8f8f0';
       ctx.font = 'bold 7px monospace';
       ctx.fillText(m.data.type.toUpperCase(), bx + 153, by + bh - 20);
+
+      // Effectiveness text for selected move
+      if (enemyTypes && m.data.power > 0) {
+        const eff = getTypeEffectiveness(m.data.type, enemyTypes);
+        let effText = '';
+        let effColor = '#606060';
+        if (eff >= 2) { effText = 'SUPER EFF!'; effColor = '#48b048'; }
+        else if (eff > 1) { effText = 'EFFECTIVE'; effColor = '#88c070'; }
+        else if (eff === 0) { effText = 'NO EFFECT'; effColor = '#808080'; }
+        else if (eff < 1) { effText = 'NOT EFF.'; effColor = '#e04040'; }
+        if (effText) {
+          ctx.fillStyle = effColor;
+          ctx.font = 'bold 7px monospace';
+          ctx.fillText(effText, bx + 210, by + bh - 20);
+        }
+      }
 
       // PP
       ctx.fillStyle = m.pp <= 0 ? '#e04040' : COLORS.dark;

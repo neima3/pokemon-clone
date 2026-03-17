@@ -5,12 +5,16 @@ const MAX_TEAM_SIZE = 6;
 
 export interface Inventory {
   pokeball: number;
+  greatBall: number;
   potion: number;
   superPotion: number;
+  antidote: number;
+  fullHeal: number;
 }
 
 interface SaveData {
   team: PokemonSaveData[];
+  pcBox: PokemonSaveData[];
   inventory: Inventory;
   playerPosition: { x: number; y: number };
   money: number;
@@ -22,7 +26,8 @@ interface SaveData {
 
 export class GameState {
   team: Pokemon[] = [];
-  inventory: Inventory = { pokeball: 5, potion: 3, superPotion: 0 };
+  pcBox: Pokemon[] = [];
+  inventory: Inventory = { pokeball: 5, greatBall: 0, potion: 3, superPotion: 0, antidote: 0, fullHeal: 0 };
   playerPosition = { x: 15, y: 13 };
   money = 1000;
   defeatedTrainers: Set<string> = new Set();
@@ -46,6 +51,31 @@ export class GameState {
   addToTeam(pokemon: Pokemon): boolean {
     if (this.team.length >= MAX_TEAM_SIZE) return false;
     this.team.push(pokemon);
+    return true;
+  }
+
+  /** Add Pokemon to PC box storage */
+  addToPC(pokemon: Pokemon) {
+    this.pcBox.push(pokemon);
+  }
+
+  /** Withdraw Pokemon from PC to team. Returns false if team is full. */
+  withdrawFromPC(index: number): boolean {
+    if (this.team.length >= MAX_TEAM_SIZE) return false;
+    if (index < 0 || index >= this.pcBox.length) return false;
+    const mon = this.pcBox.splice(index, 1)[0];
+    this.team.push(mon);
+    return true;
+  }
+
+  /** Deposit Pokemon from team to PC. Cannot deposit last alive Pokemon. */
+  depositToPC(teamIndex: number): boolean {
+    if (teamIndex < 0 || teamIndex >= this.team.length) return false;
+    // Don't deposit if it's the only alive Pokemon
+    const aliveCount = this.team.filter(p => p.isAlive).length;
+    if (aliveCount <= 1 && this.team[teamIndex].isAlive) return false;
+    const mon = this.team.splice(teamIndex, 1)[0];
+    this.pcBox.push(mon);
     return true;
   }
 
@@ -90,6 +120,7 @@ export class GameState {
   save() {
     const data: SaveData = {
       team: this.team.map((p) => p.toJSON()),
+      pcBox: this.pcBox.map((p) => p.toJSON()),
       inventory: { ...this.inventory },
       playerPosition: { ...this.playerPosition },
       money: this.money,
@@ -113,10 +144,14 @@ export class GameState {
 
       const data: SaveData = JSON.parse(raw);
       this.team = data.team.map((d) => Pokemon.fromJSON(d));
+      this.pcBox = (data.pcBox ?? []).map((d) => Pokemon.fromJSON(d));
       this.inventory = {
         pokeball: data.inventory.pokeball ?? 0,
+        greatBall: data.inventory.greatBall ?? 0,
         potion: data.inventory.potion ?? 0,
         superPotion: data.inventory.superPotion ?? 0,
+        antidote: data.inventory.antidote ?? 0,
+        fullHeal: data.inventory.fullHeal ?? 0,
       };
       this.playerPosition = data.playerPosition ?? { x: 15, y: 13 };
       this.money = data.money ?? 1000;

@@ -188,10 +188,45 @@ export function executeMove(
   return { attacker, defender, move, damage, effectiveness, missed: false, critical, statusMessage, statusInflicted, defenderFainted: defender.hp <= 0 };
 }
 
-export function getEnemyMove(pokemon: Pokemon): MoveInstance | null {
+/** Smarter AI: prefers super effective and high-power moves, with some randomness */
+export function getEnemyMove(pokemon: Pokemon, defender?: Pokemon): MoveInstance | null {
   const available = pokemon.moves.filter((m) => m.pp > 0);
   if (available.length === 0) return null;
-  return available[Math.floor(Math.random() * available.length)];
+
+  // If no defender info, pick randomly
+  if (!defender) {
+    return available[Math.floor(Math.random() * available.length)];
+  }
+
+  // Score each move and weighted random pick
+  const scored = available.map((m) => {
+    let score = 1;
+    if (m.data.power > 0) {
+      const eff = getTypeEffectiveness(m.data.type, defender.species.types);
+      const stab = pokemon.species.types.includes(m.data.type) ? 1.5 : 1;
+      score = m.data.power * eff * stab;
+    } else {
+      // Status moves get a baseline score
+      score = 30;
+      // Prefer status moves if defender doesn't have a status yet
+      if (m.data.effect && !defender.status) score = 50;
+    }
+    return { move: m, score: Math.max(1, score) };
+  });
+
+  // 30% chance to pick randomly (keeps it unpredictable)
+  if (Math.random() < 0.3) {
+    return available[Math.floor(Math.random() * available.length)];
+  }
+
+  // Weighted random based on scores
+  const totalScore = scored.reduce((s, e) => s + e.score, 0);
+  let roll = Math.random() * totalScore;
+  for (const entry of scored) {
+    roll -= entry.score;
+    if (roll <= 0) return entry.move;
+  }
+  return scored[scored.length - 1].move;
 }
 
 export function determineTurnOrder(player: Pokemon, enemy: Pokemon): 'player' | 'enemy' {

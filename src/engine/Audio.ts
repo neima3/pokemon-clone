@@ -280,6 +280,50 @@ function buildOverworldPattern(): MusicPattern {
   };
 }
 
+function buildGymBattlePattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 7,
+    notes: [
+      // Bar 1 - intense, dramatic
+      { freq: n.E4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.A4, dur: 0.5 },
+      { freq: n.G4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      // Bar 2
+      { freq: n.B4, dur: 0.5 }, { freq: n.A4, dur: 0.25 }, { freq: n.G4, dur: 0.25 },
+      { freq: n.E4, dur: 0.5 }, { freq: n.D4, dur: 0.5 },
+      // Bar 3 - rising tension
+      { freq: n.C4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.B4, dur: 0.5 },
+      // Bar 4 - climax + resolve
+      { freq: n.C5, dur: 0.5 }, { freq: n.B4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.E4, dur: 0.25 }, { freq: n.G4, dur: 0.25 },
+      // Bar 5 - repeat with variation
+      { freq: n.A4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.C5, dur: 0.5 }, { freq: n.B4, dur: 0.5 },
+      { freq: n.A4, dur: 0.25 }, { freq: n.G4, dur: 0.25 },
+      // Bar 6 - resolve low
+      { freq: n.F4, dur: 0.5 }, { freq: n.E4, dur: 0.25 }, { freq: n.D4, dur: 0.25 },
+      { freq: n.C4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+    ],
+  };
+}
+
+function buildGymBattleBass(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 3.5,
+    notes: [
+      { freq: n.E3, dur: 0.5 }, { freq: n.E3, dur: 0.25 }, { freq: n.G3, dur: 0.25 },
+      { freq: n.A3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.C3, dur: 0.5 }, { freq: n.G3, dur: 0.5 },
+      { freq: n.A3, dur: 0.5 }, { freq: n.B3, dur: 0.25 }, { freq: n.A3, dur: 0.25 },
+      { freq: n.F3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.C3, dur: 0.5 }, { freq: n.G3, dur: 0.5 },
+    ],
+  };
+}
+
 function playMusicLoop(patterns: Array<{ pattern: MusicPattern; type: WaveType; gainVal: number }>): { stop: () => void } {
   const c = getCtx();
   let running = true;
@@ -338,6 +382,14 @@ export const Music = {
     currentMusic = playMusicLoop([
       { pattern: buildBattlePattern(), type: 'square', gainVal: 0.15 },
       { pattern: buildBattleBass(), type: 'triangle', gainVal: 0.12 },
+    ]);
+  },
+
+  gymBattle() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildGymBattlePattern(), type: 'square', gainVal: 0.18 },
+      { pattern: buildGymBattleBass(), type: 'triangle', gainVal: 0.14 },
     ]);
   },
 

@@ -904,6 +904,693 @@ SPRITES[95] = {
   },
 };
 
+// ── Weedle (13) ──
+SPRITES[13] = {
+  front: (ctx, x, y) => {
+    // Segmented caterpillar body
+    ctx.fillStyle = '#d8a838';
+    ctx.fillRect(x + 18, y + 42, 14, 8);
+    ctx.fillRect(x + 16, y + 34, 16, 10);
+    ctx.fillRect(x + 14, y + 26, 18, 10);
+    ctx.fillRect(x + 16, y + 18, 16, 10);
+    // Darker bands
+    ctx.fillStyle = '#b08828';
+    ctx.fillRect(x + 14, y + 34, 18, 2);
+    ctx.fillRect(x + 16, y + 26, 16, 2);
+    // Head
+    ctx.fillStyle = '#d8a838';
+    ctx.fillRect(x + 18, y + 8, 14, 12);
+    // Horn (stinger on head)
+    ctx.fillStyle = '#e85050';
+    ctx.fillRect(x + 23, y + 2, 4, 8);
+    ctx.fillRect(x + 24, y + 0, 2, 4);
+    // Eyes
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 12, 3, 3);
+    ctx.fillRect(x + 28, y + 12, 3, 3);
+    // Tail stinger
+    ctx.fillStyle = '#e85050';
+    ctx.fillRect(x + 22, y + 48, 6, 4);
+    // Feet
+    ctx.fillStyle = '#b08828';
+    ctx.fillRect(x + 14, y + 46, 4, 4);
+    ctx.fillRect(x + 30, y + 46, 4, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#d8a838';
+    ctx.fillRect(x + 18, y + 42, 14, 8);
+    ctx.fillRect(x + 16, y + 34, 16, 10);
+    ctx.fillRect(x + 14, y + 26, 18, 10);
+    ctx.fillRect(x + 16, y + 18, 16, 10);
+    ctx.fillRect(x + 18, y + 8, 14, 12);
+    ctx.fillStyle = '#b08828';
+    ctx.fillRect(x + 14, y + 34, 18, 2);
+    ctx.fillRect(x + 16, y + 26, 16, 2);
+    ctx.fillStyle = '#e85050';
+    ctx.fillRect(x + 23, y + 2, 4, 8);
+    ctx.fillRect(x + 22, y + 48, 6, 4);
+  },
+};
+
+// ── Kakuna (14) ──
+SPRITES[14] = {
+  front: (ctx, x, y) => {
+    // Cocoon shape (yellow)
+    ctx.fillStyle = '#d8c038';
+    ctx.fillRect(x + 18, y + 8, 20, 38);
+    ctx.fillRect(x + 16, y + 14, 24, 26);
+    // Shell texture
+    ctx.fillStyle = '#b0a028';
+    ctx.fillRect(x + 18, y + 18, 20, 2);
+    ctx.fillRect(x + 18, y + 26, 20, 2);
+    ctx.fillRect(x + 18, y + 34, 20, 2);
+    // Eyes (triangle/angry)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 22, y + 14, 4, 3);
+    ctx.fillRect(x + 30, y + 14, 4, 3);
+    // Highlight
+    ctx.fillStyle = '#e8d848';
+    ctx.fillRect(x + 20, y + 10, 8, 3);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#d8c038';
+    ctx.fillRect(x + 18, y + 8, 20, 38);
+    ctx.fillRect(x + 16, y + 14, 24, 26);
+    ctx.fillStyle = '#b0a028';
+    ctx.fillRect(x + 18, y + 18, 20, 2);
+    ctx.fillRect(x + 18, y + 26, 20, 2);
+    ctx.fillRect(x + 18, y + 34, 20, 2);
+  },
+};
+
+// ── Beedrill (15) ──
+SPRITES[15] = {
+  front: (ctx, x, y) => {
+    // Abdomen (striped)
+    ctx.fillStyle = '#d8c038';
+    ctx.fillRect(x + 20, y + 30, 16, 16);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 34, 16, 3);
+    ctx.fillRect(x + 20, y + 40, 16, 3);
+    // Stinger
+    ctx.fillStyle = '#d8c038';
+    ctx.fillRect(x + 25, y + 46, 6, 6);
+    ctx.fillRect(x + 27, y + 50, 2, 4);
+    // Thorax
+    ctx.fillStyle = '#d8c038';
+    ctx.fillRect(x + 22, y + 22, 12, 10);
+    // Head
+    ctx.fillStyle = '#d8c038';
+    ctx.fillRect(x + 20, y + 10, 16, 14);
+    // Eyes (red, menacing)
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 22, y + 14, 5, 5);
+    ctx.fillRect(x + 29, y + 14, 5, 5);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 23, y + 15, 2, 2);
+    ctx.fillRect(x + 30, y + 15, 2, 2);
+    // Antennae
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 22, y + 6, 2, 6);
+    ctx.fillRect(x + 32, y + 6, 2, 6);
+    // Wings
+    ctx.fillStyle = 'rgba(200, 220, 255, 0.7)';
+    ctx.fillRect(x + 4, y + 14, 18, 14);
+    ctx.fillRect(x + 34, y + 14, 18, 14);
+    // Drill arms
+    ctx.fillStyle = '#b0a028';
+    ctx.fillRect(x + 8, y + 24, 12, 4);
+    ctx.fillRect(x + 36, y + 24, 12, 4);
+    ctx.fillStyle = '#d8c038';
+    ctx.fillRect(x + 4, y + 25, 6, 2);
+    ctx.fillRect(x + 46, y + 25, 6, 2);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#d8c038';
+    ctx.fillRect(x + 20, y + 30, 16, 16);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 20, y + 34, 16, 3);
+    ctx.fillRect(x + 20, y + 40, 16, 3);
+    ctx.fillRect(x + 25, y + 46, 6, 6);
+    ctx.fillStyle = '#d8c038';
+    ctx.fillRect(x + 22, y + 22, 12, 10);
+    ctx.fillRect(x + 20, y + 10, 16, 14);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 22, y + 6, 2, 6);
+    ctx.fillRect(x + 32, y + 6, 2, 6);
+    ctx.fillStyle = 'rgba(200, 220, 255, 0.7)';
+    ctx.fillRect(x + 4, y + 14, 18, 14);
+    ctx.fillRect(x + 34, y + 14, 18, 14);
+  },
+};
+
+// ── Pidgeot (18) ──
+SPRITES[18] = {
+  front: (ctx, x, y) => {
+    // Body (large, majestic)
+    ctx.fillStyle = C.pBrown;
+    ctx.fillRect(x + 10, y + 22, 34, 22);
+    ctx.fillStyle = C.pCream;
+    ctx.fillRect(x + 14, y + 28, 26, 14);
+    // Head
+    ctx.fillStyle = C.pBrown;
+    ctx.fillRect(x + 12, y + 4, 28, 22);
+    // Long crest feathers (red/yellow)
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 18, y + -2, 10, 10);
+    ctx.fillRect(x + 26, y + -4, 8, 8);
+    ctx.fillRect(x + 32, y + -2, 6, 6);
+    ctx.fillStyle = '#f8d830';
+    ctx.fillRect(x + 20, y + 0, 6, 6);
+    ctx.fillRect(x + 28, y + -2, 4, 4);
+    // Eyes (fierce)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 16, y + 12, 5, 5);
+    ctx.fillRect(x + 31, y + 12, 5, 5);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 17, y + 12, 2, 2);
+    ctx.fillRect(x + 32, y + 12, 2, 2);
+    // Beak
+    ctx.fillStyle = C.pBeak;
+    ctx.fillRect(x + 20, y + 20, 12, 4);
+    ctx.fillRect(x + 24, y + 24, 4, 2);
+    // Wings (large, spread)
+    ctx.fillStyle = C.pBrown;
+    ctx.fillRect(x + 0, y + 22, 16, 18);
+    ctx.fillRect(x + 38, y + 22, 16, 18);
+    ctx.fillStyle = '#a06828';
+    ctx.fillRect(x + 0, y + 34, 10, 6);
+    ctx.fillRect(x + 44, y + 34, 10, 6);
+    // Talons
+    ctx.fillStyle = C.pBeak;
+    ctx.fillRect(x + 16, y + 44, 8, 10);
+    ctx.fillRect(x + 30, y + 44, 8, 10);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = C.pBrown;
+    ctx.fillRect(x + 10, y + 22, 34, 22);
+    ctx.fillRect(x + 12, y + 4, 28, 22);
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 18, y + -2, 10, 10);
+    ctx.fillRect(x + 26, y + -4, 8, 8);
+    ctx.fillStyle = C.pBrown;
+    ctx.fillRect(x + 0, y + 22, 16, 18);
+    ctx.fillRect(x + 38, y + 22, 16, 18);
+    ctx.fillStyle = C.pBeak;
+    ctx.fillRect(x + 16, y + 44, 8, 10);
+    ctx.fillRect(x + 30, y + 44, 8, 10);
+  },
+};
+
+// ── Nidorino (33) ──
+SPRITES[33] = {
+  front: (ctx, x, y) => {
+    // Body (larger than NidoranM)
+    ctx.fillStyle = '#a058b0';
+    ctx.fillRect(x + 10, y + 24, 34, 20);
+    ctx.fillStyle = C.nCream;
+    ctx.fillRect(x + 14, y + 30, 24, 12);
+    // Head
+    ctx.fillStyle = '#a058b0';
+    ctx.fillRect(x + 8, y + 10, 28, 18);
+    // Larger horn
+    ctx.fillStyle = '#704880';
+    ctx.fillRect(x + 20, y + 2, 8, 12);
+    ctx.fillRect(x + 22, y + -2, 4, 6);
+    // Ears
+    ctx.fillStyle = '#a058b0';
+    ctx.fillRect(x + 6, y + 4, 10, 12);
+    ctx.fillRect(x + 28, y + 4, 10, 12);
+    ctx.fillStyle = C.nCream;
+    ctx.fillRect(x + 8, y + 6, 6, 8);
+    ctx.fillRect(x + 30, y + 6, 6, 8);
+    // Eyes
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 12, y + 16, 5, 5);
+    ctx.fillRect(x + 27, y + 16, 5, 5);
+    // Mouth
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 24, 10, 2);
+    // Legs
+    ctx.fillStyle = '#a058b0';
+    ctx.fillRect(x + 14, y + 44, 8, 10);
+    ctx.fillRect(x + 32, y + 44, 8, 10);
+    // Spines
+    ctx.fillStyle = '#704880';
+    ctx.fillRect(x + 34, y + 26, 5, 5);
+    ctx.fillRect(x + 38, y + 30, 5, 5);
+    ctx.fillRect(x + 36, y + 34, 5, 5);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#a058b0';
+    ctx.fillRect(x + 10, y + 24, 34, 20);
+    ctx.fillRect(x + 8, y + 10, 28, 18);
+    ctx.fillStyle = '#704880';
+    ctx.fillRect(x + 20, y + 2, 8, 12);
+    ctx.fillRect(x + 22, y + -2, 4, 6);
+    ctx.fillStyle = '#a058b0';
+    ctx.fillRect(x + 6, y + 4, 10, 12);
+    ctx.fillRect(x + 28, y + 4, 10, 12);
+    ctx.fillRect(x + 14, y + 44, 8, 10);
+    ctx.fillRect(x + 32, y + 44, 8, 10);
+    ctx.fillStyle = '#704880';
+    ctx.fillRect(x + 18, y + 18, 5, 5);
+    ctx.fillRect(x + 24, y + 16, 5, 5);
+    ctx.fillRect(x + 30, y + 18, 5, 5);
+    ctx.fillRect(x + 22, y + 24, 5, 5);
+    ctx.fillRect(x + 28, y + 26, 5, 5);
+  },
+};
+
+// ── Oddish (43) ──
+SPRITES[43] = {
+  front: (ctx, x, y) => {
+    // Body (round, blue)
+    ctx.fillStyle = '#4878a0';
+    ctx.fillRect(x + 16, y + 26, 24, 18);
+    ctx.fillRect(x + 14, y + 30, 28, 10);
+    // Feet
+    ctx.fillStyle = '#4878a0';
+    ctx.fillRect(x + 18, y + 44, 6, 6);
+    ctx.fillRect(x + 32, y + 44, 6, 6);
+    // Eyes (red, round)
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 20, y + 32, 5, 5);
+    ctx.fillRect(x + 31, y + 32, 5, 5);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 21, y + 33, 2, 2);
+    ctx.fillRect(x + 32, y + 33, 2, 2);
+    // Mouth
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 25, y + 40, 6, 2);
+    // Leaves on top
+    ctx.fillStyle = '#68b838';
+    ctx.fillRect(x + 20, y + 10, 6, 18);
+    ctx.fillRect(x + 30, y + 10, 6, 18);
+    ctx.fillRect(x + 14, y + 14, 6, 14);
+    ctx.fillRect(x + 36, y + 14, 6, 14);
+    ctx.fillRect(x + 24, y + 6, 8, 6);
+    ctx.fillStyle = '#307030';
+    ctx.fillRect(x + 22, y + 14, 2, 10);
+    ctx.fillRect(x + 32, y + 14, 2, 10);
+    ctx.fillRect(x + 26, y + 8, 2, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#4878a0';
+    ctx.fillRect(x + 16, y + 26, 24, 18);
+    ctx.fillRect(x + 14, y + 30, 28, 10);
+    ctx.fillRect(x + 18, y + 44, 6, 6);
+    ctx.fillRect(x + 32, y + 44, 6, 6);
+    ctx.fillStyle = '#68b838';
+    ctx.fillRect(x + 20, y + 10, 6, 18);
+    ctx.fillRect(x + 30, y + 10, 6, 18);
+    ctx.fillRect(x + 14, y + 14, 6, 14);
+    ctx.fillRect(x + 36, y + 14, 6, 14);
+    ctx.fillRect(x + 24, y + 6, 8, 6);
+  },
+};
+
+// ── Gloom (44) ──
+SPRITES[44] = {
+  front: (ctx, x, y) => {
+    // Body (round, blue, larger)
+    ctx.fillStyle = '#4068a0';
+    ctx.fillRect(x + 12, y + 28, 30, 18);
+    ctx.fillRect(x + 10, y + 32, 34, 10);
+    // Feet
+    ctx.fillStyle = '#4068a0';
+    ctx.fillRect(x + 16, y + 46, 8, 6);
+    ctx.fillRect(x + 32, y + 46, 8, 6);
+    // Droopy eyes
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 18, y + 34, 6, 4);
+    ctx.fillRect(x + 32, y + 34, 6, 4);
+    // Drool
+    ctx.fillStyle = '#a0c8e8';
+    ctx.fillRect(x + 24, y + 42, 4, 6);
+    // Flower on top (big, open)
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 10, y + 8, 12, 10);
+    ctx.fillRect(x + 34, y + 8, 12, 10);
+    ctx.fillRect(x + 14, y + 4, 8, 8);
+    ctx.fillRect(x + 34, y + 4, 8, 8);
+    ctx.fillStyle = '#e87070';
+    ctx.fillRect(x + 22, y + 6, 12, 12);
+    // Center
+    ctx.fillStyle = '#f8d830';
+    ctx.fillRect(x + 24, y + 10, 8, 8);
+    ctx.fillStyle = '#b08020';
+    ctx.fillRect(x + 26, y + 12, 4, 4);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#4068a0';
+    ctx.fillRect(x + 12, y + 28, 30, 18);
+    ctx.fillRect(x + 10, y + 32, 34, 10);
+    ctx.fillRect(x + 16, y + 46, 8, 6);
+    ctx.fillRect(x + 32, y + 46, 8, 6);
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 10, y + 8, 12, 10);
+    ctx.fillRect(x + 34, y + 8, 12, 10);
+    ctx.fillRect(x + 14, y + 4, 8, 8);
+    ctx.fillRect(x + 34, y + 4, 8, 8);
+    ctx.fillStyle = '#e87070';
+    ctx.fillRect(x + 22, y + 6, 12, 12);
+    ctx.fillStyle = '#f8d830';
+    ctx.fillRect(x + 24, y + 10, 8, 8);
+  },
+};
+
+// ── Mankey (56) ──
+SPRITES[56] = {
+  front: (ctx, x, y) => {
+    // Body (round, furry)
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 16, y + 24, 24, 18);
+    // Head (round)
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 14, y + 10, 26, 18);
+    // Pig nose
+    ctx.fillStyle = '#d0a080';
+    ctx.fillRect(x + 24, y + 20, 8, 5);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 25, y + 22, 2, 2);
+    ctx.fillRect(x + 29, y + 22, 2, 2);
+    // Eyes (angry)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 14, 5, 5);
+    ctx.fillRect(x + 33, y + 14, 5, 5);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 19, y + 15, 2, 2);
+    ctx.fillRect(x + 34, y + 15, 2, 2);
+    // Eyebrows (angry V)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 16, y + 12, 8, 2);
+    ctx.fillRect(x + 32, y + 12, 8, 2);
+    // Arms
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 6, y + 28, 10, 5);
+    ctx.fillRect(x + 40, y + 28, 10, 5);
+    // Hands (balled fists)
+    ctx.fillStyle = '#d0a080';
+    ctx.fillRect(x + 4, y + 26, 4, 8);
+    ctx.fillRect(x + 48, y + 26, 4, 8);
+    // Legs
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 20, y + 42, 6, 8);
+    ctx.fillRect(x + 30, y + 42, 6, 8);
+    // Tail
+    ctx.fillStyle = '#d0a080';
+    ctx.fillRect(x + 38, y + 36, 10, 3);
+    ctx.fillRect(x + 46, y + 32, 4, 6);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 16, y + 24, 24, 18);
+    ctx.fillRect(x + 14, y + 10, 26, 18);
+    ctx.fillRect(x + 6, y + 28, 10, 5);
+    ctx.fillRect(x + 40, y + 28, 10, 5);
+    ctx.fillRect(x + 20, y + 42, 6, 8);
+    ctx.fillRect(x + 30, y + 42, 6, 8);
+    ctx.fillStyle = '#d0a080';
+    ctx.fillRect(x + 38, y + 36, 10, 3);
+    ctx.fillRect(x + 46, y + 32, 4, 6);
+  },
+};
+
+// ── Primeape (57) ──
+SPRITES[57] = {
+  front: (ctx, x, y) => {
+    // Body (muscular)
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 12, y + 22, 30, 22);
+    // Head (round, furry, angry)
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 10, y + 6, 32, 20);
+    // Fur tuft on top
+    ctx.fillStyle = '#d0b090';
+    ctx.fillRect(x + 18, y + 0, 6, 8);
+    ctx.fillRect(x + 28, y + 0, 6, 8);
+    ctx.fillRect(x + 22, y + 2, 8, 4);
+    // Eyes (rage)
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 14, y + 12, 8, 6);
+    ctx.fillRect(x + 32, y + 12, 8, 6);
+    ctx.fillStyle = C.red;
+    ctx.fillRect(x + 16, y + 14, 4, 4);
+    ctx.fillRect(x + 34, y + 14, 4, 4);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 17, y + 15, 2, 2);
+    ctx.fillRect(x + 35, y + 15, 2, 2);
+    // Nose/mouth
+    ctx.fillStyle = '#d0a080';
+    ctx.fillRect(x + 22, y + 20, 10, 4);
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 24, y + 22, 2, 2);
+    ctx.fillRect(x + 28, y + 22, 2, 2);
+    // Arms (muscular)
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 2, y + 24, 12, 8);
+    ctx.fillRect(x + 40, y + 24, 12, 8);
+    // Boxing gloves
+    ctx.fillStyle = '#c08060';
+    ctx.fillRect(x + 0, y + 22, 6, 10);
+    ctx.fillRect(x + 48, y + 22, 6, 10);
+    // Legs
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 16, y + 44, 8, 10);
+    ctx.fillRect(x + 30, y + 44, 8, 10);
+    // Shackle on leg
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(x + 16, y + 48, 8, 3);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 12, y + 22, 30, 22);
+    ctx.fillRect(x + 10, y + 6, 32, 20);
+    ctx.fillStyle = '#d0b090';
+    ctx.fillRect(x + 18, y + 0, 6, 8);
+    ctx.fillRect(x + 28, y + 0, 6, 8);
+    ctx.fillRect(x + 2, y + 24, 12, 8);
+    ctx.fillRect(x + 40, y + 24, 12, 8);
+    ctx.fillStyle = '#e8d0b0';
+    ctx.fillRect(x + 16, y + 44, 8, 10);
+    ctx.fillRect(x + 30, y + 44, 8, 10);
+  },
+};
+
+// ── Abra (63) ──
+SPRITES[63] = {
+  front: (ctx, x, y) => {
+    // Body (sitting, yellow)
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 16, y + 28, 24, 16);
+    // Head (big)
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 14, y + 8, 26, 22);
+    // Ears (pointed)
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 8, y + 4, 8, 12);
+    ctx.fillRect(x + 38, y + 4, 8, 12);
+    ctx.fillStyle = '#b08820';
+    ctx.fillRect(x + 10, y + 6, 4, 8);
+    ctx.fillRect(x + 40, y + 6, 4, 8);
+    // Eyes (closed/sleeping)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 18, 6, 2);
+    ctx.fillRect(x + 30, y + 18, 6, 2);
+    // Armor/chest
+    ctx.fillStyle = '#b08820';
+    ctx.fillRect(x + 20, y + 28, 16, 4);
+    // Arms (crossed)
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 10, y + 30, 8, 4);
+    ctx.fillRect(x + 38, y + 30, 8, 4);
+    // Legs/feet
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 18, y + 44, 8, 6);
+    ctx.fillRect(x + 30, y + 44, 8, 6);
+    // Tail
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 38, y + 38, 10, 3);
+    ctx.fillRect(x + 46, y + 34, 4, 8);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 16, y + 28, 24, 16);
+    ctx.fillRect(x + 14, y + 8, 26, 22);
+    ctx.fillRect(x + 8, y + 4, 8, 12);
+    ctx.fillRect(x + 38, y + 4, 8, 12);
+    ctx.fillRect(x + 18, y + 44, 8, 6);
+    ctx.fillRect(x + 30, y + 44, 8, 6);
+    ctx.fillStyle = '#b08820';
+    ctx.fillRect(x + 10, y + 6, 4, 8);
+    ctx.fillRect(x + 40, y + 6, 4, 8);
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 38, y + 38, 10, 3);
+    ctx.fillRect(x + 46, y + 34, 4, 8);
+  },
+};
+
+// ── Kadabra (64) ──
+SPRITES[64] = {
+  front: (ctx, x, y) => {
+    // Body (taller)
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 18, y + 26, 20, 18);
+    ctx.fillStyle = '#b08820';
+    ctx.fillRect(x + 22, y + 30, 12, 10);
+    // Head (larger, with mustache)
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 14, y + 6, 26, 22);
+    // Ears (pointed, larger)
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 6, y + 0, 10, 14);
+    ctx.fillRect(x + 38, y + 0, 10, 14);
+    ctx.fillStyle = '#b08820';
+    ctx.fillRect(x + 8, y + 2, 6, 10);
+    ctx.fillRect(x + 40, y + 2, 6, 10);
+    // Eyes (open, glowing)
+    ctx.fillStyle = C.black;
+    ctx.fillRect(x + 18, y + 14, 6, 5);
+    ctx.fillRect(x + 30, y + 14, 6, 5);
+    ctx.fillStyle = '#58a8f8';
+    ctx.fillRect(x + 19, y + 15, 4, 3);
+    ctx.fillRect(x + 31, y + 15, 4, 3);
+    // Mustache
+    ctx.fillStyle = '#b08820';
+    ctx.fillRect(x + 14, y + 22, 8, 3);
+    ctx.fillRect(x + 32, y + 22, 8, 3);
+    // Star on forehead
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 24, y + 8, 6, 6);
+    // Spoon (right hand)
+    ctx.fillStyle = '#c0c0c0';
+    ctx.fillRect(x + 42, y + 22, 3, 16);
+    ctx.fillStyle = '#e0e0e0';
+    ctx.fillRect(x + 40, y + 18, 7, 6);
+    // Arms
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 8, y + 28, 10, 4);
+    ctx.fillRect(x + 38, y + 28, 10, 4);
+    // Legs
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 20, y + 44, 8, 8);
+    ctx.fillRect(x + 30, y + 44, 8, 8);
+    // Tail
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 4, y + 36, 12, 3);
+    ctx.fillRect(x + 2, y + 32, 6, 8);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 18, y + 26, 20, 18);
+    ctx.fillRect(x + 14, y + 6, 26, 22);
+    ctx.fillRect(x + 6, y + 0, 10, 14);
+    ctx.fillRect(x + 38, y + 0, 10, 14);
+    ctx.fillStyle = '#b08820';
+    ctx.fillRect(x + 8, y + 2, 6, 10);
+    ctx.fillRect(x + 40, y + 2, 6, 10);
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 24, y + 8, 6, 6);
+    ctx.fillStyle = '#d8b040';
+    ctx.fillRect(x + 20, y + 44, 8, 8);
+    ctx.fillRect(x + 30, y + 44, 8, 8);
+    ctx.fillRect(x + 4, y + 36, 12, 3);
+    ctx.fillRect(x + 2, y + 32, 6, 8);
+  },
+};
+
+// ── Staryu (120) ──
+SPRITES[120] = {
+  front: (ctx, x, y) => {
+    // Star shape (5-pointed approximation with rectangles)
+    ctx.fillStyle = '#c0a060';
+    // Center
+    ctx.fillRect(x + 18, y + 20, 20, 20);
+    // Top point
+    ctx.fillRect(x + 22, y + 4, 12, 18);
+    ctx.fillRect(x + 24, y + 0, 8, 8);
+    // Left point
+    ctx.fillRect(x + 2, y + 24, 18, 10);
+    ctx.fillRect(x + 0, y + 26, 6, 6);
+    // Right point
+    ctx.fillRect(x + 36, y + 24, 18, 10);
+    ctx.fillRect(x + 50, y + 26, 6, 6);
+    // Bottom-left
+    ctx.fillRect(x + 10, y + 38, 12, 10);
+    ctx.fillRect(x + 8, y + 44, 8, 8);
+    // Bottom-right
+    ctx.fillRect(x + 34, y + 38, 12, 10);
+    ctx.fillRect(x + 40, y + 44, 8, 8);
+    // Core gem (red)
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 23, y + 25, 10, 10);
+    ctx.fillStyle = '#f08080';
+    ctx.fillRect(x + 25, y + 27, 6, 6);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 26, y + 28, 2, 2);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#c0a060';
+    ctx.fillRect(x + 18, y + 20, 20, 20);
+    ctx.fillRect(x + 22, y + 4, 12, 18);
+    ctx.fillRect(x + 24, y + 0, 8, 8);
+    ctx.fillRect(x + 2, y + 24, 18, 10);
+    ctx.fillRect(x + 36, y + 24, 18, 10);
+    ctx.fillRect(x + 10, y + 38, 12, 10);
+    ctx.fillRect(x + 34, y + 38, 12, 10);
+    ctx.fillStyle = '#a08040';
+    ctx.fillRect(x + 23, y + 25, 10, 10);
+  },
+};
+
+// ── Starmie (121) ──
+SPRITES[121] = {
+  front: (ctx, x, y) => {
+    // Back star (purple)
+    ctx.fillStyle = '#8060b0';
+    ctx.fillRect(x + 16, y + 18, 24, 24);
+    ctx.fillRect(x + 20, y + 2, 16, 18);
+    ctx.fillRect(x + 0, y + 22, 18, 14);
+    ctx.fillRect(x + 38, y + 22, 18, 14);
+    ctx.fillRect(x + 8, y + 38, 14, 14);
+    ctx.fillRect(x + 34, y + 38, 14, 14);
+    // Front star (violet)
+    ctx.fillStyle = '#a078d0';
+    ctx.fillRect(x + 20, y + 22, 16, 16);
+    ctx.fillRect(x + 24, y + 8, 8, 16);
+    ctx.fillRect(x + 6, y + 26, 16, 8);
+    ctx.fillRect(x + 34, y + 26, 16, 8);
+    ctx.fillRect(x + 14, y + 36, 10, 12);
+    ctx.fillRect(x + 32, y + 36, 10, 12);
+    // Core gem (large, jewel)
+    ctx.fillStyle = '#e04040';
+    ctx.fillRect(x + 22, y + 24, 12, 12);
+    ctx.fillStyle = '#f07070';
+    ctx.fillRect(x + 24, y + 26, 8, 8);
+    ctx.fillStyle = '#f8a0a0';
+    ctx.fillRect(x + 26, y + 28, 4, 4);
+    ctx.fillStyle = C.white;
+    ctx.fillRect(x + 27, y + 28, 2, 2);
+  },
+  back: (ctx, x, y) => {
+    ctx.fillStyle = '#8060b0';
+    ctx.fillRect(x + 16, y + 18, 24, 24);
+    ctx.fillRect(x + 20, y + 2, 16, 18);
+    ctx.fillRect(x + 0, y + 22, 18, 14);
+    ctx.fillRect(x + 38, y + 22, 18, 14);
+    ctx.fillRect(x + 8, y + 38, 14, 14);
+    ctx.fillRect(x + 34, y + 38, 14, 14);
+    ctx.fillStyle = '#a078d0';
+    ctx.fillRect(x + 20, y + 22, 16, 16);
+    ctx.fillRect(x + 24, y + 8, 8, 16);
+    ctx.fillRect(x + 6, y + 26, 16, 8);
+    ctx.fillRect(x + 34, y + 26, 16, 8);
+    ctx.fillStyle = '#a08040';
+    ctx.fillRect(x + 22, y + 24, 12, 12);
+  },
+};
+
 export function drawPokemonFront(ctx: CanvasRenderingContext2D, speciesId: number, x: number, y: number, visible = true) {
   if (!visible) return;
   SPRITES[speciesId]?.front(ctx, x, y);
@@ -1037,6 +1724,26 @@ export function drawNPCSprite(ctx: CanvasRenderingContext2D, type: string, x: nu
       ctx.fillRect(x + 5, y + 9, 6, 3);
       ctx.fillStyle = '#504030';
       ctx.fillRect(x + 4, y + 13, 8, 3);
+      break;
+    case 'gymLeader2':
+      // Misty: orange hair, swimsuit
+      ctx.fillStyle = '#f89838';
+      ctx.fillRect(x + 3, y + 0, 10, 6); // orange hair
+      ctx.fillRect(x + 2, y + 2, 4, 4); // side hair
+      ctx.fillRect(x + 10, y + 2, 4, 4);
+      ctx.fillStyle = '#f8d8b0';
+      ctx.fillRect(x + 5, y + 3, 6, 5); // face
+      ctx.fillStyle = '#4878a0';
+      ctx.fillRect(x + 4, y + 8, 8, 4); // blue top
+      ctx.fillStyle = '#f8d8b0';
+      ctx.fillRect(x + 5, y + 12, 6, 2); // midriff
+      ctx.fillStyle = '#e04040';
+      ctx.fillRect(x + 4, y + 14, 8, 2); // red shorts
+      if (facing === 'down') {
+        ctx.fillStyle = '#3070a8';
+        ctx.fillRect(x + 6, y + 5, 2, 2);
+        ctx.fillRect(x + 9, y + 5, 2, 2);
+      }
       break;
     default:
       // Generic NPC

@@ -43,8 +43,11 @@ export class OverworldScene implements Scene {
   private shopCursor = 0;
   private shopItems: Array<{ key: keyof Inventory; name: string; price: number }> = [
     { key: 'pokeball', name: 'POKé BALL', price: 200 },
+    { key: 'greatBall', name: 'GREAT BALL', price: 600 },
     { key: 'potion', name: 'POTION', price: 300 },
     { key: 'superPotion', name: 'SUPER POTION', price: 700 },
+    { key: 'antidote', name: 'ANTIDOTE', price: 100 },
+    { key: 'fullHeal', name: 'FULL HEAL', price: 600 },
   ];
 
   // Heal animation
@@ -52,8 +55,12 @@ export class OverworldScene implements Scene {
 
   // Menu state
   private menuCursor = 0;
-  private menuSubPhase: 'main' | 'pokemon' | 'bag' | 'pokedex' | 'save' = 'main';
+  private menuSubPhase: 'main' | 'pokemon' | 'bag' | 'pokedex' | 'save' | 'pc' = 'main';
   private menuPokemonCursor = 0;
+
+  // PC state
+  private pcCursor = 0;
+  private pcMode: 'select' | 'withdraw' | 'deposit' = 'select';
 
   // HUD
   private showMiniStatus = true;
@@ -201,6 +208,16 @@ export class OverworldScene implements Scene {
         return true;
       }
 
+      if (npc.id === 'pc_npc') {
+        this.startDialogue(npc.data.dialogue, () => {
+          this.phase = 'menu';
+          this.menuSubPhase = 'pc';
+          this.pcCursor = 0;
+          this.pcMode = 'select';
+        });
+        return true;
+      }
+
       // Trainer NPC
       if (npc.data.isTrainer && npc.data.trainerId && !npc.defeated) {
         this.startDialogue(npc.data.dialogue, () => {
@@ -256,10 +273,20 @@ export class OverworldScene implements Scene {
       }
       if (tile === Tile.GymDoor) {
         SFX.menuConfirm();
-        if (this.gameState.hasBadge('BOULDER BADGE')) {
-          this.startDialogue(['PEWTER GYM', 'LEADER: BROCK', 'You already have the BOULDER BADGE!']);
+        // Determine which gym based on position
+        const isMistyGym = fy >= 20;
+        if (isMistyGym) {
+          if (this.gameState.hasBadge('CASCADE BADGE')) {
+            this.startDialogue(['CERULEAN GYM', 'LEADER: MISTY', 'You already have the CASCADE BADGE!']);
+          } else {
+            this.startDialogue(['CERULEAN GYM', 'LEADER: MISTY', 'Specializes in Water-type POKéMON.']);
+          }
         } else {
-          this.startDialogue(['PEWTER GYM', 'LEADER: BROCK', 'Specializes in Rock-type POKéMON.']);
+          if (this.gameState.hasBadge('BOULDER BADGE')) {
+            this.startDialogue(['PEWTER GYM', 'LEADER: BROCK', 'You already have the BOULDER BADGE!']);
+          } else {
+            this.startDialogue(['PEWTER GYM', 'LEADER: BROCK', 'Specializes in Rock-type POKéMON.']);
+          }
         }
         return true;
       }
@@ -348,6 +375,7 @@ export class OverworldScene implements Scene {
       case 'bag': this.updateMenuBag(); break;
       case 'pokedex': this.updateMenuPokedex(); break;
       case 'save': this.updateMenuSave(); break;
+      case 'pc': this.updateMenuPC(); break;
     }
   }
 
@@ -406,6 +434,52 @@ export class OverworldScene implements Scene {
     this.gameState.save();
     SFX.save();
     this.menuSubPhase = 'main';
+  }
+
+  private updateMenuPC() {
+    const dir = this.input.getDirectionPressed();
+
+    if (this.pcMode === 'select') {
+      // Select between WITHDRAW, DEPOSIT, EXIT
+      if (dir === 'up' && this.pcCursor > 0) { this.pcCursor--; SFX.menuSelect(); }
+      if (dir === 'down' && this.pcCursor < 2) { this.pcCursor++; SFX.menuSelect(); }
+      if (this.input.getCancelPressed()) { SFX.menuCancel(); this.phase = 'explore'; return; }
+      if (this.input.getActionPressed()) {
+        SFX.menuConfirm();
+        if (this.pcCursor === 0) { this.pcMode = 'withdraw'; this.pcCursor = 0; }
+        else if (this.pcCursor === 1) { this.pcMode = 'deposit'; this.pcCursor = 0; }
+        else { this.phase = 'explore'; }
+      }
+    } else if (this.pcMode === 'withdraw') {
+      const total = this.gameState.pcBox.length + 1; // +1 for BACK
+      if (dir === 'up' && this.pcCursor > 0) { this.pcCursor--; SFX.menuSelect(); }
+      if (dir === 'down' && this.pcCursor < total - 1) { this.pcCursor++; SFX.menuSelect(); }
+      if (this.input.getCancelPressed()) { SFX.menuCancel(); this.pcMode = 'select'; this.pcCursor = 0; return; }
+      if (this.input.getActionPressed()) {
+        if (this.pcCursor >= this.gameState.pcBox.length) { SFX.menuCancel(); this.pcMode = 'select'; this.pcCursor = 0; return; }
+        if (this.gameState.withdrawFromPC(this.pcCursor)) {
+          SFX.menuConfirm();
+          this.gameState.save();
+        } else {
+          SFX.bump();
+        }
+      }
+    } else if (this.pcMode === 'deposit') {
+      const total = this.gameState.team.length + 1;
+      if (dir === 'up' && this.pcCursor > 0) { this.pcCursor--; SFX.menuSelect(); }
+      if (dir === 'down' && this.pcCursor < total - 1) { this.pcCursor++; SFX.menuSelect(); }
+      if (this.input.getCancelPressed()) { SFX.menuCancel(); this.pcMode = 'select'; this.pcCursor = 0; return; }
+      if (this.input.getActionPressed()) {
+        if (this.pcCursor >= this.gameState.team.length) { SFX.menuCancel(); this.pcMode = 'select'; this.pcCursor = 0; return; }
+        if (this.gameState.depositToPC(this.pcCursor)) {
+          SFX.menuConfirm();
+          this.gameState.save();
+          if (this.pcCursor >= this.gameState.team.length) this.pcCursor = Math.max(0, this.gameState.team.length - 1);
+        } else {
+          SFX.bump();
+        }
+      }
+    }
   }
 
   private checkEncounter() {
@@ -505,7 +579,8 @@ export class OverworldScene implements Scene {
 
     // Zone indicator
     const zone = getRouteZone(this.player.gx, this.player.gy);
-    const zoneName = zone === 'town' ? 'PALLET TOWN' : zone === 'route1' ? 'ROUTE 1' : 'ROUTE 2';
+    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3' };
+    const zoneName = zoneNames[zone] ?? zone.toUpperCase();
 
     ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';
     ctx.fillRect(2, 2, 100, 12);
@@ -648,6 +723,7 @@ export class OverworldScene implements Scene {
       case 'bag': this.renderMenuBag(ctx); break;
       case 'pokedex': this.renderMenuPokedex(ctx); break;
       case 'save': this.renderMenuMain(ctx); break; // Save is instant
+      case 'pc': this.renderMenuPC(ctx); break;
     }
   }
 
@@ -863,8 +939,11 @@ export class OverworldScene implements Scene {
 
     const items: Array<{ name: string; count: number; desc: string }> = [
       { name: 'POKé BALL', count: this.gameState.inventory.pokeball, desc: 'Catches wild POKéMON.' },
+      { name: 'GREAT BALL', count: this.gameState.inventory.greatBall, desc: 'Better catch rate (1.5x).' },
       { name: 'POTION', count: this.gameState.inventory.potion, desc: 'Restores 20 HP.' },
       { name: 'SUPER POTION', count: this.gameState.inventory.superPotion, desc: 'Restores 50 HP.' },
+      { name: 'ANTIDOTE', count: this.gameState.inventory.antidote, desc: 'Cures poison.' },
+      { name: 'FULL HEAL', count: this.gameState.inventory.fullHeal, desc: 'Cures all status.' },
     ];
 
     for (let i = 0; i < items.length; i++) {
@@ -885,6 +964,119 @@ export class OverworldScene implements Scene {
     ctx.font = 'bold 7px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Press any key to go back', bx + bw / 2, by + bh - 14);
+    ctx.textAlign = 'left';
+  }
+
+  private renderMenuPC(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = '#283848';
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+    const bx = 30, by = 16, bw = VIEW_W - 60, bh = 200;
+    ctx.fillStyle = '#f8f8f0';
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = COLORS.dark;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bx, by, bw, bh);
+
+    ctx.fillStyle = COLORS.dark;
+    ctx.font = FONT;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
+    ctx.fillText('POKéMON STORAGE SYSTEM', bx + bw / 2, by + 6);
+    ctx.textAlign = 'left';
+
+    if (this.pcMode === 'select') {
+      const options = ['WITHDRAW', 'DEPOSIT', 'EXIT'];
+      for (let i = 0; i < options.length; i++) {
+        const y = by + 34 + i * 24;
+        if (i === this.pcCursor) {
+          ctx.fillStyle = COLORS.dark;
+          ctx.fillText('\u25b6', bx + 20, y);
+        }
+        ctx.fillStyle = COLORS.dark;
+        ctx.font = FONT;
+        ctx.fillText(options[i], bx + 38, y);
+      }
+
+      // Show summary counts
+      ctx.font = FONT_SM;
+      ctx.fillStyle = COLORS.mid;
+      ctx.fillText(`Team: ${this.gameState.team.length}/6`, bx + 20, by + 110);
+      ctx.fillText(`PC Box: ${this.gameState.pcBox.length} stored`, bx + 20, by + 126);
+
+    } else if (this.pcMode === 'withdraw') {
+      ctx.fillStyle = COLORS.mid;
+      ctx.font = FONT_SM;
+      ctx.fillText(`WITHDRAW  (Team: ${this.gameState.team.length}/6)`, bx + 14, by + 24);
+
+      if (this.gameState.pcBox.length === 0) {
+        ctx.fillStyle = COLORS.dark;
+        ctx.font = FONT;
+        ctx.fillText('No POKéMON in PC.', bx + 40, by + 60);
+      } else {
+        for (let i = 0; i < this.gameState.pcBox.length; i++) {
+          const mon = this.gameState.pcBox[i];
+          const y = by + 38 + i * 20;
+          if (y > by + bh - 30) break;
+          if (i === this.pcCursor) {
+            ctx.fillStyle = COLORS.dark;
+            ctx.fillText('\u25b6', bx + 12, y);
+          }
+          ctx.fillStyle = COLORS.dark;
+          ctx.font = FONT;
+          ctx.fillText(mon.name, bx + 28, y);
+          ctx.font = FONT_SM;
+          ctx.textAlign = 'right';
+          ctx.fillText(`Lv${mon.level}  HP:${mon.hp}/${mon.maxHp}`, bx + bw - 14, y + 1);
+          ctx.textAlign = 'left';
+        }
+        // BACK option
+        const backY = by + 38 + this.gameState.pcBox.length * 20;
+        if (this.pcCursor === this.gameState.pcBox.length) {
+          ctx.fillStyle = COLORS.dark;
+          ctx.fillText('\u25b6', bx + 12, backY);
+        }
+        ctx.fillStyle = COLORS.dark;
+        ctx.font = FONT;
+        ctx.fillText('BACK', bx + 28, backY);
+      }
+
+    } else if (this.pcMode === 'deposit') {
+      ctx.fillStyle = COLORS.mid;
+      ctx.font = FONT_SM;
+      ctx.fillText(`DEPOSIT  (PC: ${this.gameState.pcBox.length} stored)`, bx + 14, by + 24);
+
+      for (let i = 0; i < this.gameState.team.length; i++) {
+        const mon = this.gameState.team[i];
+        const y = by + 38 + i * 20;
+        if (i === this.pcCursor) {
+          ctx.fillStyle = COLORS.dark;
+          ctx.fillText('\u25b6', bx + 12, y);
+        }
+        ctx.fillStyle = COLORS.dark;
+        ctx.font = FONT;
+        ctx.fillText(mon.name, bx + 28, y);
+        ctx.font = FONT_SM;
+        ctx.textAlign = 'right';
+        ctx.fillText(`Lv${mon.level}  HP:${mon.hp}/${mon.maxHp}`, bx + bw - 14, y + 1);
+        ctx.textAlign = 'left';
+      }
+      // BACK option
+      const backY = by + 38 + this.gameState.team.length * 20;
+      if (this.pcCursor === this.gameState.team.length) {
+        ctx.fillStyle = COLORS.dark;
+        ctx.fillText('\u25b6', bx + 12, backY);
+      }
+      ctx.fillStyle = COLORS.dark;
+      ctx.font = FONT;
+      ctx.fillText('BACK', bx + 28, backY);
+    }
+
+    // Controls
+    ctx.fillStyle = '#88c070';
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('Z: Select  X: Back', bx + bw / 2, by + bh - 12);
     ctx.textAlign = 'left';
   }
 

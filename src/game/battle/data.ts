@@ -96,6 +96,26 @@ export const MOVES: Record<string, MoveData> = {
   ironTail:     { name: 'IRON TAIL',    type: 'normal',    power: 100, accuracy: 75,  maxPp: 15, category: 'physical', effect: 'lower_defense' },
   pursuit:      { name: 'PURSUIT',      type: 'normal',    power: 40,  accuracy: 100, maxPp: 20, category: 'physical' },
   focusEnergy:  { name: 'FOCUS ENRGY',  type: 'normal',    power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'raise_attack' },
+  // New moves — Sprint 006
+  bodySlam:     { name: 'BODY SLAM',    type: 'normal',    power: 85,  accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'paralyze', statusChance: 30 },
+  thunderWave:  { name: 'THNDR WAVE',   type: 'electric',  power: 0,   accuracy: 90,  maxPp: 20, category: 'status', effect: 'paralyze' },
+  absorb:       { name: 'ABSORB',       type: 'grass',     power: 20,  accuracy: 100, maxPp: 25, category: 'physical' },
+  megaDrain:    { name: 'MEGA DRAIN',   type: 'grass',     power: 40,  accuracy: 100, maxPp: 15, category: 'physical' },
+  crossPoison:  { name: 'CROSS PSN',    type: 'poison',    power: 70,  accuracy: 100, maxPp: 20, category: 'physical', statusEffect: 'poison', statusChance: 10 },
+  twineedle:    { name: 'TWINEEDLE',    type: 'bug',       power: 60,  accuracy: 100, maxPp: 20, category: 'physical', statusEffect: 'poison', statusChance: 20 },
+  swift:        { name: 'SWIFT',        type: 'normal',    power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
+  surf:         { name: 'SURF',         type: 'water',     power: 90,  accuracy: 100, maxPp: 15, category: 'physical' },
+  lowKick:      { name: 'LOW KICK',     type: 'normal',    power: 65,  accuracy: 100, maxPp: 20, category: 'physical' },
+  furySwipes:   { name: 'FURY SWIPES',  type: 'normal',    power: 50,  accuracy: 80,  maxPp: 15, category: 'physical' },
+  megaPunch:    { name: 'MEGA PUNCH',   type: 'normal',    power: 80,  accuracy: 85,  maxPp: 20, category: 'physical' },
+  karatechop:   { name: 'KARATE CHOP',  type: 'normal',    power: 50,  accuracy: 100, maxPp: 25, category: 'physical' },
+  acidSpray:    { name: 'ACID SPRAY',   type: 'poison',    power: 40,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'lower_defense' },
+  rapidSpin:    { name: 'RAPID SPIN',   type: 'normal',    power: 50,  accuracy: 100, maxPp: 40, category: 'physical' },
+  recover:      { name: 'RECOVER',      type: 'normal',    power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'raise_defense' },
+  psychic:      { name: 'PSYCHIC',      type: 'psychic',   power: 90,  accuracy: 100, maxPp: 15, category: 'physical' },
+  teleport:     { name: 'TELEPORT',     type: 'psychic',   power: 0,   accuracy: 100, maxPp: 20, category: 'status' },
+  swiftStar:    { name: 'SWIFT STAR',   type: 'water',     power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
+  powerGem:     { name: 'POWER GEM',    type: 'rock',      power: 80,  accuracy: 100, maxPp: 20, category: 'physical' },
 };
 
 // ── Species ──
@@ -188,6 +208,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'gust', 'quickAttack', 'wingAttack'],
     baseExpYield: 122, catchRate: 120,
     levelUpMoves: [{ level: 20, moveKey: 'airSlash' }],
+    evolution: { level: 36, into: 'pidgeot' },
   },
   rattata: {
     id: 19, name: 'RATTATA', types: ['normal'],
@@ -254,6 +275,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['leer', 'poisonSting'],
     baseExpYield: 55, catchRate: 235,
     levelUpMoves: [{ level: 7, moveKey: 'tackle' }, { level: 9, moveKey: 'bite' }, { level: 13, moveKey: 'headbutt' }],
+    evolution: { level: 16, into: 'nidorino' },
   },
   // Gym leader Pokemon
   onix: {
@@ -263,10 +285,123 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 77, catchRate: 45,
     levelUpMoves: [{ level: 6, moveKey: 'rockThrow' }, { level: 10, moveKey: 'rockTomb' }, { level: 15, moveKey: 'ironTail' }],
   },
+
+  // ── Sprint 006 Pokemon ──
+
+  // Weedle line
+  weedle: {
+    id: 13, name: 'WEEDLE', types: ['bug', 'poison'],
+    baseHp: 40, baseAtk: 35, baseDef: 30, baseSpd: 50,
+    learnedMoves: ['poisonSting', 'stringShot'],
+    baseExpYield: 39, catchRate: 255,
+    levelUpMoves: [{ level: 5, moveKey: 'bugBite' }],
+    evolution: { level: 7, into: 'kakuna' },
+  },
+  kakuna: {
+    id: 14, name: 'KAKUNA', types: ['bug', 'poison'],
+    baseHp: 45, baseAtk: 25, baseDef: 50, baseSpd: 35,
+    learnedMoves: ['poisonSting', 'harden'],
+    baseExpYield: 72, catchRate: 120,
+    levelUpMoves: [{ level: 7, moveKey: 'harden' }],
+    evolution: { level: 10, into: 'beedrill' },
+  },
+  beedrill: {
+    id: 15, name: 'BEEDRILL', types: ['bug', 'poison'],
+    baseHp: 65, baseAtk: 90, baseDef: 40, baseSpd: 75,
+    learnedMoves: ['twineedle', 'poisonSting', 'furySwipes', 'focusEnergy'],
+    baseExpYield: 178, catchRate: 45,
+    levelUpMoves: [{ level: 12, moveKey: 'furySwipes' }, { level: 16, moveKey: 'crossPoison' }],
+  },
+
+  // Pidgeot (evolution of Pidgeotto)
+  pidgeot: {
+    id: 18, name: 'PIDGEOT', types: ['normal', 'flying'],
+    baseHp: 83, baseAtk: 80, baseDef: 75, baseSpd: 101,
+    learnedMoves: ['gust', 'quickAttack', 'wingAttack', 'airSlash'],
+    baseExpYield: 216, catchRate: 45,
+    levelUpMoves: [{ level: 38, moveKey: 'swift' }],
+  },
+
+  // Nidorino (evolution of NidoranM)
+  nidorino: {
+    id: 33, name: 'NIDORINO', types: ['poison'],
+    baseHp: 61, baseAtk: 72, baseDef: 57, baseSpd: 65,
+    learnedMoves: ['poisonSting', 'bite', 'headbutt', 'crossPoison'],
+    baseExpYield: 128, catchRate: 120,
+    levelUpMoves: [{ level: 20, moveKey: 'crossPoison' }, { level: 23, moveKey: 'bodySlam' }],
+  },
+
+  // Oddish line
+  oddish: {
+    id: 43, name: 'ODDISH', types: ['grass', 'poison'],
+    baseHp: 45, baseAtk: 50, baseDef: 55, baseSpd: 30,
+    learnedMoves: ['absorb', 'growl'],
+    baseExpYield: 64, catchRate: 255,
+    levelUpMoves: [{ level: 5, moveKey: 'absorb' }, { level: 9, moveKey: 'poisonPowder' }, { level: 13, moveKey: 'megaDrain' }],
+    evolution: { level: 21, into: 'gloom' },
+  },
+  gloom: {
+    id: 44, name: 'GLOOM', types: ['grass', 'poison'],
+    baseHp: 60, baseAtk: 65, baseDef: 70, baseSpd: 40,
+    learnedMoves: ['absorb', 'megaDrain', 'poisonPowder', 'acidSpray'],
+    baseExpYield: 138, catchRate: 120,
+    levelUpMoves: [{ level: 24, moveKey: 'sleepPowder' }, { level: 28, moveKey: 'seedBomb' }],
+  },
+
+  // Mankey line
+  mankey: {
+    id: 56, name: 'MANKEY', types: ['normal'],
+    baseHp: 40, baseAtk: 80, baseDef: 35, baseSpd: 70,
+    learnedMoves: ['scratch', 'leer', 'karatechop'],
+    baseExpYield: 61, catchRate: 190,
+    levelUpMoves: [{ level: 9, moveKey: 'karatechop' }, { level: 13, moveKey: 'furySwipes' }, { level: 17, moveKey: 'lowKick' }],
+    evolution: { level: 28, into: 'primeape' },
+  },
+  primeape: {
+    id: 57, name: 'PRIMEAPE', types: ['normal'],
+    baseHp: 65, baseAtk: 105, baseDef: 60, baseSpd: 95,
+    learnedMoves: ['karatechop', 'furySwipes', 'lowKick', 'megaPunch'],
+    baseExpYield: 159, catchRate: 75,
+    levelUpMoves: [{ level: 30, moveKey: 'megaPunch' }, { level: 35, moveKey: 'bodySlam' }],
+  },
+
+  // Abra line
+  abra: {
+    id: 63, name: 'ABRA', types: ['psychic'],
+    baseHp: 25, baseAtk: 20, baseDef: 15, baseSpd: 90,
+    learnedMoves: ['teleport'],
+    baseExpYield: 62, catchRate: 200,
+    levelUpMoves: [{ level: 8, moveKey: 'confusion' }],
+    evolution: { level: 16, into: 'kadabra' },
+  },
+  kadabra: {
+    id: 64, name: 'KADABRA', types: ['psychic'],
+    baseHp: 40, baseAtk: 35, baseDef: 30, baseSpd: 105,
+    learnedMoves: ['confusion', 'psybeam', 'teleport'],
+    baseExpYield: 145, catchRate: 100,
+    levelUpMoves: [{ level: 18, moveKey: 'psybeam' }, { level: 24, moveKey: 'psychic' }],
+  },
+
+  // Staryu line (Misty's Pokemon)
+  staryu: {
+    id: 120, name: 'STARYU', types: ['water'],
+    baseHp: 30, baseAtk: 45, baseDef: 55, baseSpd: 85,
+    learnedMoves: ['tackle', 'waterGun', 'rapidSpin'],
+    baseExpYield: 68, catchRate: 225,
+    levelUpMoves: [{ level: 7, moveKey: 'waterGun' }, { level: 12, moveKey: 'swiftStar' }, { level: 18, moveKey: 'bubbleBeam' }],
+    evolution: { level: 25, into: 'starmie' },
+  },
+  starmie: {
+    id: 121, name: 'STARMIE', types: ['water', 'psychic'],
+    baseHp: 60, baseAtk: 75, baseDef: 85, baseSpd: 115,
+    learnedMoves: ['waterGun', 'bubbleBeam', 'swiftStar', 'psychic'],
+    baseExpYield: 182, catchRate: 60,
+    levelUpMoves: [{ level: 28, moveKey: 'surf' }, { level: 33, moveKey: 'powerGem' }],
+  },
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
@@ -283,11 +418,23 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
     { species: 'caterpie', minLevel: 3, maxLevel: 5, weight: 25 },
   ],
   route2: [
-    { species: 'zubat', minLevel: 5, maxLevel: 8, weight: 30 },
-    { species: 'geodude', minLevel: 5, maxLevel: 8, weight: 25 },
-    { species: 'nidoranM', minLevel: 5, maxLevel: 8, weight: 20 },
-    { species: 'pidgey', minLevel: 5, maxLevel: 8, weight: 15 },
-    { species: 'pikachu', minLevel: 5, maxLevel: 7, weight: 10 },
+    { species: 'zubat', minLevel: 5, maxLevel: 8, weight: 25 },
+    { species: 'geodude', minLevel: 5, maxLevel: 8, weight: 20 },
+    { species: 'nidoranM', minLevel: 5, maxLevel: 8, weight: 15 },
+    { species: 'pidgey', minLevel: 5, maxLevel: 8, weight: 10 },
+    { species: 'pikachu', minLevel: 5, maxLevel: 7, weight: 5 },
+    { species: 'weedle', minLevel: 5, maxLevel: 7, weight: 15 },
+    { species: 'oddish', minLevel: 5, maxLevel: 7, weight: 10 },
+  ],
+  route3: [
+    { species: 'mankey', minLevel: 8, maxLevel: 12, weight: 20 },
+    { species: 'oddish', minLevel: 8, maxLevel: 11, weight: 20 },
+    { species: 'abra', minLevel: 8, maxLevel: 10, weight: 5 },
+    { species: 'pidgey', minLevel: 8, maxLevel: 11, weight: 15 },
+    { species: 'nidoranM', minLevel: 8, maxLevel: 11, weight: 15 },
+    { species: 'geodude', minLevel: 9, maxLevel: 12, weight: 10 },
+    { species: 'staryu', minLevel: 8, maxLevel: 11, weight: 10 },
+    { species: 'zubat', minLevel: 8, maxLevel: 11, weight: 5 },
   ],
 };
 
@@ -311,6 +458,8 @@ export function rollEncounter(route: string): { species: string; level: number }
 
 export type ItemType = 'pokeball' | 'medicine';
 
+export type StatusItemEffect = 'cure_poison' | 'cure_all';
+
 export interface ItemData {
   name: string;
   type: ItemType;
@@ -318,12 +467,16 @@ export interface ItemData {
   price: number;
   healAmount?: number;
   catchMultiplier?: number;
+  statusCure?: StatusItemEffect;
 }
 
 export const ITEMS: Record<string, ItemData> = {
   pokeball:    { name: 'POKé BALL',    type: 'pokeball', description: 'Catches wild POKéMON.', catchMultiplier: 1.0, price: 200 },
+  greatBall:   { name: 'GREAT BALL',   type: 'pokeball', description: 'Better catch rate.', catchMultiplier: 1.5, price: 600 },
   potion:      { name: 'POTION',       type: 'medicine', description: 'Restores 20 HP.', healAmount: 20, price: 300 },
   superPotion: { name: 'SUPER POTION', type: 'medicine', description: 'Restores 50 HP.', healAmount: 50, price: 700 },
+  antidote:    { name: 'ANTIDOTE',     type: 'medicine', description: 'Cures poison.', statusCure: 'cure_poison', price: 100 },
+  fullHeal:    { name: 'FULL HEAL',    type: 'medicine', description: 'Cures any status.', statusCure: 'cure_all', price: 600 },
 };
 
 // ── Type colors (for UI) ──
@@ -366,7 +519,7 @@ export interface TrainerData {
   team: Array<{ species: string; level: number }>;
   reward: number; // money
   defeatMessage: string;
-  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader';
+  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2';
   isGymLeader?: boolean;
   badgeName?: string;
 }
@@ -408,5 +561,30 @@ export const TRAINERS: Record<string, TrainerData> = {
     sprite: 'gymLeader',
     isGymLeader: true,
     badgeName: 'BOULDER BADGE',
+  },
+  // Route 3 trainers
+  lass_marina: {
+    name: 'LASS MARINA',
+    team: [{ species: 'oddish', level: 9 }, { species: 'staryu', level: 10 }],
+    reward: 280,
+    defeatMessage: "Water and grass make a great combo!",
+    sprite: 'lass',
+  },
+  youngster_kyle: {
+    name: 'YOUNGSTER KYLE',
+    team: [{ species: 'mankey', level: 10 }, { species: 'rattata', level: 11 }],
+    reward: 300,
+    defeatMessage: "I need to train harder!",
+    sprite: 'youngster',
+  },
+  // Second gym leader
+  gym_misty: {
+    name: 'LEADER MISTY',
+    team: [{ species: 'staryu', level: 18 }, { species: 'starmie', level: 21 }],
+    reward: 2100,
+    defeatMessage: "You really are talented! Here, take the CASCADE BADGE!",
+    sprite: 'gymLeader2',
+    isGymLeader: true,
+    badgeName: 'CASCADE BADGE',
   },
 };

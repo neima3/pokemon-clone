@@ -46,11 +46,11 @@ export const MAP_DATA: Tile[] = [
   T, G, G, G, P, g, g, g, g, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, g, g, g, g, G, G, G, G, P, G, G, G, T,  // 18
   T, G, G, G, P, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, G, G, F, G, G, P, G, G, G, T,  // 19
   T, G, F, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 20
-  T, G, G, G, P, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 21
-  T, G, G, G, P, G, G, G, G, G, T, T, T, T, G, G, G, G, G, G, G, G, G, T, T, T, T, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 22
-  T, G, G, G, P, G, G, G, G, G, G, T, T, G, G, G, G, G, G, G, G, G, G, G, T, T, G, G, G, G, G, g, g, G, G, P, G, G, G, T,  // 23
-  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, g, g, G, P, G, G, G, T,  // 24
-  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, G, G, G, G, G, G, G, G, G, G, g, g, G, G, P, G, G, G, T,  // 25
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, G, G, G, G, G, G, P, G, G, G, T,  // 21
+  T, G, G, G, P, G, G, G, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, G, G, G, G, G, G, P, G, G, G, T,  // 22
+  T, G, G, G, P, G, G, G, G, g, g, g, G, G, G, G, G, G, G, G, G, G, G, E, E, P, E, E, G, G, G, g, g, G, G, P, G, G, G, T,  // 23
+  T, G, G, G, P, G, G, G, G, G, g, g, G, G, G, G, F, G, G, G, G, G, G, G, G, P, G, G, G, G, g, g, g, g, G, P, G, G, G, T,  // 24
+  T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, G, G, G, G, P, P, P, P, P, P, g, g, G, G, P, G, G, G, T,  // 25
   T, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, W, W, W, W, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, T,  // 26
   T, G, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, T,  // 27
   T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 28
@@ -61,6 +61,8 @@ export const MAP_DATA: Tile[] = [
 export function getRouteZone(gx: number, gy: number): string {
   // Town area: roughly rows 4-15, cols 8-22
   if (gy >= 4 && gy <= 15 && gx >= 8 && gx <= 22) return 'town';
+  // Route 3: far south-east section (near Misty's gym)
+  if (gy >= 20 && gx >= 22) return 'route3';
   // Route 2: bottom section rows 16+
   if (gy >= 16) return 'route2';
   // Route 1: top/side areas
@@ -141,7 +143,7 @@ export const MAP_NPCS: NPCData[] = [
     dialogue: ['TIP: Your POKéMON gain EXP from battles.', 'Level them up to learn new moves!', 'Some POKéMON even evolve at higher levels!'],
     isTrainer: false,
   },
-  // Gym Leader
+  // Gym Leader — Brock
   {
     id: 'gym_leader_brock',
     gx: 31, gy: 10,
@@ -150,5 +152,52 @@ export const MAP_NPCS: NPCData[] = [
     dialogue: ['I am BROCK, the GYM LEADER!', 'My rock-hard determination is my style!', 'Show me your best!'],
     isTrainer: true,
     trainerId: 'gym_brock',
+  },
+  // Route 3 trainers
+  {
+    id: 'trainer_marina',
+    gx: 20, gy: 22,
+    sprite: 'lass',
+    facing: 'right',
+    dialogue: ['I love water POKéMON!', 'Let\'s see how you handle them!'],
+    isTrainer: true,
+    trainerId: 'lass_marina',
+  },
+  {
+    id: 'trainer_kyle',
+    gx: 15, gy: 24,
+    sprite: 'youngster',
+    facing: 'down',
+    dialogue: ['Fighting types are the coolest!', 'Come at me!'],
+    isTrainer: true,
+    trainerId: 'youngster_kyle',
+  },
+  // Route 3 helper NPC
+  {
+    id: 'route3_helper',
+    gx: 28, gy: 20,
+    sprite: 'lass',
+    facing: 'down',
+    dialogue: ['MISTY\'s GYM is just south of here.', 'Her Water-type POKéMON are tough!', 'Make sure you have Grass or Electric types!'],
+    isTrainer: false,
+  },
+  // Gym Leader — Misty
+  {
+    id: 'gym_leader_misty',
+    gx: 25, gy: 22,
+    sprite: 'gymLeader2',
+    facing: 'down',
+    dialogue: ['I\'m MISTY, the GYM LEADER!', 'My water POKéMON will wash you away!', 'Prepare yourself!'],
+    isTrainer: true,
+    trainerId: 'gym_misty',
+  },
+  // PC NPC in PokéCenter
+  {
+    id: 'pc_npc',
+    gx: 14, gy: 13,
+    sprite: 'shopkeeper',
+    facing: 'up',
+    dialogue: ['This is the POKéMON STORAGE SYSTEM.', 'You can deposit or withdraw POKéMON here.'],
+    isTrainer: false,
   },
 ];
