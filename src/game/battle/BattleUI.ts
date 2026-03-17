@@ -680,7 +680,6 @@ export const BattleUI = {
           const py = targetCy + Math.sin(angle) * dist * 0.7;
           ctx.globalAlpha = (1 - t) * 0.85;
           ctx.fillStyle = i % 3 === 0 ? '#98d8d8' : i % 3 === 1 ? '#b0f0f0' : '#ffffff';
-          // Diamond/crystal shape using rotated square
           ctx.save();
           ctx.translate(px, py);
           ctx.rotate(Math.PI / 4 + t * 3);
@@ -688,19 +687,102 @@ export const BattleUI = {
           ctx.fillRect(-sz / 2, -sz / 2, sz, sz);
           ctx.restore();
         }
-        // Icy sparkles that twinkle
         for (let i = 0; i < 6; i++) {
           const sparkAngle = (i / 6) * Math.PI * 2 + t * 7;
           const sparkDist = 8 + t * 18;
           const sx = targetCx + Math.cos(sparkAngle) * sparkDist;
           const sy = targetCy + Math.sin(sparkAngle) * sparkDist * 0.6;
-          // Twinkle effect: oscillating alpha
           const twinkle = Math.abs(Math.sin(t * 12 + i * 2.5));
           ctx.globalAlpha = (1 - t) * twinkle * 0.9;
           ctx.fillStyle = '#ffffff';
-          // Small cross sparkle shape
           ctx.fillRect(sx - 1, sy - 3, 2, 6);
           ctx.fillRect(sx - 3, sy - 1, 6, 2);
+        }
+        break;
+      }
+      case 'dragon': {
+        // Dragon energy - swirling draconic aura
+        for (let i = 0; i < 10; i++) {
+          const angle = (i / 10) * Math.PI * 2 + t * 6;
+          const dist = 15 + t * 25;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.6;
+          ctx.globalAlpha = 1 - t;
+          ctx.fillStyle = i % 3 === 0 ? '#7058a0' : i % 3 === 1 ? '#9858d8' : '#c830d0';
+          ctx.save();
+          ctx.translate(px, py);
+          ctx.rotate(angle * 2 + t * 8);
+          ctx.beginPath();
+          ctx.moveTo(-6, 0);
+          ctx.lineTo(6, 0);
+          ctx.lineTo(0, -4);
+          ctx.lineTo(0, 4);
+          ctx.stroke();
+          ctx.restore();
+        }
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2 + t * 3;
+          const dist = 20 + t * 20;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.5 - t * 15;
+          ctx.globalAlpha = (1 - t) * 0.7;
+          ctx.fillStyle = '#5838a0';
+          ctx.beginPath();
+          ctx.arc(px, py, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        break;
+      }
+      case 'steel': {
+        // Metallic shards spinning outward
+        for (let i = 0; i < 8; i++) {
+          const angle = (i / 8) * Math.PI * 2 + t * 4;
+          const dist = t * 28;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.7;
+          ctx.globalAlpha = 1 - t;
+          ctx.fillStyle = i % 2 === 0 ? '#b8b8d0' : '#888898';
+          ctx.save();
+          ctx.translate(px, py);
+          ctx.rotate(angle + t * 10);
+          const sz = 5 * (1 - t * 0.3);
+          ctx.fillRect(-sz, -sz / 2, sz * 2, sz);
+          ctx.restore();
+        }
+        for (let i = 0; i < 5; i++) {
+          const sparkX = targetCx + (Math.random() - 0) * 40;
+          const sparkY = targetCy + (Math.random() - 1) * 30;
+          ctx.globalAlpha = (1 - t) * 0.5;
+          ctx.fillStyle = '#d0d0d8';
+          ctx.fillRect(sparkX - 2, sparkY - 2, 4, 4);
+        }
+        break;
+      }
+      case 'fighting': {
+        // Martial arts impact - fist-shaped energy bursts
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2;
+          const dist = t * 25;
+          const px = targetCx + Math.cos(angle) * dist;
+          const py = targetCy + Math.sin(angle) * dist * 0.6;
+          ctx.globalAlpha = 1 - t;
+          ctx.fillStyle = i % 2 === 0 ? '#c03028' : '#a04830';
+          ctx.save();
+          ctx.translate(px, py);
+          ctx.rotate(angle + t * 5);
+          ctx.fillRect(-4, -6, 8, 12);
+          ctx.restore();
+        }
+        for (let i = 0; i < 4; i++) {
+          const lineY = targetCy - 15 + i * 10;
+          const lineX = targetCx - 20 + t * 40;
+          ctx.globalAlpha = (1 - t) * 0.6;
+          ctx.strokeStyle = '#f08030';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(lineX, lineY);
+          ctx.lineTo(lineX + 15, lineY + 5);
+          ctx.stroke();
         }
         break;
       }

@@ -121,7 +121,9 @@ export class OverworldScene implements Scene {
   }
 
   private playZoneMusic(zone: string) {
-    if (zone === 'route4') {
+    if (zone === 'pokemonLeague') {
+      Music.pokemonLeague();
+    } else if (zone === 'route4') {
       Music.route4();
     } else if (zone === 'route5') {
       Music.route5();

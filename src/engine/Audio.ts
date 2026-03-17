@@ -634,6 +634,72 @@ function buildRoute9Bass(): MusicPattern {
   };
 }
 
+function buildPokemonLeaguePattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 3,
+    notes: [
+      { freq: n.C4, dur: 1 }, { freq: n.G4, dur: 0.5 }, { freq: n.A4, dur: 0.5 },
+      { freq: n.B4, dur: 1 }, { freq: n.A4, dur: 0.5 }, { freq: n.G4, dur: 0.5 },
+      { freq: n.E4, dur: 1 }, { freq: n.D4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.G4, dur: 1.5 },
+      { freq: n.C4, dur: 1 }, { freq: n.E4, dur: 0.5 }, { freq: n.G4, dur: 0.5 },
+      { freq: n.C5, dur: 1 }, { freq: n.B4, dur: 0.5 }, { freq: n.A4, dur: 0.5 },
+      { freq: n.G4, dur: 1 }, { freq: n.A4, dur: 0.5 }, { freq: n.G4, dur: 0.5 },
+      { freq: n.E4, dur: 1.5 },
+    ],
+  };
+}
+
+function buildPokemonLeagueBass(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 1.5,
+    notes: [
+      { freq: n.C3, dur: 2 }, { freq: n.G3, dur: 2 },
+      { freq: n.E3, dur: 2 }, { freq: n.G3, dur: 2 },
+      { freq: n.A3, dur: 2 }, { freq: n.G3, dur: 2 },
+      { freq: n.E3, dur: 2 }, { freq: n.C3, dur: 2 },
+    ],
+  };
+}
+
+function buildChampionPattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 6,
+    notes: [
+      { freq: n.E4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.A4, dur: 0.25 }, { freq: n.B4, dur: 0.25 },
+      { freq: n.C5, dur: 0.5 }, { freq: n.B4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.A4, dur: 0.5 },
+      { freq: n.B4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.D4, dur: 0.5 }, { freq: n.E4, dur: 0.25 }, { freq: n.G4, dur: 0.25 },
+      { freq: n.A4, dur: 1 }, { freq: n.G4, dur: 0.5 },
+      { freq: n.C5, dur: 0.5 }, { freq: n.B4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.D4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.G4, dur: 1 },
+    ],
+  };
+}
+
+function buildChampionBass(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 3,
+    notes: [
+      { freq: n.E3, dur: 1 }, { freq: n.E3, dur: 0.5 }, { freq: n.B3, dur: 0.5 },
+      { freq: n.C3, dur: 1 }, { freq: n.G3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+      { freq: n.A3, dur: 1 }, { freq: n.E3, dur: 0.5 }, { freq: n.A3, dur: 0.5 },
+      { freq: n.G3, dur: 1 }, { freq: n.E3, dur: 0.5 }, { freq: n.G3, dur: 0.5 },
+      { freq: n.C3, dur: 1 }, { freq: n.G3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+      { freq: n.E3, dur: 1.5 },
+    ],
+  };
+}
+
 function buildTitlePattern(): MusicPattern {
   const n = NOTE;
   return {
@@ -811,6 +877,22 @@ export const Music = {
     currentMusic = playMusicLoop([
       { pattern: buildTitlePattern(), type: 'square', gainVal: 0.15 },
       { pattern: buildTitleBass(), type: 'triangle', gainVal: 0.12 },
+    ]);
+  },
+
+  champion() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildChampionPattern(), type: 'square', gainVal: 0.16 },
+      { pattern: buildChampionBass(), type: 'triangle', gainVal: 0.14 },
+    ]);
+  },
+
+  pokemonLeague() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildPokemonLeaguePattern(), type: 'square', gainVal: 0.14 },
+      { pattern: buildPokemonLeagueBass(), type: 'triangle', gainVal: 0.1 },
     ]);
   },
 

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2026-03-17
+
+### Added
+- Sprint 015: Battle Visual Polish & Pokemon League Music
+- Dragon-type attack animation: swirling draconic energy with purple aura
+- Steel-type attack animation: metallic shards spinning outward
+- Fighting-type attack animation: martial arts impact with energy bursts
+- Pokemon League zone music theme: majestic and epic orchestral melody
+- Champion battle music theme: intense and dramatic final challenge theme
+
+### Changed
+- Zone music now plays Pokemon League theme when entering Victory Road area
+
 ## [0.14.0] - 2026-03-17
 
 ### Added
