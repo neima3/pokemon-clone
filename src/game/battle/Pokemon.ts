@@ -64,6 +64,22 @@ export class Pokemon {
   damageTakenThisTurn = 0;
   lastIncomingMoveWasPhysical: boolean | null = null;
 
+  substituteHp = 0;
+  
+  trapped = false;
+  trappedTurns = 0;
+  trappedBy: string | null = null;
+  
+  disabledMove: string | null = null;
+  disabledTurns = 0;
+  lastUsedMove: string | null = null;
+  
+  encoredMove: string | null = null;
+  encoreTurns = 0;
+  
+  taunted = false;
+  tauntTurns = 0;
+
   constructor(speciesKey: string, level: number, badgeCount: number = 0) {
     const species = SPECIES[speciesKey];
     if (!species) throw new Error(`Unknown species: ${speciesKey}`);
@@ -189,6 +205,16 @@ export class Pokemon {
     this.damageTakenThisTurn = 0;
     this.lastIncomingMoveWasPhysical = null;
     this.toxicCounter = 0;
+    this.substituteHp = 0;
+    this.trapped = false;
+    this.trappedTurns = 0;
+    this.trappedBy = null;
+    this.disabledMove = null;
+    this.disabledTurns = 0;
+    this.encoredMove = null;
+    this.encoreTurns = 0;
+    this.taunted = false;
+    this.tauntTurns = 0;
   }
 
   heal() {
@@ -204,6 +230,17 @@ export class Pokemon {
     this.consecutiveProtect = 0;
     this.isSwitching = false;
     this.toxicCounter = 0;
+    this.substituteHp = 0;
+    this.trapped = false;
+    this.trappedTurns = 0;
+    this.trappedBy = null;
+    this.disabledMove = null;
+    this.disabledTurns = 0;
+    this.lastUsedMove = null;
+    this.encoredMove = null;
+    this.encoreTurns = 0;
+    this.taunted = false;
+    this.tauntTurns = 0;
     for (const m of this.moves) m.pp = m.data.maxPp;
   }
 

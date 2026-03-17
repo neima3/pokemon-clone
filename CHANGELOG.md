@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.0] - 2026-03-17
+
+### Added
+- Sprint 028: Substitute, Trapping & Disable System
+- Substitute mechanic: creates decoy that takes damage (costs 25% HP)
+- Trapping moves: Wrap, Fire Spin, Whirlpool, Clamp, Bind (trap for 4-5 turns, 1/16 HP damage per turn)
+- Disable move: prevents using last used move for 4 turns
+- Encore move: forces target to repeat last move for 3 turns
+- Taunt move: prevents using status moves for 3 turns
+- Visual substitute doll indicator when active
+
+### Technical
+- Added substituteHp, trapped, disabledMove, encoredMove, taunted states to Pokemon class
+- Added trapTurns field to MoveData interface for trapping duration
+- Added checkTrappingDamage(), canUseMove(), decrementTurnCounters() functions to BattleEngine
+- Extended TurnResult with substituteCreated, substituteDamage, substituteBroken, trapped, disabled, encored, taunted fields
+- Added drawSubstitute() method for visual substitute doll rendering
+- Updated existing trapping moves (Wrap, Fire Spin, Bind) with trap effect
+
 ## [0.26.0] - 2026-03-17
 
 ### Added

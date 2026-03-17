@@ -98,6 +98,14 @@ export interface TurnResult {
   pivotSwitch?: boolean;
   rockyHelmetDamage?: number;
   airBalloonPopped?: boolean;
+  substituteCreated?: boolean;
+  substituteDamage?: number;
+  substituteBroken?: boolean;
+  trapped?: boolean;
+  trapTurns?: number;
+  disabled?: string;
+  encored?: string;
+  taunted?: boolean;
 }
 
   
@@ -480,6 +488,43 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
       result.batonPass = true;
     } else if (effect === 'u_turn') {
       result.pivotSwitch = true;
+    } else if (effect === 'substitute') {
+      if (attacker.substituteHp > 0) {
+        result.statusMessage = `${attacker.name} already has a SUBSTITUTE!`;
+      } else if (attacker.hp <= Math.floor(attacker.maxHp * 0.25)) {
+        result.statusMessage = `${attacker.name} is too weak to make a SUBSTITUTE!`;
+      } else {
+        const subHp = Math.floor(attacker.maxHp * 0.25);
+        attacker.hp -= subHp;
+        attacker.substituteHp = subHp;
+        result.substituteCreated = true;
+        result.statusMessage = `${attacker.name} created a SUBSTITUTE!`;
+      }
+    } else if (effect === 'disable') {
+      if (defender.lastUsedMove) {
+        defender.disabledMove = defender.lastUsedMove;
+        defender.disabledTurns = 4;
+        result.disabled = defender.lastUsedMove;
+        const moveData = MOVES[defender.lastUsedMove];
+        result.statusMessage = `${defender.name}'s ${moveData?.name ?? 'move'} was DISABLED!`;
+      } else {
+        result.statusMessage = `But it failed!`;
+      }
+    } else if (effect === 'encore') {
+      if (defender.lastUsedMove && defender.moves.some(m => m.key === defender.lastUsedMove)) {
+        defender.encoredMove = defender.lastUsedMove;
+        defender.encoreTurns = 3;
+        result.encored = defender.lastUsedMove;
+        const moveData = MOVES[defender.lastUsedMove];
+        result.statusMessage = `${defender.name} received an ENCORE for ${moveData?.name ?? 'its move'}!`;
+      } else {
+        result.statusMessage = `But it failed!`;
+      }
+    } else if (effect === 'taunt') {
+      defender.taunted = true;
+      defender.tauntTurns = 3;
+      result.taunted = true;
+      result.statusMessage = `${defender.name} fell for the TAUNT!`;
     }
     return result;
   }
@@ -640,6 +685,20 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     result.statusMessage = `${defender.name} hung on using its FOCUS SASH!`;
   }
   
+  if (defender.substituteHp > 0) {
+    const subDamage = Math.min(defender.substituteHp, damage);
+    defender.substituteHp -= subDamage;
+    result.substituteDamage = subDamage;
+    if (defender.substituteHp <= 0) {
+      defender.substituteHp = 0;
+      result.substituteBroken = true;
+      result.statusMessage = `${defender.name}'s SUBSTITUTE broke!`;
+    } else {
+      result.statusMessage = `The SUBSTITUTE took damage!`;
+    }
+    damage = 0;
+  }
+  
   defender.hp = Math.max(0, defender.hp - damage);
   defender.damageTakenThisTurn += damage;
   defender.lastIncomingMoveWasPhysical = move.data.category === 'physical';
@@ -720,6 +779,18 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
             defender.confuseTurns = 1 + Math.floor(Math.random() * 4);
             result.statusMessage = `${defender.name} became confused!`;
         }
+        
+        if (move.data.effect === 'trap' && damage > 0 && !defender.trapped) {
+            const [minTurns, maxTurns] = move.data.trapTurns ?? [4, 5];
+            defender.trapped = true;
+            defender.trappedTurns = minTurns + Math.floor(Math.random() * (maxTurns - minTurns + 1));
+            defender.trappedBy = move.data.name;
+            result.trapped = true;
+            result.trapTurns = defender.trappedTurns;
+            result.statusMessage = `${defender.name} was trapped by ${move.data.name}!`;
+        }
+        
+        attacker.lastUsedMove = move.key;
         
         return result;
     }
@@ -828,4 +899,85 @@ export function checkLumBerry(mon: Pokemon, status: StatusCondition): { cured: b
     };
   }
   return { cured: false };
+}
+
+export interface TrapResult {
+  damage: number;
+  message?: string;
+  freed?: boolean;
+}
+
+export function checkTrappingDamage(mon: Pokemon): TrapResult | null {
+  if (!mon.trapped || mon.trappedTurns <= 0) return null;
+  
+  if (mon.ability?.effect === 'no_indirect_damage') {
+    mon.trappedTurns--;
+    if (mon.trappedTurns <= 0) {
+      mon.trapped = false;
+      mon.trappedBy = null;
+      return { damage: 0, freed: true, message: `${mon.name} was freed from ${mon.trappedBy ?? 'the trap'}!` };
+    }
+    return null;
+  }
+  
+  const damage = Math.max(1, Math.floor(mon.maxHp / 16));
+  mon.hp = Math.max(0, mon.hp - damage);
+  mon.trappedTurns--;
+  
+  if (mon.trappedTurns <= 0) {
+    const trapName = mon.trappedBy ?? 'the trap';
+    mon.trapped = false;
+    mon.trappedBy = null;
+    return { damage, freed: true, message: `${mon.name} was freed from ${trapName}!` };
+  }
+  
+  return { damage, message: `${mon.name} is hurt by ${mon.trappedBy ?? 'the trap'}!` };
+}
+
+export interface MoveRestrictionResult {
+  canUse: boolean;
+  message?: string;
+}
+
+export function canUseMove(mon: Pokemon, move: MoveInstance): MoveRestrictionResult {
+  if (mon.disabledMove && mon.disabledMove === move.key && mon.disabledTurns > 0) {
+    const moveData = MOVES[move.key];
+    return { canUse: false, message: `${moveData?.name ?? 'The move'} is DISABLED!` };
+  }
+  
+  if (mon.encoredMove && mon.encoreTurns > 0) {
+    if (move.key !== mon.encoredMove) {
+      const encoredMoveData = MOVES[mon.encoredMove];
+      return { canUse: false, message: `${mon.name} must use ${encoredMoveData?.name ?? 'the encored move'}!` };
+    }
+  }
+  
+  if (mon.taunted && mon.tauntTurns > 0 && move.data.category === 'status') {
+    return { canUse: false, message: `${mon.name} can't use ${move.data.name} because of the TAUNT!` };
+  }
+  
+  return { canUse: true };
+}
+
+export function decrementTurnCounters(mon: Pokemon): void {
+  if (mon.disabledTurns > 0) {
+    mon.disabledTurns--;
+    if (mon.disabledTurns <= 0) {
+      mon.disabledMove = null;
+    }
+  }
+  
+  if (mon.encoreTurns > 0) {
+    mon.encoreTurns--;
+    if (mon.encoreTurns <= 0) {
+      mon.encoredMove = null;
+    }
+  }
+  
+  if (mon.tauntTurns > 0) {
+    mon.tauntTurns--;
+    if (mon.tauntTurns <= 0) {
+      mon.taunted = false;
+    }
+  }
 }

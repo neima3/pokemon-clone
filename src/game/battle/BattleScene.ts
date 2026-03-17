@@ -4,7 +4,7 @@ import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
-import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards } from './BattleEngine';
+import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition } from './data';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
@@ -1154,6 +1154,21 @@ export class BattleScene implements Scene {
       }
     }
 
+    const playerTrap = checkTrappingDamage(this.playerMon);
+    if (playerTrap?.message) msgs.push(playerTrap.message);
+    if (playerTrap?.damage && playerTrap.damage > 0) {
+      this.playerDisplayHp = this.playerMon.hp;
+    }
+
+    const enemyTrap = checkTrappingDamage(this.enemyMon);
+    if (enemyTrap?.message) msgs.push(enemyTrap.message);
+    if (enemyTrap?.damage && enemyTrap.damage > 0) {
+      this.enemyDisplayHp = this.enemyMon.hp;
+    }
+
+    decrementTurnCounters(this.playerMon);
+    decrementTurnCounters(this.enemyMon);
+
     // Reset flinch state for next turn
     this.playerFlinched = false;
     this.enemyFlinched = false;
@@ -1274,6 +1289,15 @@ export class BattleScene implements Scene {
       } else {
         then();
       }
+      return;
+    }
+
+    const moveRestriction = canUseMove(attacker, move);
+    if (!moveRestriction.canUse) {
+      const msgs: string[] = [`${prefix}${attacker.name} used ${move.data.name}!`];
+      if (moveRestriction.message) msgs.push(moveRestriction.message);
+      move.pp = Math.max(0, move.pp - 1);
+      this.queueMessages(msgs, then);
       return;
     }
 
@@ -1678,6 +1702,10 @@ export class BattleScene implements Scene {
     this.drawHazardIndicators(ctx, Math.round(psx), 76, true);
     this.drawHazardIndicators(ctx, Math.round(esx), 14, false);
 
+    // Draw substitute dolls
+    this.drawSubstitute(ctx, Math.round(psx), 76, this.playerMon.substituteHp > 0);
+    this.drawSubstitute(ctx, Math.round(esx), 14, this.enemyMon.substituteHp > 0);
+
     // Shiny sparkle particles
     if (this.shinyParticles.length > 0) {
       for (const p of this.shinyParticles) {
@@ -1957,6 +1985,26 @@ export class BattleScene implements Scene {
       const toxicText = hazards.toxicSpikes === 1 ? '◇' : '◇◇';
       ctx.fillText(toxicText, spriteX + offsetX, spriteY + 55);
     }
+  }
+
+  private drawSubstitute(ctx: CanvasRenderingContext2D, spriteX: number, spriteY: number, hasSubstitute: boolean) {
+    if (!hasSubstitute) return;
+    
+    ctx.fillStyle = '#c8a878';
+    ctx.beginPath();
+    ctx.arc(spriteX + 32, spriteY + 45, 12, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#a88858';
+    ctx.beginPath();
+    ctx.arc(spriteX + 28, spriteY + 42, 3, 0, Math.PI * 2);
+    ctx.arc(spriteX + 36, spriteY + 42, 3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#f8d830';
+    ctx.font = 'bold 8px monospace';
+    ctx.textBaseline = 'top';
+    ctx.fillText('SUB', spriteX + 22, spriteY + 52);
   }
 
   private drawTrainerBalls(ctx: CanvasRenderingContext2D) {

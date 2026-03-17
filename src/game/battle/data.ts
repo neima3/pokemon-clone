@@ -444,7 +444,7 @@ export interface MoveData {
   accuracy: number;
   maxPp: number;
   category: 'physical' | 'status';
-  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect' | 'spikes' | 'stealth_rock' | 'toxic_spikes' | 'clear_hazards' | 'baton_pass' | 'u_turn';
+  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect' | 'spikes' | 'stealth_rock' | 'toxic_spikes' | 'clear_hazards' | 'baton_pass' | 'u_turn' | 'substitute' | 'trap' | 'disable' | 'encore' | 'taunt';
   statusEffect?: StatusCondition;
   statusChance?: number;
   confuseChance?: number;
@@ -458,6 +458,7 @@ export interface MoveData {
   counter?: 'physical' | 'special' | 'any';
   counterMult?: number;
   pivot?: boolean;
+  trapTurns?: [number, number];
 }
 
 export const MOVES: Record<string, MoveData> = {
@@ -510,7 +511,7 @@ export const MOVES: Record<string, MoveData> = {
   poisonPowder: { name: 'PSN POWDER',   type: 'poison',    power: 0,   accuracy: 75,  maxPp: 35, category: 'status', effect: 'poison' },
   hyperFang:    { name: 'HYPER FANG',   type: 'normal',    power: 80,  accuracy: 90,  maxPp: 15, category: 'physical' },
   airSlash:     { name: 'AIR SLASH',    type: 'flying',    power: 75,  accuracy: 95,  maxPp: 15, category: 'physical', flinchChance: 30 },
-  bind:         { name: 'BIND',         type: 'normal',    power: 15,  accuracy: 85,  maxPp: 20, category: 'physical' },
+  bind:         { name: 'BIND',         type: 'normal',    power: 15,  accuracy: 85,  maxPp: 20, category: 'physical', effect: 'trap', trapTurns: [4, 5] },
   rockTomb:     { name: 'ROCK TOMB',    type: 'rock',      power: 60,  accuracy: 95,  maxPp: 15, category: 'physical', effect: 'lower_speed' },
   ironTail:     { name: 'IRON TAIL',    type: 'steel',     power: 100, accuracy: 75,  maxPp: 15, category: 'physical', effect: 'lower_defense' },
   pursuit:      { name: 'PURSUIT',      type: 'normal',    power: 40,  accuracy: 100, maxPp: 20, category: 'physical' },
@@ -561,7 +562,7 @@ export const MOVES: Record<string, MoveData> = {
   petalDance:   { name: 'PETAL DANCE', type: 'grass',    power: 120, accuracy: 100, maxPp: 10, category: 'physical' },
   gigaDrain:    { name: 'GIGA DRAIN',  type: 'grass',    power: 75,  accuracy: 100, maxPp: 10, category: 'physical', drain: 50 },
   sludgeBomb:   { name: 'SLUDGE BOMB', type: 'poison',   power: 90,  accuracy: 100, maxPp: 10, category: 'physical', statusEffect: 'poison', statusChance: 30 },
-  fireSpinMove: { name: 'FIRE SPIN',   type: 'fire',     power: 35,  accuracy: 85,  maxPp: 15, category: 'physical', statusEffect: 'burn', statusChance: 10 },
+  fireSpinMove: { name: 'FIRE SPIN',   type: 'fire',     power: 35,  accuracy: 85,  maxPp: 15, category: 'physical', effect: 'trap', trapTurns: [4, 5], statusEffect: 'burn', statusChance: 10 },
   flameBurst:   { name: 'FLAME BURST', type: 'fire',     power: 70,  accuracy: 100, maxPp: 15, category: 'physical' },
   agility:      { name: 'AGILITY',     type: 'psychic',  power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'raise_attack' },
   flareBlitz:   { name: 'FLARE BLITZ', type: 'fire',     power: 120, accuracy: 100, maxPp: 15, category: 'physical', statusEffect: 'burn', statusChance: 10, recoil: 33 },
@@ -570,7 +571,7 @@ export const MOVES: Record<string, MoveData> = {
   roar:         { name: 'ROAR',        type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'lower_attack' },
   willOWisp:    { name: 'WILL-O-WISP',type: 'fire',     power: 0,   accuracy: 85,  maxPp: 15, category: 'status', effect: 'burn' },
   quickAttack2: { name: 'QUICK ATK',   type: 'normal',   power: 40,  accuracy: 100, maxPp: 30, category: 'physical' },
-  wrapMove:     { name: 'WRAP',        type: 'normal',   power: 15,  accuracy: 90,  maxPp: 20, category: 'physical' },
+  wrapMove:     { name: 'WRAP',        type: 'normal',   power: 15,  accuracy: 90,  maxPp: 20, category: 'physical', effect: 'trap', trapTurns: [4, 5] },
   acid:         { name: 'ACID',        type: 'poison',   power: 40,  accuracy: 100, maxPp: 30, category: 'physical', effect: 'lower_defense' },
   razorWind:    { name: 'RAZOR WIND',  type: 'normal',   power: 80,  accuracy: 100, maxPp: 10, category: 'physical' },
   stomp:        { name: 'STOMP',       type: 'normal',   power: 65,  accuracy: 100, maxPp: 20, category: 'physical' },
@@ -665,6 +666,13 @@ export const MOVES: Record<string, MoveData> = {
   uTurn:        { name: 'U-TURN',      type: 'bug',      power: 70,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'u_turn', pivot: true },
   voltSwitch:   { name: 'VOLT SWCH',   type: 'electric', power: 70,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'u_turn', pivot: true },
   batonPass:    { name: 'BATON PASS',  type: 'normal',   power: 0,   accuracy: 100, maxPp: 40, category: 'status', effect: 'baton_pass' },
+  // Sprint 028: Substitute, Disable, Encore, Taunt
+  substitute:   { name: 'SUBSTITUTE',  type: 'normal',   power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'substitute' },
+  whirlpool:    { name: 'WHIRLPOOL',   type: 'water',    power: 35,  accuracy: 85,  maxPp: 15, category: 'physical', effect: 'trap', trapTurns: [4, 5] },
+  clamp:        { name: 'CLAMP',       type: 'water',    power: 35,  accuracy: 85,  maxPp: 15, category: 'physical', effect: 'trap', trapTurns: [4, 5] },
+  disableMove:  { name: 'DISABLE',     type: 'normal',   power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'disable' },
+  encoreMove:   { name: 'ENCORE',      type: 'normal',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'encore' },
+  tauntMove:    { name: 'TAUNT',       type: 'dark',     power: 0,   accuracy: 100, maxPp: 20, category: 'status', effect: 'taunt' },
 };
 
 // ── Species ──
