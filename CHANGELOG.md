@@ -3,7 +3,28 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/2.0.0.html).
+
+## [0.24.0] - 2026-03-17
+
+### Added
+- Sprint 025: Weather Abilities & Protection System
+- Weather abilities now functional: Chlorophyll (speed doubles in sun), Swift Swim (speed doubles in rain)
+- Sand Veil ability: evasion boost in sandstorm weather
+- Quick Feet ability: speed boost when having a status condition
+- Protect/Detect moves: protect from all moves with decreasing success rate
+- Pursuit move: Dark-type move that deals double damage when target is switching
+- Weather-aware turn order: speed abilities now affect who moves first
+
+### Technical
+- Added getEffSpdWithWeather() method to Pokemon class for weather-based speed calculation
+- Added getEvasionWithWeather() method to Pokemon class for evasion calculation
+- Added protected, consecutiveProtect, isSwitching states to Pokemon class
+- Extended MoveData interface with 'protect' effect and 'pursuit' flag
+- Updated determineTurnOrder to use weather-aware speed calculation
+- Added resetProtection() function to handle protection state between turns
+- Protection success rate: 100% first use, 50% second, 25% third, etc.
+- Updated accuracy calculation to account for evasion abilities
 
 ## [0.23.0] - 2026-03-17
 

@@ -4,7 +4,7 @@ import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
-import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems } from './BattleEngine';
+import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition } from './data';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
@@ -807,8 +807,10 @@ export class BattleScene implements Scene {
       SFX.menuConfirm();
       const oldMon = this.playerMon;
       oldMon.resetStages();
+      oldMon.isSwitching = true;
       this.activeTeamIndex = this.cursor;
       this.playerMon = selected;
+      this.playerMon.isSwitching = false;
       this.playerDisplayHp = this.playerMon.hp;
       this.playerDisplayExp = this.playerMon.expPercent;
 
@@ -1125,6 +1127,10 @@ export class BattleScene implements Scene {
     // Reset flinch state for next turn
     this.playerFlinched = false;
     this.enemyFlinched = false;
+    
+    // Reset protection state for next turn
+    resetProtection(this.playerMon);
+    resetProtection(this.enemyMon);
 
     if (msgs.length > 0) {
       this.queueMessages(msgs, () => {
@@ -1146,8 +1152,8 @@ export class BattleScene implements Scene {
   // ── Turn execution ──
 
   private executeTurn(playerMove: MoveInstance) {
-    const enemyMove = getEnemyMove(this.enemyMon, this.playerMon);
-    const order = determineTurnOrder(this.playerMon, this.enemyMon);
+    const enemyMove = getEnemyMove(this.enemyMon, this.playerMon) ?? { data: MOVES['tackle'], key: 'tackle', pp: 0 };
+    const order = determineTurnOrder(this.playerMon, this.enemyMon, playerMove, enemyMove, this.weather);
 
     const first = order === 'player'
       ? { mon: this.playerMon, move: playerMove, isPlayer: true }

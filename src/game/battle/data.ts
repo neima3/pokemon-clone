@@ -426,7 +426,7 @@ export interface MoveData {
   accuracy: number;
   maxPp: number;
   category: 'physical' | 'status';
-  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2';
+  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect';
   /** Secondary status effect on damaging moves (e.g. Ember 10% burn) */
   statusEffect?: StatusCondition;
   statusChance?: number;
@@ -444,6 +444,8 @@ export interface MoveData {
   flinchChance?: number;
   /** Two-turn move type: 'charge' for Solar Beam, 'fly' for Fly, 'dig' for Dig */
   twoTurn?: 'charge' | 'fly' | 'dig';
+  /** Pursuit: double damage when target is switching */
+  pursuit?: boolean;
 }
 
 export const MOVES: Record<string, MoveData> = {
@@ -631,6 +633,11 @@ export const MOVES: Record<string, MoveData> = {
   signalBeam:   { name: 'SIGNAL BEAM', type: 'bug',      power: 75,  accuracy: 100, maxPp: 15, category: 'physical', confuseChance: 10 },
   psyshock:     { name: 'PSYSHOCK',    type: 'psychic',  power: 80,  accuracy: 100, maxPp: 10, category: 'physical' },
   agility2:     { name: 'AGILITY',     type: 'psychic',  power: 0,   accuracy: 100, maxPp: 30, category: 'status', effect: 'raise_speed' },
+  // Sprint 025: Protect system
+  protect:      { name: 'PROTECT',     type: 'normal',   power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'protect', priority: 4 },
+  detect:       { name: 'DETECT',      type: 'fighting', power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'protect', priority: 4 },
+  // Sprint 025: Pursuit (now properly tracks switching)
+  pursuitDark:  { name: 'PURSUIT',     type: 'dark',     power: 40,  accuracy: 100, maxPp: 20, category: 'physical', priority: 1, pursuit: true },
 };
 
 // ── Species ──

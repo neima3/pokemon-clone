@@ -106,15 +106,15 @@ export function applyStatusDamage(mon: Pokemon): StatusDamageResult | null {
   return null;
 }
 
-export function determineTurnOrder(player: Pokemon, enemy: Pokemon, playerMove?: MoveInstance, enemyMove?: MoveInstance): 'player' | 'enemy' {
+export function determineTurnOrder(player: Pokemon, enemy: Pokemon, playerMove?: MoveInstance, enemyMove?: MoveInstance, weather?: WeatherType): 'player' | 'enemy' {
   const playerPriority = playerMove?.data.priority ?? 0;
   const enemyPriority = enemyMove?.data.priority ?? 0;
   
   if (playerPriority > enemyPriority) return 'player';
   if (enemyPriority > playerPriority) return 'enemy';
   
-  const playerSpd = player.getEffSpd();
-  const enemySpd = enemy.getEffSpd();
+  const playerSpd = player.getEffSpdWithWeather(weather);
+  const enemySpd = enemy.getEffSpdWithWeather(weather);
   
   if (playerSpd > enemySpd) return 'player';
   if (enemySpd > playerSpd) return 'enemy';
@@ -319,7 +319,16 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     }
     
     const effect = move.data.effect;
-    if (effect === 'lower_attack') {
+    if (effect === 'protect') {
+      const successChance = Math.max(0, 100 - attacker.consecutiveProtect * 50);
+      if (Math.random() * 100 < successChance) {
+        attacker.protected = true;
+        attacker.consecutiveProtect++;
+        result.statusMessage = `${attacker.name} protected itself!`;
+      } else {
+        result.statusMessage = `${attacker.name}'s protection failed!`;
+      }
+    } else if (effect === 'lower_attack') {
       defender.atkStage = Math.max(-6, defender.atkStage - 1);
     } else if (effect === 'lower_defense') {
       defender.defStage = Math.max(-6, defender.defStage - 1);
@@ -361,6 +370,12 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     return result;
   }
   
+  if (defender.protected) {
+    result.statusMessage = `${defender.name} protected itself!`;
+    result.immune = true;
+    return result;
+  }
+  
   const immunity = checkAbilityImmunity(attacker, defender, move.data.type);
   if (immunity.immune) {
     result.immune = true;
@@ -383,7 +398,10 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     accuracy = 100;
   }
   
-  if (Math.random() * 100 >= accuracy) {
+  const evasion = defender.getEvasionWithWeather(weather);
+  const effectiveAccuracy = accuracy / evasion;
+  
+  if (Math.random() * 100 >= effectiveAccuracy) {
     result.missed = true;
     return result;
   }
@@ -405,7 +423,12 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     atk = Math.floor(atk * 1.5);
   }
   
-  let baseDamage = Math.floor(((2 * attacker.level / 5 + 2) * move.data.power * atk / def) / 50) + 2;
+  let effectivePower = move.data.power;
+  if (move.data.pursuit && defender.isSwitching) {
+    effectivePower *= 2;
+  }
+  
+  let baseDamage = Math.floor(((2 * attacker.level / 5 + 2) * effectivePower * atk / def) / 50) + 2;
   
   let numHits = 1;
   if (move.data.hits) {
@@ -594,6 +617,13 @@ export function checkTurnEndHeldItems(mon: Pokemon): HeldItemResult | null {
   }
   
   return null;
+}
+
+export function resetProtection(mon: Pokemon): void {
+  if (!mon.protected) {
+    mon.consecutiveProtect = 0;
+  }
+  mon.protected = false;
 }
 
 export function checkLumBerry(mon: Pokemon, status: StatusCondition): { cured: boolean; message?: string } {

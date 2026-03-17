@@ -1,6 +1,7 @@
 import { MoveData, MOVES, SPECIES, SpeciesData, totalExpForLevel, StatusCondition, ABILITIES, AbilityData } from './data';
 import type { HeldItem } from './HeldItems';
 import { HELD_ITEMS } from './HeldItems';
+import type { WeatherType } from '../Weather';
 
 export interface MoveInstance {
   data: MoveData;
@@ -54,6 +55,10 @@ export class Pokemon {
 
   flashFireBoost = false;
   sturdyUsed = false;
+
+  protected = false;
+  consecutiveProtect = 0;
+  isSwitching = false;
 
   constructor(speciesKey: string, level: number, badgeCount: number = 0) {
     const species = SPECIES[speciesKey];
@@ -117,6 +122,39 @@ export class Pokemon {
   getEffAtk() { return Math.max(1, Math.floor(this.attack * stageMultiplier(this.atkStage))); }
   getEffDef() { return Math.max(1, Math.floor(this.defense * stageMultiplier(this.defStage))); }
   getEffSpd() { return Math.max(1, Math.floor(this.speed * stageMultiplier(this.spdStage))); }
+  
+  getEffSpdWithWeather(weather?: WeatherType): number {
+    let spd = this.speed;
+    spd = Math.floor(spd * stageMultiplier(this.spdStage));
+    
+    if (weather && this.ability) {
+      if (weather === 'sunny' && this.ability.effect === 'sun_speed_boost') {
+        spd *= 2;
+      }
+      if (weather === 'rain' && this.ability.effect === 'rain_speed_boost') {
+        spd *= 2;
+      }
+    }
+    
+    if (this.ability?.effect === 'status_spd_boost' && this.status) {
+      spd = Math.floor(spd * 1.5);
+    }
+    
+    return Math.max(1, spd);
+  }
+  
+  getEvasionWithWeather(weather?: WeatherType): number {
+    let evasion = 1;
+    
+    if (weather === 'sandstorm' && this.ability?.effect === 'sand_evasion') {
+      evasion = 1.25;
+    }
+    if (this.ability?.effect === 'confuse_evasion' && this.confused) {
+      evasion *= 1.25;
+    }
+    
+    return evasion;
+  }
 
   hasAbilityEffect(effect: string): boolean {
     return this.ability?.effect === effect;
@@ -137,6 +175,8 @@ export class Pokemon {
     this.confuseTurns = 0;
     this.twoTurnState = 'none';
     this.twoTurnMove = null;
+    this.protected = false;
+    this.isSwitching = false;
   }
 
   heal() {
@@ -148,6 +188,9 @@ export class Pokemon {
     this.confuseTurns = 0;
     this.twoTurnState = 'none';
     this.twoTurnMove = null;
+    this.protected = false;
+    this.consecutiveProtect = 0;
+    this.isSwitching = false;
     for (const m of this.moves) m.pp = m.data.maxPp;
   }
 
