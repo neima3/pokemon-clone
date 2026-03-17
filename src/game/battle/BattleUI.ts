@@ -100,6 +100,7 @@ export const BattleUI = {
     hpPct: number,
     expPct: number,
     status?: StatusCondition | null,
+    abilityName?: string,
   ) {
     const bx = 156, by = 92, bw = 156, bh = 58;
 
@@ -165,6 +166,13 @@ export const BattleUI = {
     const expFillW = Math.max(0, (expBarW - 4) * Math.min(1, Math.max(0, expPct)));
     ctx.fillStyle = '#58a8f8';
     ctx.fillRect(expBarX + 2, expBarY + 2, expFillW, expBarH - 4);
+    
+    // Ability display (if provided)
+    if (abilityName) {
+      ctx.font = 'bold 6px monospace';
+      ctx.fillStyle = '#787878';
+      ctx.fillText(`ABILITY: ${abilityName}`, bx + 6, by + 52);
+    }
   },
 
   /** Draw the text box at the bottom of the screen */
@@ -445,6 +453,13 @@ export const BattleUI = {
       ctx.textAlign = 'right';
       ctx.fillText(`${mon.hp}/${mon.maxHp}`, bx + bw - 12, y + 14);
       ctx.textAlign = 'left';
+      
+      // Ability display
+      if (mon.ability) {
+        ctx.fillStyle = '#606060';
+        ctx.font = 'bold 7px monospace';
+        ctx.fillText(mon.ability.name, bx + 160, y + 14);
+      }
     }
 
     // CANCEL at bottom

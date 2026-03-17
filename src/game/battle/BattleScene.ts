@@ -1021,6 +1021,9 @@ export class BattleScene implements Scene {
     if (result.statusMessage) {
       messages.push(result.statusMessage);
     }
+    if (result.abilityMessage) {
+      messages.push(result.abilityMessage);
+    }
 
     this.playAttackAnim(isPlayer, move.data.type as PokemonType, result.critical, () => {
       // Spawn damage number
@@ -1382,6 +1385,7 @@ export class BattleScene implements Scene {
       this.playerDisplayHp / this.playerMon.maxHp,
       this.playerDisplayExp,
       this.playerMon.status,
+      this.playerMon.ability?.name,
     );
 
     // Trainer team indicator

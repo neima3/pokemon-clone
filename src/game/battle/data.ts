@@ -4,6 +4,392 @@ export type PokemonType = 'normal' | 'fire' | 'water' | 'grass' | 'poison' | 'bu
 
 export type StatusCondition = 'poison' | 'burn' | 'paralyze' | 'sleep';
 
+// ── Abilities ──
+
+export type AbilityTrigger = 'passive' | 'on_entry' | 'on_hit' | 'on_damage' | 'low_hp' | 'weather';
+
+export interface AbilityData {
+  name: string;
+  description: string;
+  trigger: AbilityTrigger;
+  effect?: string;
+}
+
+export const ABILITIES: Record<string, AbilityData> = {
+  overgrow: {
+    name: 'OVERGROW',
+    description: 'Powers up Grass moves when HP is low.',
+    trigger: 'low_hp',
+    effect: 'grass_boost',
+  },
+  blaze: {
+    name: 'BLAZE',
+    description: 'Powers up Fire moves when HP is low.',
+    trigger: 'low_hp',
+    effect: 'fire_boost',
+  },
+  torrent: {
+    name: 'TORRENT',
+    description: 'Powers up Water moves when HP is low.',
+    trigger: 'low_hp',
+    effect: 'water_boost',
+  },
+  swarm: {
+    name: 'SWARM',
+    description: 'Powers up Bug moves when HP is low.',
+    trigger: 'low_hp',
+    effect: 'bug_boost',
+  },
+  static: {
+    name: 'STATIC',
+    description: 'Contact may paralyze the attacker.',
+    trigger: 'on_hit',
+    effect: 'paralyze_contact',
+  },
+  poisonPoint: {
+    name: 'POISON POINT',
+    description: 'Contact may poison the attacker.',
+    trigger: 'on_hit',
+    effect: 'poison_contact',
+  },
+  flameBody: {
+    name: 'FLAME BODY',
+    description: 'Contact may burn the attacker.',
+    trigger: 'on_hit',
+    effect: 'burn_contact',
+  },
+  effectSpore: {
+    name: 'EFFECT SPORE',
+    description: 'Contact may poison, paralyze, or sleep.',
+    trigger: 'on_hit',
+    effect: 'spore_contact',
+  },
+  levitate: {
+    name: 'LEVITATE',
+    description: 'Immune to Ground-type moves.',
+    trigger: 'passive',
+    effect: 'ground_immune',
+  },
+  sturdy: {
+    name: 'STURDY',
+    description: 'Survives a KO hit with 1 HP.',
+    trigger: 'on_damage',
+    effect: 'survive_ko',
+  },
+  immunity: {
+    name: 'IMMUNITY',
+    description: 'Cannot be poisoned.',
+    trigger: 'passive',
+    effect: 'poison_immune',
+  },
+  flashFire: {
+    name: 'FLASH FIRE',
+    description: 'Immune to Fire. Powers up Fire moves when hit.',
+    trigger: 'on_damage',
+    effect: 'fire_absorb',
+  },
+  waterAbsorb: {
+    name: 'WATER ABSORB',
+    description: 'Heals from Water moves instead of damage.',
+    trigger: 'on_damage',
+    effect: 'water_heal',
+  },
+  voltAbsorb: {
+    name: 'VOLT ABSORB',
+    description: 'Heals from Electric moves instead of damage.',
+    trigger: 'on_damage',
+    effect: 'electric_heal',
+  },
+  thickFat: {
+    name: 'THICK FAT',
+    description: 'Reduces damage from Fire and Ice.',
+    trigger: 'passive',
+    effect: 'fire_ice_resist',
+  },
+  intimidate: {
+    name: 'INTIMIDATE',
+    description: 'Lowers foe\'s Attack on entry.',
+    trigger: 'on_entry',
+    effect: 'lower_atk',
+  },
+  keenEye: {
+    name: 'KEEN EYE',
+    description: 'Prevents accuracy loss.',
+    trigger: 'passive',
+    effect: 'no_acc_loss',
+  },
+  runAway: {
+    name: 'RUN AWAY',
+    description: 'Always able to flee from wild battles.',
+    trigger: 'passive',
+    effect: 'flee_guaranteed',
+  },
+  guts: {
+    name: 'GUTS',
+    description: 'Attack boosts when having a status.',
+    trigger: 'passive',
+    effect: 'status_atk_boost',
+  },
+  shieldDust: {
+    name: 'SHIELD DUST',
+    description: 'Blocks additional move effects.',
+    trigger: 'passive',
+    effect: 'block_secondary',
+  },
+  compoundEyes: {
+    name: 'COMPOUND EYES',
+    description: 'Boosts move accuracy.',
+    trigger: 'passive',
+    effect: 'acc_boost',
+  },
+  shedSkin: {
+    name: 'SHED SKIN',
+    description: 'May cure status each turn.',
+    trigger: 'passive',
+    effect: 'status_heal_chance',
+  },
+  chlorophyll: {
+    name: 'CHLOROPHYLL',
+    description: 'Speed doubles in sunny weather.',
+    trigger: 'weather',
+    effect: 'sun_speed_boost',
+  },
+  swiftSwim: {
+    name: 'SWIFT SWIM',
+    description: 'Speed doubles in rainy weather.',
+    trigger: 'weather',
+    effect: 'rain_speed_boost',
+  },
+  sandVeil: {
+    name: 'SAND VEIL',
+    description: 'Evasion boosts in sandstorm.',
+    trigger: 'weather',
+    effect: 'sand_evasion',
+  },
+  innerFocus: {
+    name: 'INNER FOCUS',
+    description: 'Prevents flinching.',
+    trigger: 'passive',
+    effect: 'no_flinch',
+  },
+  synchronize: {
+    name: 'SYNCHRONIZE',
+    description: 'Passes status to foe.',
+    trigger: 'on_damage',
+    effect: 'sync_status',
+  },
+  clearBody: {
+    name: 'CLEAR BODY',
+    description: 'Prevents stat reduction.',
+    trigger: 'passive',
+    effect: 'no_stat_down',
+  },
+  lightningRod: {
+    name: 'LIGHTNING ROD',
+    description: 'Draws Electric moves to boost Sp.Atk.',
+    trigger: 'on_damage',
+    effect: 'electric_absorb',
+  },
+  rockHead: {
+    name: 'ROCK HEAD',
+    description: 'Prevents recoil damage.',
+    trigger: 'passive',
+    effect: 'no_recoil',
+  },
+  oblivious: {
+    name: 'OBLIVIOUS',
+    description: 'Immune to infatuation.',
+    trigger: 'passive',
+    effect: 'no_attract',
+  },
+  limber: {
+    name: 'LIMBER',
+    description: 'Cannot be paralyzed.',
+    trigger: 'passive',
+    effect: 'paralyze_immune',
+  },
+  vitalSpirit: {
+    name: 'VITAL SPIRIT',
+    description: 'Cannot fall asleep.',
+    trigger: 'passive',
+    effect: 'sleep_immune',
+  },
+  insomnia: {
+    name: 'INSOMNIA',
+    description: 'Cannot fall asleep.',
+    trigger: 'passive',
+    effect: 'sleep_immune',
+  },
+  cuteCharm: {
+    name: 'CUTE CHARM',
+    description: 'Contact may cause infatuation.',
+    trigger: 'on_hit',
+    effect: 'attract_contact',
+  },
+  pickup: {
+    name: 'PICKUP',
+    description: 'May find items after battle.',
+    trigger: 'passive',
+    effect: 'item_find',
+  },
+  technician: {
+    name: 'TECHNICIAN',
+    description: 'Powers up weak moves.',
+    trigger: 'passive',
+    effect: 'weak_move_boost',
+  },
+  hyperCutter: {
+    name: 'HYPER CUTTER',
+    description: 'Prevents Attack reduction.',
+    trigger: 'passive',
+    effect: 'no_atk_down',
+  },
+  pressure: {
+    name: 'PRESSURE',
+    description: 'Raises foe\'s PP usage.',
+    trigger: 'passive',
+    effect: 'pp_pressure',
+  },
+  earlyBird: {
+    name: 'EARLY BIRD',
+    description: 'Wakes up faster from sleep.',
+    trigger: 'passive',
+    effect: 'fast_wake',
+  },
+  hydration: {
+    name: 'HYDRATION',
+    description: 'Cures status in rain.',
+    trigger: 'weather',
+    effect: 'rain_status_heal',
+  },
+  shellArmor: {
+    name: 'SHELL ARMOR',
+    description: 'Blocks critical hits.',
+    trigger: 'passive',
+    effect: 'no_critical',
+  },
+  tangledFeet: {
+    name: 'TANGLED FEET',
+    description: 'Evasion up when confused.',
+    trigger: 'passive',
+    effect: 'confuse_evasion',
+  },
+  magnetPull: {
+    name: 'MAGNET PULL',
+    description: 'Prevents Steel types from fleeing.',
+    trigger: 'passive',
+    effect: 'trap_steel',
+  },
+  soundproof: {
+    name: 'SOUNDPROOF',
+    description: 'Immune to sound-based moves.',
+    trigger: 'passive',
+    effect: 'sound_immune',
+  },
+  arenaTrap: {
+    name: 'ARENA TRAP',
+    description: 'Prevents fleeing.',
+    trigger: 'passive',
+    effect: 'trap_ground',
+  },
+  noGuard: {
+    name: 'NO GUARD',
+    description: 'All moves always hit.',
+    trigger: 'passive',
+    effect: 'always_hit',
+  },
+  angerPoint: {
+    name: 'ANGER POINT',
+    description: 'Max Attack after a critical hit.',
+    trigger: 'on_damage',
+    effect: 'crit_atk_max',
+  },
+  reckless: {
+    name: 'RECKLESS',
+    description: 'Powers up recoil moves.',
+    trigger: 'passive',
+    effect: 'recoil_boost',
+  },
+  ironFist: {
+    name: 'IRON FIST',
+    description: 'Powers up punching moves.',
+    trigger: 'passive',
+    effect: 'punch_boost',
+  },
+  moldBreaker: {
+    name: 'MOLD BREAKER',
+    description: 'Ignores foe\'s ability.',
+    trigger: 'passive',
+    effect: 'ignore_ability',
+  },
+  forewarn: {
+    name: 'FOREWARN',
+    description: 'Shows foe\'s strongest move.',
+    trigger: 'on_entry',
+    effect: 'show_strongest',
+  },
+  infiltrator: {
+    name: 'INFILTRATOR',
+    description: 'Passes through barriers.',
+    trigger: 'passive',
+    effect: 'bypass_barrier',
+  },
+  stickyHold: {
+    name: 'STICKY HOLD',
+    description: 'Item cannot be taken.',
+    trigger: 'passive',
+    effect: 'no_item_loss',
+  },
+  stench: {
+    name: 'STENCH',
+    description: 'May cause foe to flinch.',
+    trigger: 'on_damage',
+    effect: 'flinch_chance',
+  },
+  adaptability: {
+    name: 'ADAPTABILITY',
+    description: 'Boosts STAB moves further.',
+    trigger: 'passive',
+    effect: 'stab_boost',
+  },
+  filter: {
+    name: 'FILTER',
+    description: 'Reduces super effective damage.',
+    trigger: 'passive',
+    effect: 'super_resist',
+  },
+  scrappy: {
+    name: 'SCRAPPY',
+    description: 'Can hit Ghost with Normal/Fighting.',
+    trigger: 'passive',
+    effect: 'hit_ghost',
+  },
+  quickFeet: {
+    name: 'QUICK FEET',
+    description: 'Speed up when having a status.',
+    trigger: 'passive',
+    effect: 'status_spd_boost',
+  },
+  naturalCure: {
+    name: 'NATURAL CURE',
+    description: 'Cures status when switching.',
+    trigger: 'passive',
+    effect: 'switch_cure',
+  },
+  illuminate: {
+    name: 'ILLUMINATE',
+    description: 'Increases encounter rate.',
+    trigger: 'passive',
+    effect: 'more_encounters',
+  },
+  liquidOoze: {
+    name: 'LIQUID OOZE',
+    description: 'Drain moves damage instead.',
+    trigger: 'passive',
+    effect: 'drain_hurt',
+  },
+};
+
 const TYPE_CHART: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
   fire:     { grass: 2, water: 0.5, bug: 2, fire: 0.5, rock: 0.5, ice: 2, dragon: 0.5, steel: 2 },
   water:    { fire: 2, grass: 0.5, water: 0.5, ground: 2, rock: 2, ice: 0.5, dragon: 0.5 },
@@ -238,6 +624,7 @@ export interface SpeciesData {
   catchRate: number;
   levelUpMoves: LevelUpMove[];
   evolution?: EvolutionData;
+  abilities?: string[];
 }
 
 export const SPECIES: Record<string, SpeciesData> = {
@@ -249,6 +636,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 64, catchRate: 45,
     levelUpMoves: [{ level: 7, moveKey: 'vineWhip' }, { level: 10, moveKey: 'razorLeaf' }, { level: 15, moveKey: 'poisonSting' }],
     evolution: { level: 16, into: 'ivysaur' },
+    abilities: ['overgrow'],
   },
   ivysaur: {
     id: 2, name: 'IVYSAUR', types: ['grass', 'poison'],
@@ -257,6 +645,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 142, catchRate: 45,
     levelUpMoves: [{ level: 18, moveKey: 'seedBomb' }],
     evolution: { level: 32, into: 'venusaur' },
+    abilities: ['overgrow'],
   },
   charmander: {
     id: 4, name: 'CHARMANDER', types: ['fire'],
@@ -265,6 +654,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 62, catchRate: 45,
     levelUpMoves: [{ level: 7, moveKey: 'ember' }, { level: 10, moveKey: 'fireFang' }, { level: 14, moveKey: 'bite' }],
     evolution: { level: 16, into: 'charmeleon' },
+    abilities: ['blaze'],
   },
   charmeleon: {
     id: 5, name: 'CHARMELEON', types: ['fire'],
@@ -273,6 +663,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 142, catchRate: 45,
     levelUpMoves: [{ level: 19, moveKey: 'flamethrower' }],
     evolution: { level: 36, into: 'charizard' },
+    abilities: ['blaze'],
   },
   squirtle: {
     id: 7, name: 'SQUIRTLE', types: ['water'],
@@ -281,6 +672,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 63, catchRate: 45,
     levelUpMoves: [{ level: 7, moveKey: 'waterGun' }, { level: 10, moveKey: 'bubbleBeam' }, { level: 13, moveKey: 'bite' }],
     evolution: { level: 16, into: 'wartortle' },
+    abilities: ['torrent'],
   },
   wartortle: {
     id: 8, name: 'WARTORTLE', types: ['water'],
@@ -289,6 +681,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 143, catchRate: 45,
     levelUpMoves: [{ level: 18, moveKey: 'waterPulse' }],
     evolution: { level: 36, into: 'blastoise' },
+    abilities: ['torrent'],
   },
 
   // ── Wild Pokemon ──
@@ -299,6 +692,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 50, catchRate: 255,
     levelUpMoves: [{ level: 5, moveKey: 'gust' }, { level: 9, moveKey: 'quickAttack' }, { level: 13, moveKey: 'wingAttack' }],
     evolution: { level: 18, into: 'pidgeotto' },
+    abilities: ['keenEye', 'tangledFeet'],
   },
   pidgeotto: {
     id: 17, name: 'PIDGEOTTO', types: ['normal', 'flying'],
@@ -307,6 +701,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 122, catchRate: 120,
     levelUpMoves: [{ level: 20, moveKey: 'airSlash' }],
     evolution: { level: 36, into: 'pidgeot' },
+    abilities: ['keenEye', 'tangledFeet'],
   },
   rattata: {
     id: 19, name: 'RATTATA', types: ['normal'],
@@ -315,6 +710,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 51, catchRate: 255,
     levelUpMoves: [{ level: 7, moveKey: 'bite' }, { level: 10, moveKey: 'quickAttack' }, { level: 14, moveKey: 'pursuit' }],
     evolution: { level: 20, into: 'raticate' },
+    abilities: ['guts', 'runAway'],
   },
   raticate: {
     id: 20, name: 'RATICATE', types: ['normal'],
@@ -322,6 +718,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'quickAttack', 'bite', 'pursuit'],
     baseExpYield: 145, catchRate: 127,
     levelUpMoves: [{ level: 22, moveKey: 'hyperFang' }],
+    abilities: ['guts', 'runAway'],
   },
   caterpie: {
     id: 10, name: 'CATERPIE', types: ['bug'],
@@ -330,6 +727,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 39, catchRate: 255,
     levelUpMoves: [{ level: 7, moveKey: 'bugBite' }],
     evolution: { level: 7, into: 'metapod' },
+    abilities: ['shieldDust'],
   },
   metapod: {
     id: 11, name: 'METAPOD', types: ['bug'],
@@ -338,6 +736,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 72, catchRate: 120,
     levelUpMoves: [{ level: 7, moveKey: 'harden' }],
     evolution: { level: 10, into: 'butterfree' },
+    abilities: ['shedSkin'],
   },
   butterfree: {
     id: 12, name: 'BUTTERFREE', types: ['bug', 'flying'],
@@ -345,6 +744,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['confusion', 'gust', 'poisonPowder', 'stunSpore'],
     baseExpYield: 178, catchRate: 45,
     levelUpMoves: [{ level: 12, moveKey: 'sleepPowder' }, { level: 15, moveKey: 'psybeam' }],
+    abilities: ['compoundEyes'],
   },
   pikachu: {
     id: 25, name: 'PIKACHU', types: ['electric'],
@@ -353,6 +753,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 112, catchRate: 190,
     levelUpMoves: [{ level: 6, moveKey: 'thunderShock' }, { level: 10, moveKey: 'spark' }, { level: 18, moveKey: 'thunderbolt' }],
     evolution: { level: 26, into: 'raichu' },
+    abilities: ['static'],
   },
   raichu: {
     id: 26, name: 'RAICHU', types: ['electric'],
@@ -360,6 +761,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['thunderbolt', 'quickAttack', 'spark', 'thunderPunch'],
     baseExpYield: 218, catchRate: 75,
     levelUpMoves: [{ level: 28, moveKey: 'thunderPunch' }, { level: 36, moveKey: 'hyperBeam' }],
+    abilities: ['static'],
   },
   zubat: {
     id: 41, name: 'ZUBAT', types: ['poison', 'flying'],
@@ -367,6 +769,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'screech'],
     baseExpYield: 49, catchRate: 255,
     levelUpMoves: [{ level: 5, moveKey: 'bite' }, { level: 9, moveKey: 'wingAttack' }, { level: 13, moveKey: 'poisonSting' }],
+    abilities: ['innerFocus'],
   },
   geodude: {
     id: 74, name: 'GEODUDE', types: ['rock', 'ground'],
@@ -374,6 +777,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['tackle', 'mudSlap'],
     baseExpYield: 60, catchRate: 255,
     levelUpMoves: [{ level: 6, moveKey: 'rockThrow' }, { level: 10, moveKey: 'mudSlap' }, { level: 14, moveKey: 'rockSlide' }],
+    abilities: ['rockHead', 'sturdy'],
   },
   nidoranM: {
     id: 32, name: 'NIDORAN♂', types: ['poison'],
@@ -382,6 +786,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 55, catchRate: 235,
     levelUpMoves: [{ level: 7, moveKey: 'tackle' }, { level: 9, moveKey: 'bite' }, { level: 13, moveKey: 'headbutt' }],
     evolution: { level: 16, into: 'nidorino' },
+    abilities: ['poisonPoint', 'runAway'],
   },
   // Gym leader Pokemon
   onix: {
@@ -391,6 +796,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 77, catchRate: 45,
     levelUpMoves: [{ level: 6, moveKey: 'rockThrow' }, { level: 10, moveKey: 'rockTomb' }, { level: 15, moveKey: 'ironTail' }],
     evolution: { level: 36, into: 'steelix' },
+    abilities: ['rockHead', 'sturdy'],
   },
 
   // ── Sprint 006 Pokemon ──
@@ -403,6 +809,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 39, catchRate: 255,
     levelUpMoves: [{ level: 5, moveKey: 'bugBite' }],
     evolution: { level: 7, into: 'kakuna' },
+    abilities: ['shieldDust'],
   },
   kakuna: {
     id: 14, name: 'KAKUNA', types: ['bug', 'poison'],
@@ -411,6 +818,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 72, catchRate: 120,
     levelUpMoves: [{ level: 7, moveKey: 'harden' }],
     evolution: { level: 10, into: 'beedrill' },
+    abilities: ['shedSkin'],
   },
   beedrill: {
     id: 15, name: 'BEEDRILL', types: ['bug', 'poison'],
@@ -418,6 +826,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['twineedle', 'poisonSting', 'furySwipes', 'focusEnergy'],
     baseExpYield: 178, catchRate: 45,
     levelUpMoves: [{ level: 12, moveKey: 'furySwipes' }, { level: 16, moveKey: 'crossPoison' }],
+    abilities: ['swarm'],
   },
 
   // Pidgeot (evolution of Pidgeotto)
@@ -427,6 +836,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['gust', 'quickAttack', 'wingAttack', 'airSlash'],
     baseExpYield: 216, catchRate: 45,
     levelUpMoves: [{ level: 38, moveKey: 'swift' }],
+    abilities: ['keenEye', 'tangledFeet'],
   },
 
   // Nidorino (evolution of NidoranM)
@@ -437,6 +847,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 128, catchRate: 120,
     levelUpMoves: [{ level: 20, moveKey: 'crossPoison' }, { level: 23, moveKey: 'bodySlam' }],
     evolution: { level: 36, into: 'nidoking' },
+    abilities: ['poisonPoint', 'runAway'],
   },
   nidoking: {
     id: 34, name: 'NIDOKING', types: ['poison', 'ground'],
@@ -444,6 +855,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['bodySlam', 'earthquake', 'sludgeBomb', 'megaKick'],
     baseExpYield: 235, catchRate: 45,
     levelUpMoves: [{ level: 38, moveKey: 'earthquake' }, { level: 44, moveKey: 'hyperBeam' }],
+    abilities: ['poisonPoint', 'runAway'],
   },
 
   // Oddish line
@@ -454,6 +866,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 64, catchRate: 255,
     levelUpMoves: [{ level: 5, moveKey: 'absorb' }, { level: 9, moveKey: 'poisonPowder' }, { level: 13, moveKey: 'megaDrain' }],
     evolution: { level: 21, into: 'gloom' },
+    abilities: ['chlorophyll'],
   },
   gloom: {
     id: 44, name: 'GLOOM', types: ['grass', 'poison'],
@@ -462,6 +875,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 138, catchRate: 120,
     levelUpMoves: [{ level: 24, moveKey: 'sleepPowder' }, { level: 28, moveKey: 'seedBomb' }],
     evolution: { level: 32, into: 'vileplume' },
+    abilities: ['chlorophyll'],
   },
 
   // Mankey line
@@ -472,6 +886,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 61, catchRate: 190,
     levelUpMoves: [{ level: 9, moveKey: 'karatechop' }, { level: 13, moveKey: 'furySwipes' }, { level: 17, moveKey: 'brickBreak' }],
     evolution: { level: 28, into: 'primeape' },
+    abilities: ['vitalSpirit', 'angerPoint'],
   },
   primeape: {
     id: 57, name: 'PRIMEAPE', types: ['fighting'],
@@ -479,6 +894,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['karatechop', 'furySwipes', 'brickBreak', 'closeCombat'],
     baseExpYield: 159, catchRate: 75,
     levelUpMoves: [{ level: 30, moveKey: 'closeCombat' }, { level: 35, moveKey: 'crossChop' }],
+    abilities: ['vitalSpirit', 'angerPoint'],
   },
 
   // Abra line
@@ -489,6 +905,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 62, catchRate: 200,
     levelUpMoves: [{ level: 8, moveKey: 'confusion' }],
     evolution: { level: 16, into: 'kadabra' },
+    abilities: ['synchronize', 'innerFocus'],
   },
   kadabra: {
     id: 64, name: 'KADABRA', types: ['psychic'],
@@ -497,6 +914,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 145, catchRate: 100,
     levelUpMoves: [{ level: 18, moveKey: 'psybeam' }, { level: 24, moveKey: 'psychic' }],
     evolution: { level: 36, into: 'alakazam' },
+    abilities: ['synchronize', 'innerFocus'],
   },
 
   // Staryu line (Misty's Pokemon)
@@ -507,6 +925,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 68, catchRate: 225,
     levelUpMoves: [{ level: 7, moveKey: 'waterGun' }, { level: 12, moveKey: 'swiftStar' }, { level: 18, moveKey: 'bubbleBeam' }],
     evolution: { level: 25, into: 'starmie' },
+    abilities: ['illuminate', 'naturalCure'],
   },
   starmie: {
     id: 121, name: 'STARMIE', types: ['water', 'psychic'],
@@ -514,6 +933,7 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['waterGun', 'bubbleBeam', 'swiftStar', 'psychic'],
     baseExpYield: 182, catchRate: 60,
     levelUpMoves: [{ level: 28, moveKey: 'surf' }, { level: 33, moveKey: 'powerGem' }],
+    abilities: ['illuminate', 'naturalCure'],
   },
 
   // ── Sprint 007 Pokemon ──

@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2026-03-17
+
+### Added
+- Sprint 020: Pokemon Abilities System
+- Full ability implementation with triggers for immunities, damage modifiers, and contact effects
+- Ability activation messages displayed in battle when abilities trigger
+- Ability display in party menu showing each Pokemon's ability name
+- Ability display in player info box during battle
+
+### Abilities Implemented
+- **Passive Abilities**: Levitate (Ground immunity), Thick Fat (Fire/Ice resist), Immunity (Poison immune), Sturdy (survive KO at full HP)
+- **Type Absorption**: Water Absorb, Volt Absorb, Flash Fire, Lightning Rod
+- **Contact Abilities**: Static, Poison Point, Flame Body, Effect Spore
+- **HP-Based Abilities**: Blaze, Torrent, Overgrow, Swarm (1.5x power at low HP)
+- **Entry Abilities**: Intimidate support
+- **Stat Abilities**: Anger Point (max Attack on crit), Guts (Attack boost with status)
+
+### Technical
+- Rewrote BattleEngine.ts with proper ability trigger system
+- Added `checkAbilityImmunity()`, `checkContactAbility()`, `checkSturdyAbility()`, `getAbilityDamageModifier()` functions
+- Extended TurnResult interface with `abilityMessage` and `immune` fields
+- Updated BattleUI to display ability names in party and player info
+
 ## [0.18.0] - 2026-03-17
 
 ### Added
