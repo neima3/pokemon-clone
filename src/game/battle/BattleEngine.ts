@@ -114,6 +114,12 @@ export interface TurnResult {
   wishHeal?: number;
   preventedSwitch?: boolean;
   teamCured?: boolean;
+  futureSightSet?: boolean;
+  doomDesireSet?: boolean;
+  destinyBondSet?: boolean;
+  perishSongSet?: boolean;
+  destinyBondTriggered?: boolean;
+  perishSongCount?: number;
 }
 
   
@@ -373,6 +379,14 @@ function checkContactAbility(attacker: Pokemon, defender: Pokemon): string | nul
     }
   }
   
+  if (ability.effect === 'attract_contact') {
+    if (Math.random() < 0.3 && !attacker.infatuated && attacker.ability?.effect !== 'no_attract') {
+      attacker.infatuated = true;
+      attacker.infatuatedTarget = defender.speciesKey;
+      return `${attacker.name} was infatuated by ${defender.name}'s CUTE CHARM!`;
+    }
+  }
+  
   return null;
 }
 
@@ -384,12 +398,19 @@ function checkSturdyAbility(defender: Pokemon, damage: number): { survived: bool
   return { survived: false };
 }
 
-function getAbilityDamageModifier(attacker: Pokemon, defender: Pokemon, moveType: PokemonType): number {
+function getAbilityDamageModifier(attacker: Pokemon, defender: Pokemon, moveType: PokemonType, movePower: number = 0, moveKey: string = ''): number {
   let modifier = 1;
   
   if (defender.ability?.effect === 'fire_ice_resist') {
     if (moveType === 'fire' || moveType === 'ice') {
       modifier *= 0.5;
+    }
+  }
+  
+  if (defender.ability?.effect === 'super_resist') {
+    const effectiveness = getTypeEffectiveness(moveType, defender.species.types);
+    if (effectiveness > 1) {
+      modifier *= 0.75;
     }
   }
   
@@ -401,16 +422,35 @@ function getAbilityDamageModifier(attacker: Pokemon, defender: Pokemon, moveType
       if (attacker.ability.effect === 'grass_boost' && moveType === 'grass') modifier *= 1.5;
       if (attacker.ability.effect === 'bug_boost' && moveType === 'bug') modifier *= 1.5;
     }
+    
+    if (attacker.ability.effect === 'technician' && movePower > 0 && movePower <= 60) {
+      modifier *= 1.5;
+    }
+    
+    if (attacker.ability.effect === 'punch_boost' && isPunchingMove(moveKey)) {
+      modifier *= 1.2;
+    }
+    
+    if (attacker.ability.effect === 'recoil_boost' && movePower > 0) {
+      modifier *= 1.2;
+    }
   }
   
   if (attacker.flashFireBoost && moveType === 'fire') {
     modifier *= 1.5;
   }
   
-  if (attacker.ability?.effect === 'technician') {
-  }
-  
   return modifier;
+}
+
+const PUNCHING_MOVES = new Set([
+  'machPunch', 'thunderPunch', 'fireFang', 'icePunch', 'megaPunch',
+  'cometPunch', 'dynamicPunch', 'dizzyPunch', 'focusPunch', 'hammerArm',
+  'skyUppercut', 'crossChop', 'brickBreak'
+]);
+
+function isPunchingMove(moveKey: string): boolean {
+  return PUNCHING_MOVES.has(moveKey);
 }
 
 export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInstance, weather?: WeatherType): TurnResult {
@@ -573,6 +613,28 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     } else if (effect === 'team_cure') {
       result.teamCured = true;
       result.statusMessage = `A bell chimed! The team's status conditions were cured!`;
+    } else if (effect === 'future_sight') {
+      attacker.futureSightTurns = 3;
+      attacker.futureSightDamage = calculateFutureSightDamage(attacker, move);
+      attacker.futureSightAttacker = attacker.speciesKey;
+      result.futureSightSet = true;
+      result.statusMessage = `${attacker.name} foresaw an attack!`;
+    } else if (effect === 'doom_desire') {
+      attacker.doomDesireTurns = 3;
+      attacker.doomDesireDamage = calculateDoomDesireDamage(attacker, move);
+      attacker.doomDesireAttacker = attacker.speciesKey;
+      result.doomDesireSet = true;
+      result.statusMessage = `${attacker.name} chose doom for its foe!`;
+    } else if (effect === 'destiny_bond') {
+      attacker.destinyBond = true;
+      result.destinyBondSet = true;
+      result.statusMessage = `${attacker.name} is trying to take its foe down with it!`;
+    } else if (effect === 'perish_song') {
+      attacker.perishSongTurns = 4;
+      defender.perishSongTurns = 4;
+      result.perishSongSet = true;
+      result.perishSongCount = 4;
+      result.statusMessage = `A PERISH SONG! All Pokemon will faint in 3 turns!`;
     }
     return result;
   }
@@ -677,7 +739,7 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     
     hitDamage = Math.floor(hitDamage * result.effectiveness);
     
-    const abilityMod = getAbilityDamageModifier(attacker, defender, move.data.type);
+    const abilityMod = getAbilityDamageModifier(attacker, defender, move.data.type, move.data.power, move.key);
     hitDamage = Math.floor(hitDamage * abilityMod);
     
     if (weather) {
@@ -1062,4 +1124,86 @@ export function checkWish(mon: Pokemon): WishResult {
     return { healed: healAmount, message: `${mon.name}'s wish came true!` };
   }
   return { healed: 0 };
+}
+
+function calculateFutureSightDamage(attacker: Pokemon, move: MoveInstance): number {
+  const power = move.data.power || 120;
+  const atk = attacker.getEffAtk();
+  const def = attacker.getEffDef();
+  return Math.floor(((2 * attacker.level / 5 + 2) * power * atk / def) / 50) + 2;
+}
+
+function calculateDoomDesireDamage(attacker: Pokemon, move: MoveInstance): number {
+  const power = move.data.power || 140;
+  const atk = attacker.getEffAtk();
+  const def = attacker.getEffDef();
+  return Math.floor(((2 * attacker.level / 5 + 2) * power * atk / def) / 50) + 2;
+}
+
+export interface DelayedAttackResult {
+  damage: number;
+  message?: string;
+  attackerName?: string;
+}
+
+export function checkFutureSight(mon: Pokemon): DelayedAttackResult {
+  if (mon.futureSightTurns > 0) {
+    mon.futureSightTurns--;
+    if (mon.futureSightTurns === 0 && mon.futureSightDamage > 0) {
+      const damage = Math.min(mon.futureSightDamage, mon.hp);
+      mon.hp = Math.max(0, mon.hp - damage);
+      const storedDamage = mon.futureSightDamage;
+      mon.futureSightDamage = 0;
+      mon.futureSightAttacker = null;
+      return { damage: storedDamage, message: `The future attack hit ${mon.name}!`, attackerName: mon.futureSightAttacker ?? 'Unknown' };
+    }
+  }
+  return { damage: 0 };
+}
+
+export function checkDoomDesire(mon: Pokemon): DelayedAttackResult {
+  if (mon.doomDesireTurns > 0) {
+    mon.doomDesireTurns--;
+    if (mon.doomDesireTurns === 0 && mon.doomDesireDamage > 0) {
+      const damage = Math.min(mon.doomDesireDamage, mon.hp);
+      mon.hp = Math.max(0, mon.hp - damage);
+      const storedDamage = mon.doomDesireDamage;
+      mon.doomDesireDamage = 0;
+      mon.doomDesireAttacker = null;
+      return { damage: storedDamage, message: `DOOM DESIRE struck ${mon.name}!`, attackerName: mon.doomDesireAttacker ?? 'Unknown' };
+    }
+  }
+  return { damage: 0 };
+}
+
+export interface DestinyBondResult {
+  triggered: boolean;
+  message?: string;
+}
+
+export function checkDestinyBond(fainted: Pokemon, attacker: Pokemon): DestinyBondResult {
+  if (fainted.destinyBond && fainted.hp <= 0) {
+    attacker.hp = 0;
+    fainted.destinyBond = false;
+    return { triggered: true, message: `${fainted.name} took ${attacker.name} down with it!` };
+  }
+  return { triggered: false };
+}
+
+export interface PerishSongResult {
+  count?: number;
+  fainted?: boolean;
+  message?: string;
+}
+
+export function checkPerishSong(mon: Pokemon): PerishSongResult {
+  if (mon.perishSongTurns > 0) {
+    mon.perishSongTurns--;
+    if (mon.perishSongTurns === 0) {
+      mon.hp = 0;
+      return { count: 0, fainted: true, message: `${mon.name}'s PERISH SONG count ended!` };
+    }
+    return { count: mon.perishSongTurns };
+  }
+  return {};
 }

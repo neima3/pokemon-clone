@@ -444,7 +444,7 @@ export interface MoveData {
   accuracy: number;
   maxPp: number;
   category: 'physical' | 'status';
-  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect' | 'spikes' | 'stealth_rock' | 'toxic_spikes' | 'clear_hazards' | 'baton_pass' | 'u_turn' | 'substitute' | 'trap' | 'disable' | 'encore' | 'taunt' | 'attract' | 'phaze' | 'yawn' | 'wish' | 'prevent_switch' | 'team_cure';
+  effect?: 'lower_attack' | 'lower_defense' | 'lower_speed' | 'raise_defense' | 'raise_attack' | 'raise_speed' | 'poison' | 'burn' | 'paralyze' | 'sleep' | 'confuse' | 'raise_attack_2' | 'protect' | 'spikes' | 'stealth_rock' | 'toxic_spikes' | 'clear_hazards' | 'baton_pass' | 'u_turn' | 'substitute' | 'trap' | 'disable' | 'encore' | 'taunt' | 'attract' | 'phaze' | 'yawn' | 'wish' | 'prevent_switch' | 'team_cure' | 'future_sight' | 'doom_desire' | 'destiny_bond' | 'perish_song';
   statusEffect?: StatusCondition;
   statusChance?: number;
   confuseChance?: number;
@@ -684,6 +684,11 @@ export const MOVES: Record<string, MoveData> = {
   block:        { name: 'BLOCK',       type: 'normal',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'prevent_switch' },
   healBell:     { name: 'HEAL BELL',   type: 'normal',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'team_cure' },
   aromatherapy: { name: 'AROMATHERPY', type: 'grass',    power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'team_cure' },
+  // Sprint 030: Delayed attacks & high-stakes moves
+  futureSight:  { name: 'FUTURE SGT',  type: 'psychic',  power: 120, accuracy: 100, maxPp: 10, category: 'physical', effect: 'future_sight' },
+  doomDesire:   { name: 'DOOM DESIRE',type: 'steel',    power: 140, accuracy: 100, maxPp: 5,  category: 'physical', effect: 'doom_desire' },
+  destinyBond:  { name: 'DESTINY BND', type: 'ghost',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'destiny_bond', priority: -1 },
+  perishSong:   { name: 'PERISH SNG', type: 'normal',   power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'perish_song' },
 };
 
 // ── Species ──

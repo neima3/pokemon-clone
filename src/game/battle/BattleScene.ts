@@ -4,7 +4,7 @@ import { SFX, Music } from '@/engine/Audio';
 import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
-import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters, checkDrowsy, checkWish } from './BattleEngine';
+import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters, checkDrowsy, checkWish, checkFutureSight, checkDoomDesire, checkDestinyBond, checkPerishSong } from './BattleEngine';
 import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition } from './data';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
@@ -1192,6 +1192,61 @@ export class BattleScene implements Scene {
       }
     }
 
+    // Check for Future Sight
+    const playerFutureSight = checkFutureSight(this.playerMon);
+    if (playerFutureSight.message) {
+      msgs.push(playerFutureSight.message);
+      if (playerFutureSight.damage > 0) {
+        this.damageNumbers.push(DamageNumbers.create(playerFutureSight.damage, false, false, false));
+        this.playerDisplayHp = this.playerMon.hp;
+        this.screenShake = 4;
+      }
+    }
+    
+    const enemyFutureSight = checkFutureSight(this.enemyMon);
+    if (enemyFutureSight.message) {
+      msgs.push(enemyFutureSight.message);
+      if (enemyFutureSight.damage > 0) {
+        this.damageNumbers.push(DamageNumbers.create(enemyFutureSight.damage, true, false, false));
+        this.enemyDisplayHp = this.enemyMon.hp;
+        this.screenShake = 4;
+      }
+    }
+
+    // Check for Doom Desire
+    const playerDoomDesire = checkDoomDesire(this.playerMon);
+    if (playerDoomDesire.message) {
+      msgs.push(playerDoomDesire.message);
+      if (playerDoomDesire.damage > 0) {
+        this.damageNumbers.push(DamageNumbers.create(playerDoomDesire.damage, false, false, false));
+        this.playerDisplayHp = this.playerMon.hp;
+        this.screenShake = 6;
+      }
+    }
+    
+    const enemyDoomDesire = checkDoomDesire(this.enemyMon);
+    if (enemyDoomDesire.message) {
+      msgs.push(enemyDoomDesire.message);
+      if (enemyDoomDesire.damage > 0) {
+        this.damageNumbers.push(DamageNumbers.create(enemyDoomDesire.damage, true, false, false));
+        this.enemyDisplayHp = this.enemyMon.hp;
+        this.screenShake = 6;
+      }
+    }
+
+    // Check for Perish Song
+    const playerPerish = checkPerishSong(this.playerMon);
+    if (playerPerish.message) msgs.push(playerPerish.message);
+    if (playerPerish.count && playerPerish.count > 0) {
+      msgs.push(`${this.playerMon.name}'s perish count: ${playerPerish.count}`);
+    }
+    
+    const enemyPerish = checkPerishSong(this.enemyMon);
+    if (enemyPerish.message) msgs.push(enemyPerish.message);
+    if (enemyPerish.count && enemyPerish.count > 0) {
+      msgs.push(`${this.enemyMon.name}'s perish count: ${enemyPerish.count}`);
+    }
+
     decrementTurnCounters(this.playerMon);
     decrementTurnCounters(this.enemyMon);
 
@@ -1430,6 +1485,14 @@ export class BattleScene implements Scene {
     const isEnemy = fainted === this.enemyMon;
     SFX.faint();
     SFX.pokemonFaintCry(fainted.species.id);
+    
+    // Check for Destiny Bond
+    const attacker = isEnemy ? this.playerMon : this.enemyMon;
+    const destinyBondResult = checkDestinyBond(fainted, attacker);
+    const destinyBondMsgs: string[] = [];
+    if (destinyBondResult.triggered && destinyBondResult.message) {
+      destinyBondMsgs.push(destinyBondResult.message);
+    }
 
     if (isEnemy) {
       // Check for next trainer Pokemon
@@ -1439,6 +1502,7 @@ export class BattleScene implements Scene {
           // Trainer sends next Pokemon
           const expGain = calculateExpGain(this.enemyMon.speciesKey, this.enemyMon.level);
           const msgs = [`Foe ${fainted.name} fainted!`, `${this.playerMon.name} gained ${expGain} EXP!`];
+          msgs.push(...destinyBondMsgs);
 
           this.queueMessages(msgs, () => {
             this.awardExpMidBattle(expGain, () => {

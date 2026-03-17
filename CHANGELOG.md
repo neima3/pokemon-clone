@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.0] - 2026-03-17
+
+### Added
+- Sprint 030: Ability Polish, Delayed Attacks & Destiny Bond
+- Missing ability implementations: Technician (1.5x for moves ≤60 power), Iron Fist (1.2x punching moves), Reckless (1.2x recoil moves), Filter (0.75x super effective)
+- Cute Charm ability: 30% chance to infatuate on contact
+- Future Sight: Psychic delayed attack that hits after 2 turns
+- Doom Desire: Steel delayed attack that hits after 2 turns with higher power
+- Destiny Bond: Ghost move that takes attacker down when user faints
+- Perish Song: All Pokemon faint in 3 turns unless switched
+
+### Technical
+- Extended getAbilityDamageModifier() with move power and key parameters for Technician/Iron Fist
+- Added isPunchingMove() helper function for Iron Fist ability
+- Added Filter ability effect (super_resist) to reduce super effective damage by 25%
+- Added Cute Charm ability effect (attract_contact) to checkContactAbility()
+- Extended MoveData effect type with future_sight, doom_desire, destiny_bond, perish_song
+- Added futureSightTurns, doomDesireTurns, destinyBond, perishSongTurns to Pokemon class
+- Added calculateFutureSightDamage(), calculateDoomDesireDamage() helper functions
+- Added checkFutureSight(), checkDoomDesire(), checkDestinyBond(), checkPerishSong() to BattleEngine
+- Integrated delayed attack checks in BattleScene applyEndOfTurnStatus()
+- Integrated Perish Song countdown and fainted messages in BattleScene
+
 ## [0.28.0] - 2026-03-17
 
 ### Added

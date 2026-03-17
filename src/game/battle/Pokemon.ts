@@ -90,6 +90,17 @@ export class Pokemon {
   
   cantSwitch = false;
 
+  futureSightTurns = 0;
+  futureSightDamage = 0;
+  futureSightAttacker: string | null = null;
+  
+  doomDesireTurns = 0;
+  doomDesireDamage = 0;
+  doomDesireAttacker: string | null = null;
+  
+  destinyBond = false;
+  perishSongTurns = 0;
+
   constructor(speciesKey: string, level: number, badgeCount: number = 0) {
     const species = SPECIES[speciesKey];
     if (!species) throw new Error(`Unknown species: ${speciesKey}`);
@@ -231,6 +242,14 @@ export class Pokemon {
     this.wishTurns = 0;
     this.wishHealAmount = 0;
     this.cantSwitch = false;
+    this.futureSightTurns = 0;
+    this.futureSightDamage = 0;
+    this.futureSightAttacker = null;
+    this.doomDesireTurns = 0;
+    this.doomDesireDamage = 0;
+    this.doomDesireAttacker = null;
+    this.destinyBond = false;
+    this.perishSongTurns = 0;
   }
 
   heal() {
@@ -263,6 +282,14 @@ export class Pokemon {
     this.wishTurns = 0;
     this.wishHealAmount = 0;
     this.cantSwitch = false;
+    this.futureSightTurns = 0;
+    this.futureSightDamage = 0;
+    this.futureSightAttacker = null;
+    this.doomDesireTurns = 0;
+    this.doomDesireDamage = 0;
+    this.doomDesireAttacker = null;
+    this.destinyBond = false;
+    this.perishSongTurns = 0;
     for (const m of this.moves) m.pp = m.data.maxPp;
   }
 
