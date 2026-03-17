@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.1] - 2026-03-17
+
+### Added
+- Sprint 013: Route 9 — Viridian City approach, the final overworld area
+- Giovanni as Gym Leader 8: Dugtrio, Persian, Nidoking, Rhydon team; rewards EARTH BADGE
+- New Pokémon: Raichu (Pikachu evo), Nidoking (Nidorino evo), Meowth, Persian, Kangaskhan, Tauros
+- HYPER POTION (heals 200 HP, ¥1200) and MAX POTION (full restore, ¥2500) in shop and bag
+- Route 9 trainer battles: Cooltrainer Anya, Rex, and Vera
+- Route 9 chiptune music — dramatic E-minor march theme for the final stretch
+- Giovanni sprite (dark suit, slicked hair, Team Rocket boss appearance)
+- Victory message after collecting all 8 Gym Badges: "Pokémon Master!" celebration
+- Map extended to 50×66 tiles (was 50×56)
+
 ## [0.11.0] - 2026-03-17
 
 ### Added

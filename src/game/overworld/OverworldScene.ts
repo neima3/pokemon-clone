@@ -47,6 +47,8 @@ export class OverworldScene implements Scene {
     { key: 'ultraBall', name: 'ULTRA BALL', price: 1200 },
     { key: 'potion', name: 'POTION', price: 300 },
     { key: 'superPotion', name: 'SUPER POTION', price: 700 },
+    { key: 'hyperPotion', name: 'HYPER POTION', price: 1200 },
+    { key: 'maxPotion', name: 'MAX POTION', price: 2500 },
     { key: 'antidote', name: 'ANTIDOTE', price: 100 },
     { key: 'fullHeal', name: 'FULL HEAL', price: 600 },
     { key: 'revive', name: 'REVIVE', price: 1500 },
@@ -129,6 +131,8 @@ export class OverworldScene implements Scene {
       Music.route7();
     } else if (zone === 'route8') {
       Music.route8();
+    } else if (zone === 'route9') {
+      Music.route9();
     } else {
       Music.overworld();
     }
@@ -332,6 +336,8 @@ export class OverworldScene implements Scene {
           this.startDialogue(['ROUTE 7', 'Toxic fumes fill the swamp...']);
         } else if (zone === 'route8') {
           this.startDialogue(['ROUTE 8', 'The volcanic heat is intense!']);
+        } else if (zone === 'route9') {
+          this.startDialogue(['ROUTE 9', 'VIRIDIAN CITY ahead.', 'The final GYM LEADER awaits!']);
         } else {
           this.startDialogue(['ROUTE 2', 'Stronger POKéMON live here.']);
         }
@@ -358,7 +364,14 @@ export class OverworldScene implements Scene {
       if (tile === Tile.GymDoor) {
         SFX.menuConfirm();
         // Determine which gym based on position
-        if (fy >= 48) {
+        if (fy >= 56) {
+          // Giovanni's Gym (Route 9 / Viridian City area)
+          if (this.gameState.hasBadge('EARTH BADGE')) {
+            this.startDialogue(['VIRIDIAN GYM', 'LEADER: GIOVANNI', 'You already have the EARTH BADGE!']);
+          } else {
+            this.startDialogue(['VIRIDIAN GYM', 'LEADER: GIOVANNI', 'Specializes in Ground-type POKéMON.']);
+          }
+        } else if (fy >= 48) {
           // Blaine's Gym (Route 8 area)
           if (this.gameState.hasBadge('VOLCANO BADGE')) {
             this.startDialogue(['CINNABAR GYM', 'LEADER: BLAINE', 'You already have the VOLCANO BADGE!']);
@@ -583,12 +596,12 @@ export class OverworldScene implements Scene {
           this.phase = 'explore';
           this.startDialogue(['Used REPEL!', 'Wild POKéMON will be repelled for a while!']);
         }
-      } else if (item.key === 'potion' || item.key === 'superPotion') {
+      } else if (item.key === 'potion' || item.key === 'superPotion' || item.key === 'hyperPotion' || item.key === 'maxPotion') {
         // Use healing item on lead Pokemon
         const lead = this.gameState.leadPokemon;
         if (lead && lead.hp < lead.maxHp) {
           if (this.gameState.useItem(item.key)) {
-            const healAmount = item.key === 'potion' ? 20 : 50;
+            const healAmount = item.key === 'potion' ? 20 : item.key === 'superPotion' ? 50 : item.key === 'hyperPotion' ? 200 : 9999;
             const before = lead.hp;
             lead.hp = Math.min(lead.maxHp, lead.hp + healAmount);
             const healed = lead.hp - before;
@@ -640,6 +653,8 @@ export class OverworldScene implements Scene {
       { key: 'ultraBall', name: 'ULTRA BALL', count: this.gameState.inventory.ultraBall },
       { key: 'potion', name: 'POTION', count: this.gameState.inventory.potion },
       { key: 'superPotion', name: 'SUPER POTION', count: this.gameState.inventory.superPotion },
+      { key: 'hyperPotion', name: 'HYPER POTION', count: this.gameState.inventory.hyperPotion },
+      { key: 'maxPotion', name: 'MAX POTION', count: this.gameState.inventory.maxPotion },
       { key: 'antidote', name: 'ANTIDOTE', count: this.gameState.inventory.antidote },
       { key: 'fullHeal', name: 'FULL HEAL', count: this.gameState.inventory.fullHeal },
       { key: 'revive', name: 'REVIVE', count: this.gameState.inventory.revive },

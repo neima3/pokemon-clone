@@ -1028,6 +1028,11 @@ export class BattleScene implements Scene {
           this.gameState.addBadge(this.trainerData.badgeName);
           SFX.badgeGet();
           msgs.push(`You received the ${this.trainerData.badgeName}!`);
+          if (this.gameState.badges.size >= 8) {
+            msgs.push('You have collected all 8 BADGES!');
+            msgs.push('You are now ready for the POKéMON LEAGUE!');
+            msgs.push('Congratulations, POKéMON MASTER!');
+          }
         }
         if (this.trainerData.defeatMessage) {
           msgs.push(`"${this.trainerData.defeatMessage}"`);

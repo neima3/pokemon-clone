@@ -592,6 +592,48 @@ function buildRoute8Bass(): MusicPattern {
   };
 }
 
+function buildRoute9Pattern(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 5,
+    notes: [
+      // Bar 1 - dramatic march, E minor, final challenge theme
+      { freq: n.E4, dur: 0.5 }, { freq: n.G4, dur: 0.25 }, { freq: n.B4, dur: 0.25 },
+      { freq: n.E5, dur: 0.5 }, { freq: n.D5, dur: 0.25 }, { freq: n.B4, dur: 0.25 },
+      // Bar 2 - tension builds
+      { freq: n.C5, dur: 0.5 }, { freq: n.B4, dur: 0.25 }, { freq: n.A4, dur: 0.25 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.F4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      // Bar 3 - powerful
+      { freq: n.D4, dur: 0.5 }, { freq: n.E4, dur: 0.5 },
+      { freq: n.G4, dur: 0.5 }, { freq: n.B4, dur: 0.5 },
+      // Bar 4 - rising
+      { freq: n.A4, dur: 0.5 }, { freq: n.G4, dur: 0.25 }, { freq: n.F4, dur: 0.25 },
+      { freq: n.E4, dur: 0.5 }, { freq: n.D4, dur: 0.25 }, { freq: n.E4, dur: 0.25 },
+      // Bar 5 - climactic
+      { freq: n.G4, dur: 0.25 }, { freq: n.A4, dur: 0.25 }, { freq: n.B4, dur: 0.5 },
+      { freq: n.C5, dur: 0.5 }, { freq: n.B4, dur: 0.5 },
+      // Bar 6 - resolve
+      { freq: n.A4, dur: 0.5 }, { freq: n.G4, dur: 0.25 }, { freq: n.F4, dur: 0.25 },
+      { freq: n.E4, dur: 1 },
+    ],
+  };
+}
+
+function buildRoute9Bass(): MusicPattern {
+  const n = NOTE;
+  return {
+    tempo: 2.5,
+    notes: [
+      { freq: n.E3, dur: 1 }, { freq: n.B3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.C3, dur: 1 }, { freq: n.G3, dur: 0.5 }, { freq: n.C3, dur: 0.5 },
+      { freq: n.D3, dur: 0.5 }, { freq: n.E3, dur: 0.5 }, { freq: n.G3, dur: 0.5 }, { freq: n.B3, dur: 0.5 },
+      { freq: n.A3, dur: 0.5 }, { freq: n.G3, dur: 0.5 }, { freq: n.F3, dur: 0.5 }, { freq: n.E3, dur: 0.5 },
+      { freq: n.G3, dur: 1 }, { freq: n.A3, dur: 0.5 }, { freq: n.B3, dur: 0.5 },
+      { freq: n.E3, dur: 1.5 }, { freq: n.E3, dur: 0.5 },
+    ],
+  };
+}
+
 function buildTitlePattern(): MusicPattern {
   const n = NOTE;
   return {
@@ -753,6 +795,14 @@ export const Music = {
     currentMusic = playMusicLoop([
       { pattern: buildRoute8Pattern(), type: 'square', gainVal: 0.14 },
       { pattern: buildRoute8Bass(), type: 'sawtooth', gainVal: 0.1 },
+    ]);
+  },
+
+  route9() {
+    Music.stop();
+    currentMusic = playMusicLoop([
+      { pattern: buildRoute9Pattern(), type: 'square', gainVal: 0.14 },
+      { pattern: buildRoute9Bass(), type: 'triangle', gainVal: 0.1 },
     ]);
   },
 

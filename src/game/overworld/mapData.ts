@@ -1,9 +1,9 @@
 import { Tile } from './tiles';
 import { NPCData } from './NPC';
 
-/** 50×48 overworld map — expanded with a town, routes, and buildings */
+/** 50×66 overworld map — expanded with a town, routes, and buildings */
 export const MAP_WIDTH = 50;
-export const MAP_HEIGHT = 56;
+export const MAP_HEIGHT = 66;
 
 const T = Tile.Tree;
 const G = Tile.Grass;
@@ -81,13 +81,26 @@ export const MAP_DATA: Tile[] = [
   T, G, G, G, P, P, P, P, P, P, P, P, S, P, P, P, P, P, P, W, W, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, G, G, G, G, G, G, G, T,  // 52
   T, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, P, G, G, G, G, G, P, G, G, G, G, G, G, G, T,  // 53
   T, G, G, G, G, G, g, g, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, P, G, G, G, G, G, P, G, G, F, G, G, G, G, T,  // 54
-  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 55
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, P, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 55
+// ── Route 9: Viridian City & Giovanni's Gym ──
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, P, g, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 56
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, P, g, g, G, G, G, G, G, G, G, G, G, G, G, T,  // 57
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, g, g, P, g, g, g, G, G, G, G, G, G, G, G, G, G, T,  // 58
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, Y, Y, Y, E, G, g, P, g, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 59
+  T, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, B, y, B, E, G, g, P, g, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 60
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, E, E, P, E, E, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 61
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, P, P, P, P, P, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 62
+  T, G, G, G, G, G, G, G, G, G, G, G, G, G, F, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, P, G, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 63
+  T, G, G, g, g, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, g, P, g, G, G, G, G, G, G, G, G, G, G, G, G, T,  // 64
+  T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T,  // 65
 ];
 
 /** Get the route zone for a given grid position */
 export function getRouteZone(gx: number, gy: number): string {
   // Town area: roughly rows 4-15, cols 8-22
   if (gy >= 4 && gy <= 15 && gx >= 8 && gx <= 22) return 'town';
+  // Route 9: rows 56+ (Viridian City / Giovanni's Gym)
+  if (gy >= 56) return 'route9';
   // Route 8: rows 48+ (volcanic fire zone)
   if (gy >= 48) return 'route8';
   // Route 7: rows 39-47 (poison swamp area)
@@ -480,5 +493,52 @@ export const MAP_NPCS: NPCData[] = [
     dialogue: ['I am BLAINE, the hotheaded quiz master!', 'My fiery POKéMON will burn you to a crisp!', 'Can you withstand the heat?!'],
     isTrainer: true,
     trainerId: 'gym_blaine',
+  },
+  // Route 9 trainers
+  {
+    id: 'trainer_anya',
+    gx: 9, gy: 58,
+    sprite: 'lass',
+    facing: 'right',
+    dialogue: ['I\'ve trained under the best!', 'My team is finely tuned for battle!'],
+    isTrainer: true,
+    trainerId: 'cooltrainer_anya',
+  },
+  {
+    id: 'trainer_rex',
+    gx: 22, gy: 57,
+    sprite: 'hiker',
+    facing: 'down',
+    dialogue: ['Ground types can crush anything!', 'I\'ve been training on this route for months!'],
+    isTrainer: true,
+    trainerId: 'cooltrainer_rex',
+  },
+  {
+    id: 'trainer_vera',
+    gx: 40, gy: 60,
+    sprite: 'lass',
+    facing: 'left',
+    dialogue: ['Normal types may seem plain, but they\'re reliable!', 'Let\'s battle!'],
+    isTrainer: true,
+    trainerId: 'cooltrainer_vera',
+  },
+  // Route 9 helper NPC
+  {
+    id: 'route9_helper',
+    gx: 4, gy: 61,
+    sprite: 'youngster',
+    facing: 'right',
+    dialogue: ['GIOVANNI\'s GYM is just to the east!', 'He\'s the strongest GYM LEADER!', 'His Ground-type POKéMON are merciless!', 'You\'ll need Water, Grass, or Ice types!'],
+    isTrainer: false,
+  },
+  // Gym Leader — Giovanni
+  {
+    id: 'gym_leader_giovanni',
+    gx: 30, gy: 62,
+    sprite: 'gymLeader8',
+    facing: 'right',
+    dialogue: ['Hmph! So you made it this far.', 'I am GIOVANNI, the final GYM LEADER!', 'My Ground-type POKéMON will bury you!', 'Now face the true power of TEAM ROCKET!'],
+    isTrainer: true,
+    trainerId: 'gym_giovanni',
   },
 ];

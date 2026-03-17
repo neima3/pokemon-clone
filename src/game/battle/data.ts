@@ -352,6 +352,14 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['thunderShock', 'quickAttack', 'growl'],
     baseExpYield: 112, catchRate: 190,
     levelUpMoves: [{ level: 6, moveKey: 'thunderShock' }, { level: 10, moveKey: 'spark' }, { level: 18, moveKey: 'thunderbolt' }],
+    evolution: { level: 26, into: 'raichu' },
+  },
+  raichu: {
+    id: 26, name: 'RAICHU', types: ['electric'],
+    baseHp: 60, baseAtk: 90, baseDef: 55, baseSpd: 110,
+    learnedMoves: ['thunderbolt', 'quickAttack', 'spark', 'thunderPunch'],
+    baseExpYield: 218, catchRate: 75,
+    levelUpMoves: [{ level: 28, moveKey: 'thunderPunch' }, { level: 36, moveKey: 'hyperBeam' }],
   },
   zubat: {
     id: 41, name: 'ZUBAT', types: ['poison', 'flying'],
@@ -428,6 +436,14 @@ export const SPECIES: Record<string, SpeciesData> = {
     learnedMoves: ['poisonSting', 'bite', 'headbutt', 'crossPoison'],
     baseExpYield: 128, catchRate: 120,
     levelUpMoves: [{ level: 20, moveKey: 'crossPoison' }, { level: 23, moveKey: 'bodySlam' }],
+    evolution: { level: 36, into: 'nidoking' },
+  },
+  nidoking: {
+    id: 34, name: 'NIDOKING', types: ['poison', 'ground'],
+    baseHp: 81, baseAtk: 102, baseDef: 77, baseSpd: 85,
+    learnedMoves: ['bodySlam', 'earthquake', 'sludgeBomb', 'megaKick'],
+    baseExpYield: 235, catchRate: 45,
+    levelUpMoves: [{ level: 38, moveKey: 'earthquake' }, { level: 44, moveKey: 'hyperBeam' }],
   },
 
   // Oddish line
@@ -1038,10 +1054,47 @@ export const SPECIES: Record<string, SpeciesData> = {
     baseExpYield: 159, catchRate: 45,
     levelUpMoves: [{ level: 21, moveKey: 'icePunch' }, { level: 26, moveKey: 'thunderPunch' }, { level: 31, moveKey: 'brickBreak' }, { level: 36, moveKey: 'closeCombat' }],
   },
+
+  // ── Sprint 013 Pokemon ──
+
+  // Meowth + Persian (Giovanni's team)
+  meowth: {
+    id: 52, name: 'MEOWTH', types: ['normal'],
+    baseHp: 40, baseAtk: 45, baseDef: 35, baseSpd: 90,
+    learnedMoves: ['scratch', 'growl', 'bite'],
+    baseExpYield: 58, catchRate: 190,
+    levelUpMoves: [{ level: 7, moveKey: 'bite' }, { level: 12, moveKey: 'slash' }, { level: 17, moveKey: 'swift' }, { level: 23, moveKey: 'pursuit' }],
+    evolution: { level: 28, into: 'persian' },
+  },
+  persian: {
+    id: 53, name: 'PERSIAN', types: ['normal'],
+    baseHp: 65, baseAtk: 70, baseDef: 60, baseSpd: 115,
+    learnedMoves: ['bite', 'slash', 'swift', 'hyperFang'],
+    baseExpYield: 154, catchRate: 90,
+    levelUpMoves: [{ level: 30, moveKey: 'hyperFang' }, { level: 36, moveKey: 'slash' }, { level: 42, moveKey: 'hyperBeam' }],
+  },
+
+  // Kangaskhan (Route 9 rare encounter)
+  kangaskhan: {
+    id: 115, name: 'KANGASKHAN', types: ['normal'],
+    baseHp: 105, baseAtk: 95, baseDef: 80, baseSpd: 90,
+    learnedMoves: ['cometPunch', 'bite', 'headbutt', 'bodySlam'],
+    baseExpYield: 175, catchRate: 45,
+    levelUpMoves: [{ level: 15, moveKey: 'bite' }, { level: 20, moveKey: 'headbutt' }, { level: 27, moveKey: 'bodySlam' }, { level: 34, moveKey: 'hyperBeam' }],
+  },
+
+  // Tauros (Route 9 strong encounter)
+  tauros: {
+    id: 128, name: 'TAUROS', types: ['normal'],
+    baseHp: 75, baseAtk: 100, baseDef: 95, baseSpd: 110,
+    learnedMoves: ['tackle', 'tailWhip', 'stomp', 'bodySlam'],
+    baseExpYield: 211, catchRate: 45,
+    levelUpMoves: [{ level: 16, moveKey: 'stomp' }, { level: 22, moveKey: 'bodySlam' }, { level: 30, moveKey: 'takeDown' }, { level: 38, moveKey: 'hyperBeam' }],
+  },
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon', 'raichu', 'meowth', 'persian', 'nidoking', 'kangaskhan', 'tauros'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
@@ -1134,6 +1187,18 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
     { species: 'flareon', minLevel: 30, maxLevel: 33, weight: 2 },
     { species: 'eevee', minLevel: 28, maxLevel: 30, weight: 3 },
   ],
+  route9: [
+    { species: 'persian', minLevel: 33, maxLevel: 38, weight: 15 },
+    { species: 'nidoking', minLevel: 35, maxLevel: 40, weight: 10 },
+    { species: 'raichu', minLevel: 33, maxLevel: 38, weight: 10 },
+    { species: 'tauros', minLevel: 35, maxLevel: 40, weight: 8 },
+    { species: 'kangaskhan', minLevel: 35, maxLevel: 40, weight: 5 },
+    { species: 'dugtrio', minLevel: 33, maxLevel: 37, weight: 18 },
+    { species: 'rhydon', minLevel: 36, maxLevel: 42, weight: 10 },
+    { species: 'arcanine', minLevel: 33, maxLevel: 38, weight: 8 },
+    { species: 'dragonair', minLevel: 35, maxLevel: 40, weight: 5 },
+    { species: 'meowth', minLevel: 30, maxLevel: 35, weight: 11 },
+  ],
   fishing: [
     { species: 'magikarp', minLevel: 5, maxLevel: 15, weight: 50 },
     { species: 'staryu', minLevel: 10, maxLevel: 18, weight: 20 },
@@ -1186,6 +1251,8 @@ export const ITEMS: Record<string, ItemData> = {
   antidote:    { name: 'ANTIDOTE',     type: 'medicine', description: 'Cures poison.', statusCure: 'cure_poison', price: 100 },
   fullHeal:    { name: 'FULL HEAL',    type: 'medicine', description: 'Cures any status.', statusCure: 'cure_all', price: 600 },
   revive:      { name: 'REVIVE',       type: 'medicine', description: 'Revives fainted POKéMON to half HP.', price: 1500 },
+  hyperPotion: { name: 'HYPER POTION', type: 'medicine', description: 'Restores 200 HP.', healAmount: 200, price: 1200 },
+  maxPotion:   { name: 'MAX POTION',  type: 'medicine', description: 'Fully restores HP.', healAmount: 9999, price: 2500 },
   repel:       { name: 'REPEL',       type: 'repel',    description: 'Prevents encounters (100 steps).', price: 350 },
   oldRod:      { name: 'OLD ROD',    type: 'key',      description: 'Fish in water for POKéMON.', price: 0 },
   expShare:    { name: 'EXP. SHARE', type: 'key',     description: 'Party POKéMON get 50% EXP from battle.', price: 3000 },
@@ -1236,7 +1303,7 @@ export interface TrainerData {
   team: Array<{ species: string; level: number }>;
   reward: number; // money
   defeatMessage: string;
-  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3' | 'gymLeader4' | 'gymLeader5' | 'gymLeader6' | 'gymLeader7';
+  sprite: 'youngster' | 'lass' | 'bugCatcher' | 'hiker' | 'gymLeader' | 'gymLeader2' | 'gymLeader3' | 'gymLeader4' | 'gymLeader5' | 'gymLeader6' | 'gymLeader7' | 'gymLeader8';
   isGymLeader?: boolean;
   badgeName?: string;
 }
@@ -1456,5 +1523,37 @@ export const TRAINERS: Record<string, TrainerData> = {
     sprite: 'gymLeader7',
     isGymLeader: true,
     badgeName: 'VOLCANO BADGE',
+  },
+  // Route 9 trainers
+  cooltrainer_anya: {
+    name: 'COOLTRAINER ANYA',
+    team: [{ species: 'persian', level: 35 }, { species: 'nidoking', level: 36 }],
+    reward: 900,
+    defeatMessage: "You're stronger than you look!",
+    sprite: 'lass',
+  },
+  cooltrainer_rex: {
+    name: 'COOLTRAINER REX',
+    team: [{ species: 'raichu', level: 35 }, { species: 'arcanine', level: 36 }, { species: 'tauros', level: 37 }],
+    reward: 950,
+    defeatMessage: "Outstanding battle form!",
+    sprite: 'hiker',
+  },
+  cooltrainer_vera: {
+    name: 'COOLTRAINER VERA',
+    team: [{ species: 'dugtrio', level: 34 }, { species: 'meowth', level: 35 }, { species: 'persian', level: 37 }],
+    reward: 920,
+    defeatMessage: "I was no match for your team!",
+    sprite: 'lass',
+  },
+  // Eighth gym leader — Giovanni
+  gym_giovanni: {
+    name: 'LEADER GIOVANNI',
+    team: [{ species: 'dugtrio', level: 43 }, { species: 'persian', level: 44 }, { species: 'nidoking', level: 46 }, { species: 'rhydon', level: 48 }],
+    reward: 12000,
+    defeatMessage: "Silence! I refuse to admit defeat! Take the EARTH BADGE!",
+    sprite: 'gymLeader8',
+    isGymLeader: true,
+    badgeName: 'EARTH BADGE',
   },
 };

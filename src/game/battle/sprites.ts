@@ -5054,6 +5054,32 @@ export function drawNPCSprite(ctx: CanvasRenderingContext2D, type: string, x: nu
       ctx.fillStyle = '#504040';
       ctx.fillRect(x + 4, y + 12, 8, 4);
       break;
+    case 'gymLeader8':
+      // Giovanni: dark suit, slicked black hair, Team Rocket boss
+      // Black slicked hair
+      ctx.fillStyle = '#081820';
+      ctx.fillRect(x + 4, y + 0, 8, 4);
+      ctx.fillRect(x + 3, y + 1, 2, 3);
+      // Tan/olive face
+      ctx.fillStyle = '#c8a870';
+      ctx.fillRect(x + 4, y + 3, 8, 5);
+      // Sharp eyes
+      ctx.fillStyle = '#081820';
+      ctx.fillRect(x + 5, y + 4, 2, 2);
+      ctx.fillRect(x + 9, y + 4, 2, 2);
+      // Dark suit jacket
+      ctx.fillStyle = '#282830';
+      ctx.fillRect(x + 3, y + 8, 10, 6);
+      // White shirt collar
+      ctx.fillStyle = '#e8e8e8';
+      ctx.fillRect(x + 6, y + 8, 4, 3);
+      // Red tie
+      ctx.fillStyle = '#c03020';
+      ctx.fillRect(x + 7, y + 9, 2, 4);
+      // Dark pants
+      ctx.fillStyle = '#1c1c24';
+      ctx.fillRect(x + 4, y + 14, 8, 2);
+      break;
     default:
       // Generic NPC
       ctx.fillStyle = '#081820';
