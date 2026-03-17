@@ -14,6 +14,33 @@ function hpColor(pct: number): string {
   return '#e04040';
 }
 
+function drawHpBarGradient(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, pct: number) {
+  const fillW = Math.max(0, width * Math.max(0, Math.min(1, pct)));
+  if (fillW <= 0) return;
+  
+  const gradient = ctx.createLinearGradient(x, y, x + width, y);
+  
+  if (pct > 0.5) {
+    gradient.addColorStop(0, '#38a038');
+    gradient.addColorStop(0.5, '#58d058');
+    gradient.addColorStop(1, '#48b048');
+  } else if (pct > 0.2) {
+    gradient.addColorStop(0, '#d8a020');
+    gradient.addColorStop(0.5, '#f8d850');
+    gradient.addColorStop(1, '#f8c830');
+  } else {
+    gradient.addColorStop(0, '#c02020');
+    gradient.addColorStop(0.5, '#f05050');
+    gradient.addColorStop(1, '#e04040');
+  }
+  
+  ctx.fillStyle = gradient;
+  ctx.fillRect(x, y, fillW, height);
+  
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+  ctx.fillRect(x, y, fillW, height / 3);
+}
+
 const STATUS_COLORS: Record<StatusCondition, { bg: string; text: string; label: string }> = {
   poison:   { bg: '#a040a0', text: '#f8f8f0', label: 'PSN' },
   burn:     { bg: '#f08030', text: '#f8f8f0', label: 'BRN' },
@@ -84,10 +111,8 @@ export const BattleUI = {
     ctx.fillStyle = '#303030';
     ctx.fillRect(barX + 1, barY + 1, barW - 2, barH - 2);
 
-    // HP bar fill
-    const fillW = Math.max(0, (barW - 4) * Math.max(0, hpPct));
-    ctx.fillStyle = hpColor(hpPct);
-    ctx.fillRect(barX + 2, barY + 2, fillW, barH - 4);
+    // HP bar fill with gradient
+    drawHpBarGradient(ctx, barX + 2, barY + 2, barW - 4, barH - 4, hpPct);
   },
 
   /** Draw player info box (bottom-right) with EXP bar */
@@ -144,9 +169,8 @@ export const BattleUI = {
     ctx.fillStyle = '#303030';
     ctx.fillRect(barX + 1, barY + 1, barW - 2, barH - 2);
 
-    const fillW = Math.max(0, (barW - 4) * Math.max(0, hpPct));
-    ctx.fillStyle = hpColor(hpPct);
-    ctx.fillRect(barX + 2, barY + 2, fillW, barH - 4);
+    // HP bar fill with gradient
+    drawHpBarGradient(ctx, barX + 2, barY + 2, barW - 4, barH - 4, hpPct);
 
     // HP numbers
     ctx.fillStyle = COLORS.dark;

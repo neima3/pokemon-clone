@@ -1,7 +1,7 @@
 export interface HeldItem {
   key: string;
   name: string;
-  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move';
+  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move' | 'boost_atk' | 'survive_ko' | 'super_effective_boost' | 'life_orb';
   boostType?: string;
   boostAmount?: number;
 }
@@ -26,6 +26,11 @@ export const HELD_ITEMS: Record<string, HeldItem> = {
   scopeLens: { key: 'scopeLens', name: 'SCOPE LENS', effect: 'boost_crit', boostAmount: 2 },
   leftovers: { key: 'leftovers', name: 'LEFTOVERS', effect: 'heal_on_turn', boostAmount: 0.0625 },
   lumBerry: { key: 'lumBerry', name: 'LUM BERRY', effect: 'cure_status' },
+  // Sprint 026: New held items
+  choiceBand: { key: 'choiceBand', name: 'CHOICE BAND', effect: 'boost_atk', boostAmount: 1.5 },
+  focusSash: { key: 'focusSash', name: 'FOCUS SASH', effect: 'survive_ko' },
+  expertBelt: { key: 'expertBelt', name: 'EXPERT BELT', effect: 'super_effective_boost', boostAmount: 1.2 },
+  lifeOrb: { key: 'lifeOrb', name: 'LIFE ORB', effect: 'life_orb', boostAmount: 1.3 },
 };
 
 export function getHeldItemDamageBoost(item: HeldItem | null, moveType: string): number {
@@ -54,4 +59,41 @@ export function getLeftoversHeal(item: HeldItem | null, maxHp: number): number {
 
 export function shouldCureStatus(item: HeldItem | null): boolean {
   return item?.effect === 'cure_status';
+}
+
+export function getAttackBoost(item: HeldItem | null): number {
+  if (!item) return 1;
+  if (item.effect === 'boost_atk') {
+    return item.boostAmount ?? 1;
+  }
+  return 1;
+}
+
+export function checkFocusSash(item: HeldItem | null, currentHp: number, maxHp: number, damage: number): { survived: boolean; consumed: boolean } {
+  if (!item || item.effect !== 'survive_ko') return { survived: false, consumed: false };
+  if (currentHp === maxHp && damage >= currentHp) {
+    return { survived: true, consumed: true };
+  }
+  return { survived: false, consumed: false };
+}
+
+export function getSuperEffectiveBoost(item: HeldItem | null, effectiveness: number): number {
+  if (!item) return 1;
+  if (item.effect === 'super_effective_boost' && effectiveness > 1) {
+    return item.boostAmount ?? 1;
+  }
+  return 1;
+}
+
+export function getLifeOrbBoost(item: HeldItem | null): number {
+  if (!item) return 1;
+  if (item.effect === 'life_orb') {
+    return item.boostAmount ?? 1;
+  }
+  return 1;
+}
+
+export function getLifeOrbRecoil(item: HeldItem | null, maxHp: number): number {
+  if (!item || item.effect !== 'life_orb') return 0;
+  return Math.max(1, Math.floor(maxHp * 0.1));
 }

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/2.0.0.html).
 
+## [0.25.0] - 2026-03-17
+
+### Added
+- Sprint 026: Visual Polish & Counter Moves
+- HP bar gradient rendering with smooth color transitions (green → yellow → red)
+- Counter moves: Counter (2x physical damage), Mirror Coat (2x special), Metal Burst (1.5x any), Revenge, Avalanche, Payback
+- New held items: Choice Band (+50% Attack), Focus Sash (survive KO at full HP), Expert Belt (+20% super effective), Life Orb (+30% damage, 10% recoil)
+
+### Changed
+- Improved HP bar visual feedback with gradient fills and highlight effects
+- Enhanced battle UI with better visual polish
+
+### Technical
+- Added damageTakenThisTurn and lastIncomingMoveWasPhysical to Pokemon class for counter move tracking
+- Extended MoveData interface with counter and counterMult fields for counter-type moves
+- Added getSuperEffectiveBoost(), getLifeOrbBoost(), getLifeOrbRecoil(), checkFocusSash() to HeldItems
+- Extended HeldItem effect types: boost_atk, survive_ko, super_effective_boost, life_orb
+- Added drawHpBarGradient() function for smooth HP bar color transitions
+
 ## [0.24.0] - 2026-03-17
 
 ### Added

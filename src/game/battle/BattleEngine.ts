@@ -2,7 +2,7 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { getTypeEffectiveness, MOVES, StatusCondition } from './data';
 import type { PokemonType } from './data';
 import type { WeatherType } from '../Weather';
-import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus } from './HeldItems';
+import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash } from './HeldItems';
 
 export interface TurnResult {
   damage: number;
@@ -428,6 +428,26 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     effectivePower *= 2;
   }
   
+  if (move.data.counter && attacker.damageTakenThisTurn > 0) {
+    const canCounter = move.data.counter === 'any' ||
+      (move.data.counter === 'physical' && attacker.lastIncomingMoveWasPhysical === true) ||
+      (move.data.counter === 'special' && attacker.lastIncomingMoveWasPhysical === false);
+    
+    if (canCounter) {
+      effectivePower = Math.floor(attacker.damageTakenThisTurn * (move.data.counterMult ?? 2));
+    } else {
+      result.missed = true;
+      result.statusMessage = `${attacker.name}'s ${move.data.name} failed!`;
+      return result;
+    }
+  }
+  
+  if (effectivePower <= 0 && move.data.power === 0) {
+    result.missed = true;
+    result.statusMessage = `${attacker.name}'s ${move.data.name} failed!`;
+    return result;
+  }
+  
   let baseDamage = Math.floor(((2 * attacker.level / 5 + 2) * effectivePower * atk / def) / 50) + 2;
   
   let numHits = 1;
@@ -476,6 +496,16 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
       hitDamage = Math.floor(hitDamage * itemBoost);
     }
     
+    const superEffBoost = getSuperEffectiveBoost(attacker.heldItem, result.effectiveness);
+    if (superEffBoost > 1) {
+      hitDamage = Math.floor(hitDamage * superEffBoost);
+    }
+    
+    const lifeOrbBoost = getLifeOrbBoost(attacker.heldItem);
+    if (lifeOrbBoost > 1) {
+      hitDamage = Math.floor(hitDamage * lifeOrbBoost);
+    }
+    
     hitDamage = Math.max(1, hitDamage);
     totalDamage += hitDamage;
   }
@@ -489,10 +519,26 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     result.statusMessage = sturdyCheck.message;
   }
   
-        defender.hp = Math.max(0, defender.hp - damage);
-        result.damage = damage;
+  const focusSashResult = checkFocusSash(defender.heldItem, defender.hp, defender.maxHp, damage);
+  if (focusSashResult.survived) {
+    damage = defender.hp - 1;
+    defender.heldItem = null;
+    result.statusMessage = `${defender.name} hung on using its FOCUS SASH!`;
+  }
+  
+  defender.hp = Math.max(0, defender.hp - damage);
+  defender.damageTakenThisTurn += damage;
+  defender.lastIncomingMoveWasPhysical = move.data.category === 'physical';
+  result.damage = damage;
+  
+  if (getLifeOrbBoost(attacker.heldItem) > 1 && damage > 0) {
+    const lifeOrbRecoil = getLifeOrbRecoil(attacker.heldItem, attacker.maxHp);
+    attacker.hp = Math.max(0, attacker.hp - lifeOrbRecoil);
+    result.recoilDamage = lifeOrbRecoil;
+    result.recoilMessage = `${attacker.name} was hurt by its LIFE ORB!`;
+  }
 
-        if (move.data.drain && damage > 0) {
+  if (move.data.drain && damage > 0) {
             const healAmount = Math.floor(damage * move.data.drain / 100);
             attacker.hp = Math.min(attacker.maxHp, attacker.hp + healAmount);
             result.healed = healAmount;

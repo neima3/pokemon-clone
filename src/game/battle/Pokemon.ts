@@ -59,6 +59,9 @@ export class Pokemon {
   protected = false;
   consecutiveProtect = 0;
   isSwitching = false;
+  
+  damageTakenThisTurn = 0;
+  lastIncomingMoveWasPhysical: boolean | null = null;
 
   constructor(speciesKey: string, level: number, badgeCount: number = 0) {
     const species = SPECIES[speciesKey];
@@ -177,6 +180,8 @@ export class Pokemon {
     this.twoTurnMove = null;
     this.protected = false;
     this.isSwitching = false;
+    this.damageTakenThisTurn = 0;
+    this.lastIncomingMoveWasPhysical = null;
   }
 
   heal() {

@@ -446,6 +446,10 @@ export interface MoveData {
   twoTurn?: 'charge' | 'fly' | 'dig';
   /** Pursuit: double damage when target is switching */
   pursuit?: boolean;
+  /** Counter move: returns damage multiplier based on damage taken this turn */
+  counter?: 'physical' | 'special' | 'any';
+  /** Counter damage multiplier (e.g., 2 for Counter/Mirror Coat, 1.5 for Metal Burst) */
+  counterMult?: number;
 }
 
 export const MOVES: Record<string, MoveData> = {
@@ -638,6 +642,13 @@ export const MOVES: Record<string, MoveData> = {
   detect:       { name: 'DETECT',      type: 'fighting', power: 0,   accuracy: 100, maxPp: 5,  category: 'status', effect: 'protect', priority: 4 },
   // Sprint 025: Pursuit (now properly tracks switching)
   pursuitDark:  { name: 'PURSUIT',     type: 'dark',     power: 40,  accuracy: 100, maxPp: 20, category: 'physical', priority: 1, pursuit: true },
+  // Sprint 026: Counter moves
+  counter:      { name: 'COUNTER',     type: 'fighting', power: 0,   accuracy: 100, maxPp: 20, category: 'physical', priority: -5, counter: 'physical', counterMult: 2 },
+  mirrorCoat:   { name: 'MIRROR COAT', type: 'psychic',  power: 0,   accuracy: 100, maxPp: 20, category: 'physical', priority: -5, counter: 'special', counterMult: 2 },
+  revenge:      { name: 'REVENGE',     type: 'fighting', power: 60,  accuracy: 100, maxPp: 10, category: 'physical', priority: -4 },
+  metalBurst:   { name: 'METAL BURST', type: 'steel',    power: 0,   accuracy: 100, maxPp: 10, category: 'physical', priority: 0, counter: 'any', counterMult: 1.5 },
+  avalanche:    { name: 'AVALANCHE',   type: 'ice',      power: 60,  accuracy: 100, maxPp: 10, category: 'physical', priority: -4 },
+  payback:      { name: 'PAYBACK',     type: 'dark',     power: 50,  accuracy: 100, maxPp: 10, category: 'physical' },
 };
 
 // ── Species ──
