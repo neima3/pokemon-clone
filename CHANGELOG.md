@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.0] - 2026-03-17
+
+### Added
+- Sprint 036: Critical Fixes & Code Quality
+- New move definitions: Transform (Ditto), Leech Life (Paras), Spore (Paras/Parasect), Hyper Voice (Wigglytuff)
+
+### Fixed
+- Fixed Recover move effect: now properly heals 50% HP instead of raising defense
+- Fixed lint errors: removed unused variables and imports across multiple files
+- Fixed prefer-const warnings in BattleEngine.ts and data.ts
+- Added eslint ignore for Node.js scripts folder
+
+### Code Quality
+- Removed unused `stageMultiplier` function from BattleEngine.ts
+- Removed unused `vibrato` variable from Audio.ts
+- Removed unused imports from BattleScene.ts and OverworldScene.ts
+- Fixed unused variable warnings with underscore prefix convention
+- Updated eslint config to ignore scripts folder
+
+### Technical
+- Recover move now uses drain: 50 to heal user for 50% of max HP
+- Improved code maintainability with cleaner imports
+
 ## [0.33.0] - 2026-03-17
 
 ### Added

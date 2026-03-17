@@ -7,7 +7,7 @@ import { MAP_DATA, MAP_WIDTH, MAP_HEIGHT, MAP_NPCS, getRouteZone } from './mapDa
 import { Tile, drawTile, isSolid, COLORS, updateTileAnim } from './tiles';
 import { GameState, Inventory } from '../GameState';
 import { NPC } from './NPC';
-import { rollEncounter, ITEMS, SPECIES, TYPE_COLORS } from '../battle/data';
+import { rollEncounter, SPECIES, TYPE_COLORS } from '../battle/data';
 import { drawPokemonFront } from '../battle/sprites';
 
 type TimeOfDay = 'day' | 'dusk' | 'night';
@@ -868,7 +868,6 @@ export class OverworldScene implements Scene {
 
   private spawnParticles() {
     const timeOfDay = getTimeOfDay();
-    const playerTile = MAP_DATA[this.player.gy * MAP_WIDTH + this.player.gx];
     
     // Check nearby tiles for particle sources
     const nearbyTiles: Tile[] = [];
@@ -1266,7 +1265,7 @@ export class OverworldScene implements Scene {
 
     // Draw badge stars
     let badgeX = px + 10;
-    for (const badge of this.gameState.badges) {
+    for (const _badge of this.gameState.badges) {
       ctx.fillStyle = '#f8d830';
       ctx.fillRect(badgeX, py + 70, 12, 12);
       ctx.fillStyle = '#c0a020';

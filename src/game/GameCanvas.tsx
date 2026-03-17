@@ -53,7 +53,7 @@ export default function GameCanvas() {
       });
     };
 
-    const startTrainerBattle = (trainerId: string, npcId: string) => {
+    const startTrainerBattle = (trainerId: string, _npcId: string) => {
       const badgeCount = gameState.badges.size;
       const dummyMon = new Pokemon('rattata', 1, badgeCount);
 

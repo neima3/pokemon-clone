@@ -18,7 +18,6 @@ const m = Tile.MartDoor;
 const B = Tile.BuildingWall;
 const S = Tile.Sign;
 const E = Tile.Fence;
-const L = Tile.Ledge;
 const Y = Tile.GymRoof;
 const y = Tile.GymDoor;
 

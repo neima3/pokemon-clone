@@ -605,7 +605,7 @@ export const MOVES: Record<string, MoveData> = {
   karatechop:   { name: 'KARATE CHOP',  type: 'fighting',  power: 50,  accuracy: 100, maxPp: 25, category: 'physical' },
   acidSpray:    { name: 'ACID SPRAY',   type: 'poison',    power: 40,  accuracy: 100, maxPp: 20, category: 'physical', effect: 'lower_defense' },
   rapidSpin:    { name: 'RAPID SPIN',   type: 'normal',    power: 50,  accuracy: 100, maxPp: 40, category: 'physical', effect: 'clear_hazards' },
-  recover:      { name: 'RECOVER',      type: 'normal',    power: 0,   accuracy: 100, maxPp: 10, category: 'status', effect: 'raise_defense' },
+  recover:      { name: 'RECOVER',      type: 'normal',    power: 0,   accuracy: 100, maxPp: 10, category: 'status', drain: 50 },
   psychic:      { name: 'PSYCHIC',      type: 'psychic',   power: 90,  accuracy: 100, maxPp: 15, category: 'physical' },
   teleport:     { name: 'TELEPORT',     type: 'psychic',   power: 0,   accuracy: 100, maxPp: 20, category: 'status' },
   swiftStar:    { name: 'SWIFT STAR',   type: 'water',     power: 60,  accuracy: 100, maxPp: 20, category: 'physical' },
@@ -765,6 +765,11 @@ export const MOVES: Record<string, MoveData> = {
   psychicTerrain:  { name: 'PSY TERRAIN',  type: 'psychic',  power: 0, accuracy: 100, maxPp: 10, category: 'status', effect: 'psychic_terrain' },
   grassyTerrain:   { name: 'GRASS TERRAIN',type: 'grass',    power: 0, accuracy: 100, maxPp: 10, category: 'status', effect: 'grassy_terrain' },
   mistyTerrain:    { name: 'MISTY TERRAIN',type: 'fairy',    power: 0, accuracy: 100, maxPp: 10, category: 'status', effect: 'misty_terrain' },
+  // Sprint 036: Missing moves
+  transform:    { name: 'TRANSFORM',   type: 'normal',   power: 0,   accuracy: 100, maxPp: 10, category: 'status' },
+  leechLife:    { name: 'LEECH LIFE',  type: 'bug',      power: 80,  accuracy: 100, maxPp: 10, category: 'physical', drain: 50 },
+  spore:        { name: 'SPORE',       type: 'grass',    power: 0,   accuracy: 100, maxPp: 15, category: 'status', effect: 'sleep' },
+  hyperVoice:   { name: 'HYPER VOICE', type: 'normal',   power: 90,  accuracy: 100, maxPp: 10, category: 'physical' },
 };
 
 // ── Species ──
@@ -1904,7 +1909,7 @@ export function rollEncounter(route: string): { species: string; level: number }
 
   const nocturnalTypes = ['ghost', 'psychic', 'dark'];
 
-  let adjustedTable = table.map(entry => {
+  const adjustedTable = table.map(entry => {
     let weight = entry.weight;
     const species = SPECIES[entry.species];
     if (species) {

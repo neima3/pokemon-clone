@@ -5,8 +5,8 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { BattleUI, DamageNumber, DamageNumbers, StatusParticle, StatusParticles, HealParticle, HealParticles, StatChangeText, StatChangeHelper } from './BattleUI';
 import { drawPokemonFront, drawPokemonBack } from './sprites';
 import { executeMove, getEnemyMove, determineTurnOrder, attemptCatch, canAct, applyStatusDamage, checkEntryAbilities, checkTurnEndAbilities, checkTurnEndHeldItems, resetProtection, createEmptyHazards, applyEntryHazards, FieldHazards, checkTrappingDamage, canUseMove, decrementTurnCounters, checkDrowsy, checkWish, checkFutureSight, checkDoomDesire, checkDestinyBond, checkPerishSong, getTerrainHeal } from './BattleEngine';
-import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, StatusCondition, TerrainType, TYPE_COLORS, ABILITIES } from './data';
-import { isZCrystal, getZCrystalType, isMegaStone, canMegaEvolve as canMegaEvolveItem } from './HeldItems';
+import { calculateExpGain, ITEMS, MOVES, TRAINERS, TrainerData, PokemonType, TerrainType, ABILITIES } from './data';
+import { getZCrystalType } from './HeldItems';
 import { GameState, Inventory } from '../GameState';
 import type { WeatherType } from '../Weather';
 

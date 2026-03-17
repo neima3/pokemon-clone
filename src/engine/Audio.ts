@@ -324,7 +324,6 @@ export const SFX = {
     const c = getCtx();
     const baseFreq = 150 + (speciesId % 30) * 20;
     const duration = 0.15 + (speciesId % 10) * 0.02;
-    const vibrato = 3 + (speciesId % 5);
     const waveType: OscillatorType = speciesId % 4 === 0 ? 'square' : speciesId % 4 === 1 ? 'triangle' : speciesId % 4 === 2 ? 'sawtooth' : 'sine';
     
     // Create cry with frequency sweep

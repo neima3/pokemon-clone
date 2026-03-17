@@ -2,7 +2,7 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { getTypeEffectiveness, MOVES, StatusCondition, TerrainType } from './data';
 import type { PokemonType } from './data';
 import type { WeatherType } from '../Weather';
-import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash, getContactDamage, hasGroundImmunityItem, getBlackSludgeHeal, setContextMaxHp, getSpeedBoost, isZCrystal, getZCrystalType, calculateZMovePower, getZMoveData } from './HeldItems';
+import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash, getContactDamage, hasGroundImmunityItem, getBlackSludgeHeal, setContextMaxHp, isZCrystal, calculateZMovePower, getZMoveData } from './HeldItems';
 
 export interface FieldHazards {
   spikes: number;
@@ -142,10 +142,6 @@ export interface ActResult {
   message?: string;
   confusionHit?: boolean;
   confusionDamage?: number;
-}
-
-function stageMultiplier(stage: number): number {
-  return stage >= 0 ? (2 + stage) / 2 : 2 / (2 - stage);
 }
 
 export function canAct(mon: Pokemon): ActResult {
@@ -784,7 +780,7 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
   }
   
   let atk = attacker.getEffAtk();
-  let def = defender.getEffDef();
+  const def = defender.getEffDef();
   
   if (attacker.status === 'burn' && attacker.ability?.effect !== 'status_atk_boost') {
     atk = Math.floor(atk * 0.5);
@@ -824,7 +820,7 @@ export function executeMove(attacker: Pokemon, defender: Pokemon, move: MoveInst
     return result;
   }
   
-  let baseDamage = Math.floor(((2 * attacker.level / 5 + 2) * effectivePower * atk / def) / 50) + 2;
+  const baseDamage = Math.floor(((2 * attacker.level / 5 + 2) * effectivePower * atk / def) / 50) + 2;
   
   let numHits = 1;
   if (move.data.hits) {
