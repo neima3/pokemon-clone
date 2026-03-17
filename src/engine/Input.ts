@@ -45,8 +45,9 @@ export class Input {
     if (!e.repeat) {
       this.pressed.add(e.key);
     }
-    // Prevent scrolling for space/arrows
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'm', 'M'].includes(e.key)) {
+    // Prevent scrolling for game keys
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key) ||
+        ['m', 'M', 'b', 'B', 'z', 'Z', 'x', 'X'].includes(e.key)) {
       e.preventDefault();
     }
   }

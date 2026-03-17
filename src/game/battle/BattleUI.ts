@@ -760,8 +760,9 @@ export const BattleUI = {
           ctx.restore();
         }
         for (let i = 0; i < 5; i++) {
-          const sparkX = targetCx + (Math.random() - 0) * 40;
-          const sparkY = targetCy + (Math.random() - 1) * 30;
+          const seed = i * 137.5;
+          const sparkX = targetCx + (Math.sin(seed) * 0.5 + 0.5) * 40;
+          const sparkY = targetCy + (Math.cos(seed) * 0.5 - 0.5) * 30;
           ctx.globalAlpha = (1 - t) * 0.5;
           ctx.fillStyle = '#d0d0d8';
           ctx.fillRect(sparkX - 2, sparkY - 2, 4, 4);

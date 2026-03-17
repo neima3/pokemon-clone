@@ -248,7 +248,7 @@ export function attemptCatch(
   catchMultiplier: number,
 ): { shakes: number; caught: boolean } {
   const rate = target.species.catchRate;
-  const hpFactor = (3 * target.maxHp - 2 * target.hp) / (3 * target.maxHp);
+  const hpFactor = target.maxHp > 0 ? (3 * target.maxHp - 2 * target.hp) / (3 * target.maxHp) : 0;
   // Status conditions improve catch rate
   const statusBonus = target.status === 'sleep' ? 2 : target.status ? 1.5 : 1;
   const catchRate = Math.min(255, Math.floor(rate * hpFactor * catchMultiplier * statusBonus));

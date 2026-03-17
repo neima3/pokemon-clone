@@ -34,6 +34,8 @@ export const enum Tile {
   // Gym
   GymRoof = 15,
   GymDoor = 16,
+  // Terrain
+  Cave = 17,
 }
 
 /** Which tiles block movement */
@@ -271,6 +273,18 @@ export function drawTile(
       // Handle
       ctx.fillStyle = '#f8d830';
       ctx.fillRect(px + 10, py + 8, 2, 2);
+      break;
+
+    case Tile.Cave:
+      ctx.fillStyle = '#484848';
+      ctx.fillRect(px, py, s, s);
+      ctx.fillStyle = '#303030';
+      ctx.fillRect(px + 2, py + 2, 4, 4);
+      ctx.fillRect(px + 10, py + 8, 4, 4);
+      ctx.fillRect(px + 5, py + 10, 3, 3);
+      ctx.fillStyle = '#606060';
+      ctx.fillRect(px + 1, py + 6, 3, 3);
+      ctx.fillRect(px + 8, py + 1, 5, 3);
       break;
   }
 }

@@ -84,8 +84,6 @@ export class BattleScene implements Scene {
   private statChangeTexts: StatChangeText[] = [];
 
   // Catch animation state
-
-  // Catch animation state
   private catchTimer = 0;
   private catchShakes = 0;
   private catchTargetShakes = 0;
@@ -668,17 +666,17 @@ export class BattleScene implements Scene {
       } else {
         if (this.catchCaught) {
           this.enemyVisible = false;
-              SFX.catchSuccess();
-              this.queueMessages(
-                [`Gotcha! ${this.enemyMon.name} was caught!`],
-                () => {
-                  const badgeCount = this.gameState.badges.size;
-                  const caught = new Pokemon(this.enemyMon.speciesKey, this.enemyMon.level, badgeCount);
-                  caught.hp = this.enemyMon.hp;
-                  caught.status = this.enemyMon.status;
-                  // Track caught in pokedex
-                  this.gameState.pokedexCaught.add(this.enemyMon.speciesKey);
-                  if (this.gameState.addToTeam(caught)) {
+          SFX.catchSuccess();
+          this.queueMessages(
+            [`Gotcha! ${this.enemyMon.name} was caught!`],
+            () => {
+              const badgeCount = this.gameState.badges.size;
+              const caught = new Pokemon(this.enemyMon.speciesKey, this.enemyMon.level, badgeCount);
+              caught.hp = this.enemyMon.hp;
+              caught.status = this.enemyMon.status;
+              // Track caught in pokedex
+              this.gameState.pokedexCaught.add(this.enemyMon.speciesKey);
+              if (this.gameState.addToTeam(caught)) {
                 this.queueMessages(
                   [`${caught.name} was added to your team!`],
                   () => { this.phase = 'result'; this.battleWon = true; this.resultTimer = 0; },

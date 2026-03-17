@@ -173,20 +173,13 @@ export class GameState {
       this.team = data.team.map((d) => Pokemon.fromJSON(d));
       this.pcBox = (data.pcBox ?? []).map((d) => Pokemon.fromJSON(d));
       const inv = data.inventory as unknown as Record<string, number>;
-      this.inventory = {
-        pokeball: inv.pokeball ?? 0,
-        greatBall: inv.greatBall ?? 0,
-        ultraBall: inv.ultraBall ?? 0,
-        potion: inv.potion ?? 0,
-        superPotion: inv.superPotion ?? 0,
-        hyperPotion: inv.hyperPotion ?? 0,
-        maxPotion: inv.maxPotion ?? 0,
-        antidote: inv.antidote ?? 0,
-        fullHeal: inv.fullHeal ?? 0,
-        revive: inv.revive ?? 0,
-        repel: inv.repel ?? 0,
-        expShare: inv.expShare ?? 0,
-      };
+      const defaultInventory: Inventory = { pokeball: 5, greatBall: 0, ultraBall: 0, potion: 3, superPotion: 0, hyperPotion: 0, maxPotion: 0, antidote: 0, fullHeal: 0, revive: 0, repel: 0, expShare: 0 };
+      this.inventory = { ...defaultInventory };
+      for (const key of Object.keys(defaultInventory) as Array<keyof Inventory>) {
+        if (inv[key] !== undefined) {
+          this.inventory[key] = inv[key];
+        }
+      }
       this.playerPosition = data.playerPosition ?? { x: 15, y: 13 };
       this.money = data.money ?? 1000;
       this.defeatedTrainers = new Set(data.defeatedTrainers ?? []);

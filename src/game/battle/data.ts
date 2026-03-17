@@ -1241,16 +1241,36 @@ export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: numbe
 /** Pick a random encounter from a route table */
 export function rollEncounter(route: string): { species: string; level: number } {
   const table = ROUTE_ENCOUNTERS[route] ?? ROUTE_ENCOUNTERS.town;
-  const totalWeight = table.reduce((s, e) => s + e.weight, 0);
+  const hour = new Date().getHours();
+  const isNight = hour >= 20 || hour < 6;
+  const isDusk = hour >= 17 && hour < 20;
+
+  const nocturnalTypes = ['ghost', 'psychic', 'dark'];
+
+  let adjustedTable = table.map(entry => {
+    let weight = entry.weight;
+    const species = SPECIES[entry.species];
+    if (species) {
+      const isNocturnal = species.types.some(t => nocturnalTypes.includes(t));
+      if (isNight && isNocturnal) {
+        weight = Math.floor(weight * 2);
+      } else if (isDusk && isNocturnal) {
+        weight = Math.floor(weight * 1.5);
+      }
+    }
+    return { ...entry, weight };
+  });
+
+  const totalWeight = adjustedTable.reduce((s, e) => s + e.weight, 0);
   let roll = Math.random() * totalWeight;
-  for (const entry of table) {
+  for (const entry of adjustedTable) {
     roll -= entry.weight;
     if (roll <= 0) {
       const level = entry.minLevel + Math.floor(Math.random() * (entry.maxLevel - entry.minLevel + 1));
       return { species: entry.species, level };
     }
   }
-  const last = table[table.length - 1];
+  const last = adjustedTable[adjustedTable.length - 1];
   return { species: last.species, level: last.minLevel };
 }
 

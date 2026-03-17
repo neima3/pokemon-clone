@@ -10,15 +10,44 @@ import { NPC } from './NPC';
 import { rollEncounter, ITEMS, SPECIES, TYPE_COLORS } from '../battle/data';
 import { drawPokemonFront } from '../battle/sprites';
 
+type TimeOfDay = 'day' | 'dusk' | 'night';
+
+function getTimeOfDay(): TimeOfDay {
+  const hour = new Date().getHours();
+  if (hour >= 20 || hour < 6) return 'night';
+  if (hour >= 17 && hour < 20) return 'dusk';
+  return 'day';
+}
+
+function formatTime(): string {
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 || 12;
+  return `${hour12}:${String(m).padStart(2, '0')} ${ampm}`;
+}
+
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  type: 'leaf' | 'dust' | 'sparkle';
+  size: number;
+}
+
 /** Native GB resolution: 160x144. We use 320x240 (20x15 tiles) for more room. */
 export const VIEW_W = 320;
 export const VIEW_H = 240;
 
-const BASE_ENCOUNTER_RATE = 0.15; // ~1/6 steps in grass
+const BASE_ENCOUNTER_RATE = 0.15;
 const ENCOUNTER_RATES: Partial<Record<Tile, number>> = {
-  [Tile.TallGrass]: BASE_ENCOUNTER_RATE,       // Standard grass rate
-  // Water encounters would be lower rate when surfing
-  // Cave areas would be higher rate
+  [Tile.TallGrass]: BASE_ENCOUNTER_RATE,
+  [Tile.Water]: 0.10,
+  [Tile.Cave]: 0.20,
 };
 const FONT = 'bold 9px monospace';
 const FONT_SM = 'bold 8px monospace';
@@ -83,6 +112,10 @@ export class OverworldScene implements Scene {
 
   // HUD
   private showMiniStatus = true;
+
+  // Ambient particles
+  private particles: Particle[] = [];
+  private particleTimer = 0;
 
   constructor(
     input: Input,
@@ -153,6 +186,7 @@ export class OverworldScene implements Scene {
 
   update(dt: number) {
     updateTileAnim(dt);
+    this.updateParticles(dt);
 
     switch (this.phase) {
       case 'explore':
@@ -778,6 +812,123 @@ export class OverworldScene implements Scene {
     }
   }
 
+  private updateParticles(dt: number) {
+    this.particleTimer += dt;
+    
+    // Spawn new particles based on terrain
+    if (this.particleTimer > 0.15) {
+      this.particleTimer = 0;
+      this.spawnParticles();
+    }
+
+    // Update existing particles
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+      
+      if (p.life <= 0 || p.y > VIEW_H + 20 || p.x < -20 || p.x > VIEW_W + 20) {
+        this.particles.splice(i, 1);
+      }
+    }
+
+    // Limit particle count
+    if (this.particles.length > 50) {
+      this.particles = this.particles.slice(-50);
+    }
+  }
+
+  private spawnParticles() {
+    const timeOfDay = getTimeOfDay();
+    const camX = this.camera.x;
+    const camY = this.camera.y;
+    const playerTile = MAP_DATA[this.player.gy * MAP_WIDTH + this.player.gx];
+    
+    // Check nearby tiles for particle sources
+    const nearbyTiles: Tile[] = [];
+    for (let dy = -3; dy <= 3; dy++) {
+      for (let dx = -3; dx <= 3; dx++) {
+        const tx = this.player.gx + dx;
+        const ty = this.player.gy + dy;
+        if (tx >= 0 && tx < MAP_WIDTH && ty >= 0 && ty < MAP_HEIGHT) {
+          nearbyTiles.push(MAP_DATA[ty * MAP_WIDTH + tx] as Tile);
+        }
+      }
+    }
+
+    const hasGrass = nearbyTiles.includes(Tile.TallGrass);
+    const hasWater = nearbyTiles.includes(Tile.Water);
+    const hasCave = nearbyTiles.includes(Tile.Cave);
+
+    // Leaf particles in grassy areas during day
+    if (hasGrass && timeOfDay === 'day' && Math.random() < 0.3) {
+      this.particles.push({
+        x: Math.random() * VIEW_W,
+        y: -10,
+        vx: 10 + Math.random() * 20,
+        vy: 15 + Math.random() * 10,
+        life: 4 + Math.random() * 2,
+        maxLife: 6,
+        type: 'leaf',
+        size: 2 + Math.random() * 2,
+      });
+    }
+
+    // Water sparkles near water
+    if (hasWater && Math.random() < 0.4) {
+      this.particles.push({
+        x: Math.random() * VIEW_W,
+        y: Math.random() * VIEW_H,
+        vx: (Math.random() - 0.5) * 10,
+        vy: -5 - Math.random() * 10,
+        life: 0.5 + Math.random() * 0.5,
+        maxLife: 1,
+        type: 'sparkle',
+        size: 1 + Math.random(),
+      });
+    }
+
+    // Dust motes in caves or at night
+    if ((hasCave || timeOfDay === 'night') && Math.random() < 0.25) {
+      this.particles.push({
+        x: Math.random() * VIEW_W,
+        y: Math.random() * VIEW_H,
+        vx: (Math.random() - 0.5) * 5,
+        vy: -3 - Math.random() * 5,
+        life: 3 + Math.random() * 2,
+        maxLife: 5,
+        type: 'dust',
+        size: 1 + Math.random(),
+      });
+    }
+  }
+
+  private renderParticles(ctx: CanvasRenderingContext2D) {
+    for (const p of this.particles) {
+      const alpha = Math.min(1, p.life / (p.maxLife * 0.3));
+      
+      switch (p.type) {
+        case 'leaf':
+          ctx.fillStyle = `rgba(100, 180, 80, ${alpha * 0.8})`;
+          ctx.fillRect(p.x, p.y, p.size, p.size * 0.6);
+          break;
+        case 'dust':
+          ctx.fillStyle = `rgba(200, 200, 180, ${alpha * 0.5})`;
+          ctx.fillRect(p.x, p.y, p.size, p.size);
+          break;
+        case 'sparkle':
+          ctx.fillStyle = `rgba(180, 220, 255, ${alpha})`;
+          ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+          if (Math.random() > 0.5) {
+            ctx.fillRect(p.x - 1, p.y - p.size, 2, p.size * 2);
+            ctx.fillRect(p.x - p.size, p.y - 1, p.size * 2, 2);
+          }
+          break;
+      }
+    }
+  }
+
   render(ctx: CanvasRenderingContext2D) {
     // Menu is full overlay
     if (this.phase === 'menu') {
@@ -833,6 +984,9 @@ export class OverworldScene implements Scene {
     // Day/night tint overlay
     this.drawDayNightOverlay(ctx);
 
+    // Ambient particles
+    this.renderParticles(ctx);
+
     // Draw HUD
     this.drawHUD(ctx);
 
@@ -885,7 +1039,7 @@ export class OverworldScene implements Scene {
 
     // Zone indicator
     const zone = getRouteZone(this.player.gx, this.player.gy);
-    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3', route4: 'ROUTE 4', route5: 'ROUTE 5', route6: 'ROUTE 6', route7: 'ROUTE 7' };
+    const zoneNames: Record<string, string> = { town: 'PALLET TOWN', route1: 'ROUTE 1', route2: 'ROUTE 2', route3: 'ROUTE 3', route4: 'ROUTE 4', route5: 'ROUTE 5', route6: 'ROUTE 6', route7: 'ROUTE 7', route8: 'ROUTE 8', route9: 'ROUTE 9', route10: 'ROUTE 10' };
     const zoneName = zoneNames[zone] ?? zone.toUpperCase();
 
     ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';
@@ -894,6 +1048,15 @@ export class OverworldScene implements Scene {
     ctx.font = 'bold 7px monospace';
     ctx.textBaseline = 'top';
     ctx.fillText(zoneName, 6, 4);
+
+    // Time display
+    const timeStr = formatTime();
+    const timeOfDay = getTimeOfDay();
+    const timeIcon = timeOfDay === 'night' ? '\u25CF' : timeOfDay === 'dusk' ? '\u25D0' : '\u25CB';
+    ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';
+    ctx.fillRect(2, 16, 60, 12);
+    ctx.fillStyle = timeOfDay === 'night' ? '#a0a0d0' : timeOfDay === 'dusk' ? '#f0a060' : '#f8d870';
+    ctx.fillText(`${timeIcon} ${timeStr}`, 6, 18);
 
     // Money + badges
     ctx.fillStyle = 'rgba(8, 24, 32, 0.7)';
