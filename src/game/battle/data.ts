@@ -204,6 +204,12 @@ export const ABILITIES: Record<string, AbilityData> = {
     trigger: 'passive',
     effect: 'no_attract',
   },
+  ownTempo: {
+    name: 'OWN TEMPO',
+    description: 'Cannot be confused.',
+    trigger: 'passive',
+    effect: 'confusion_immune',
+  },
   limber: {
     name: 'LIMBER',
     description: 'Cannot be paralyzed.',
@@ -1339,6 +1345,16 @@ export const SPECIES: Record<string, SpeciesData> = {
     levelUpMoves: [{ level: 15, moveKey: 'headbutt' }, { level: 20, moveKey: 'bodySlam' }, { level: 28, moveKey: 'crunch' }, { level: 35, moveKey: 'earthquake' }],
   },
 
+  // Lickitung
+  lickitung: {
+    id: 108, name: 'LICKITUNG', types: ['normal'],
+    baseHp: 90, baseAtk: 55, baseDef: 75, baseSpd: 30,
+    learnedMoves: ['lick', 'supersonic', 'stomp', 'wrap'],
+    baseExpYield: 77, catchRate: 45,
+    levelUpMoves: [{ level: 12, moveKey: 'supersonic' }, { level: 18, moveKey: 'stomp' }, { level: 26, moveKey: 'wrap' }, { level: 34, moveKey: 'slam' }],
+    abilities: ['ownTempo', 'oblivious'],
+  },
+
   // ── Sprint 009 Pokemon ──
 
   // Gengar (Haunter evolution)
@@ -1864,7 +1880,7 @@ export const SPECIES: Record<string, SpeciesData> = {
 };
 
 export const STARTERS = ['bulbasaur', 'charmander', 'squirtle'] as const;
-export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon', 'raichu', 'meowth', 'persian', 'nidoking', 'kangaskhan', 'tauros', 'ekans', 'aerodactyl', 'ditto', 'paras', 'wigglytuff', 'mewtwo'] as const;
+export const WILD_POKEMON = ['pidgey', 'rattata', 'caterpie', 'pikachu', 'zubat', 'geodude', 'nidoranM', 'weedle', 'oddish', 'mankey', 'abra', 'staryu', 'magnemite', 'voltorb', 'diglett', 'jigglypuff', 'drowzee', 'machop', 'bellsprout', 'growlithe', 'vulpix', 'ponyta', 'gastly', 'snorlax', 'clefairy', 'seel', 'jynx', 'lapras', 'eevee', 'dratini', 'mrMime', 'koffing', 'grimer', 'tentacool', 'magikarp', 'scyther', 'pinsir', 'cubone', 'rhyhorn', 'hitmonlee', 'hitmonchan', 'flareon', 'jolteon', 'vaporeon', 'raichu', 'meowth', 'persian', 'nidoking', 'kangaskhan', 'tauros', 'ekans', 'aerodactyl', 'ditto', 'paras', 'wigglytuff', 'mewtwo', 'lickitung'] as const;
 
 // ── Route-specific encounters ──
 export const ROUTE_ENCOUNTERS: Record<string, { species: string; minLevel: number; maxLevel: number; weight: number }[]> = {
