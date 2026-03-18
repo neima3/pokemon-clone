@@ -2,9 +2,9 @@
 export const VERSION = {
   major: 0,
   minor: 32,
-  patch: 12,
-  full: '0.32.12',
-  buildDate: '2026-03-17',
+  patch: 15,
+  full: '0.32.15',
+  buildDate: '2026-03-18',
   sprint: 32,
 };
 

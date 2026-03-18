@@ -1,14 +1,20 @@
+export type BerryTrigger = 'hp_low' | 'cure_paralyze' | 'cure_sleep' | 'cure_poison' | 'cure_burn' | 'cure_confusion';
+
 export interface HeldItem {
   key: string;
   name: string;
-  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move' | 'boost_atk' | 'survive_ko' | 'super_effective_boost' | 'life_orb' | 'contact_damage' | 'ground_immune' | 'poison_heal' | 'boost_spd' | 'z_crystal' | 'mega_stone';
+  effect: 'boost_type' | 'heal_on_turn' | 'boost_crit' | 'cure_status' | 'boost_move' | 'boost_atk' | 'survive_ko' | 'super_effective_boost' | 'life_orb' | 'contact_damage' | 'ground_immune' | 'poison_heal' | 'boost_spd' | 'z_crystal' | 'mega_stone' | 'berry';
   boostType?: string;
   boostAmount?: number;
   zMoveName?: string;
   zMoveType?: string;
   megaSpecies?: string;
   megaAbility?: string;
+  berryTrigger?: BerryTrigger;
+  berryHealAmount?: number;
 }
+
+export const BERRY_HEAL_HP_THRESHOLD = 0.5;
 
 export const HELD_ITEMS: Record<string, HeldItem> = {
   charcoal: { key: 'charcoal', name: 'CHARCOAL', effect: 'boost_type', boostType: 'fire', boostAmount: 1.2 },
@@ -73,6 +79,13 @@ export const HELD_ITEMS: Record<string, HeldItem> = {
   aerodactylite: { key: 'aerodactylite', name: 'AERODACTYLITE', effect: 'mega_stone', megaSpecies: 'aerodactyl', megaAbility: 'toughClaws' },
   mewtwoniteX: { key: 'mewtwoniteX', name: 'MEWTWONITE X', effect: 'mega_stone', megaSpecies: 'mewtwo', megaAbility: 'steadfast' },
   mewtwoniteY: { key: 'mewtwoniteY', name: 'MEWTWONITE Y', effect: 'mega_stone', megaSpecies: 'mewtwo', megaAbility: 'insomnia' },
+  
+  // Berries
+  cheriBerry: { key: 'cheriBerry', name: 'CHERI BERRY', effect: 'berry', berryTrigger: 'cure_paralyze' },
+  chestoBerry: { key: 'chestoBerry', name: 'CHESTO BERRY', effect: 'berry', berryTrigger: 'cure_sleep' },
+  pechaBerry: { key: 'pechaBerry', name: 'PECHA BERRY', effect: 'berry', berryTrigger: 'cure_poison' },
+  rawstBerry: { key: 'rawstBerry', name: 'RAWST BERRY', effect: 'berry', berryTrigger: 'cure_burn' },
+  persimBerry: { key: 'persimBerry', name: 'PERSIM BERRY', effect: 'berry', berryTrigger: 'cure_confusion' },
 };
 
 let maxHpForItem: number = 100;
@@ -202,4 +215,58 @@ export function getMegaAbility(item: HeldItem | null): string | null {
 export function canMegaEvolve(item: HeldItem | null, speciesKey: string): boolean {
   if (!item || item.effect !== 'mega_stone') return false;
   return item.megaSpecies === speciesKey;
+}
+
+export function isBerry(item: HeldItem | null): boolean {
+  return item?.effect === 'berry';
+}
+
+export function shouldConsumeBerry(item: HeldItem | null, hp: number, maxHp: number, status: string | null, confused: boolean): { consume: boolean; effect: string; message?: string } {
+  if (!item || item.effect !== 'berry' || !item.berryTrigger) {
+    return { consume: false, effect: 'none' };
+  }
+  
+  const hpPercent = hp / maxHp;
+  
+  switch (item.berryTrigger) {
+    case 'hp_low':
+      if (hpPercent <= 0.5) {
+        const healAmount = item.berryHealAmount ?? Math.floor(maxHp * 0.25);
+        return { consume: true, effect: 'heal', message: `${item.name} restored ${healAmount} HP!` };
+      }
+      break;
+    case 'cure_paralyze':
+      if (status === 'paralyze') {
+        return { consume: true, effect: 'cure_paralyze', message: `${item.name} cured paralysis!` };
+      }
+      break;
+    case 'cure_sleep':
+      if (status === 'sleep') {
+        return { consume: true, effect: 'cure_sleep', message: `${item.name} woke up!` };
+      }
+      break;
+    case 'cure_poison':
+      if (status === 'poison' || status === 'toxic') {
+        return { consume: true, effect: 'cure_poison', message: `${item.name} cured poison!` };
+      }
+      break;
+    case 'cure_burn':
+      if (status === 'burn') {
+        return { consume: true, effect: 'cure_burn', message: `${item.name} healed the burn!` };
+      }
+      break;
+    case 'cure_confusion':
+      if (confused) {
+        return { consume: true, effect: 'cure_confusion', message: `${item.name} snapped out of confusion!` };
+      }
+      break;
+  }
+  
+  return { consume: false, effect: 'none' };
+}
+
+export function getBerryHealAmount(item: HeldItem | null, maxHp: number): number {
+  if (!item || item.effect !== 'berry') return 0;
+  if (item.berryHealAmount) return item.berryHealAmount;
+  return Math.floor(maxHp * 0.25);
 }

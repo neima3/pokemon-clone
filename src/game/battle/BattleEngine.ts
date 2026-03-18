@@ -2,7 +2,7 @@ import { Pokemon, MoveInstance } from './Pokemon';
 import { getTypeEffectiveness, MOVES, StatusCondition, TerrainType } from './data';
 import type { PokemonType } from './data';
 import type { WeatherType } from '../Weather';
-import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash, getContactDamage, hasGroundImmunityItem, getBlackSludgeHeal, setContextMaxHp, isZCrystal, calculateZMovePower, getZMoveData } from './HeldItems';
+import { getHeldItemDamageBoost, getCritBoost, getLeftoversHeal, shouldCureStatus, getSuperEffectiveBoost, getLifeOrbBoost, getLifeOrbRecoil, checkFocusSash, getContactDamage, hasGroundImmunityItem, getBlackSludgeHeal, setContextMaxHp, isZCrystal, calculateZMovePower, getZMoveData, isBerry, shouldConsumeBerry, getBerryHealAmount, BERRY_HEAL_HP_THRESHOLD } from './HeldItems';
 
 export interface FieldHazards {
   spikes: number;
@@ -124,6 +124,9 @@ export interface TurnResult {
   terrainTurns?: number;
   zMoveActive?: boolean;
   zMoveName?: string;
+  berryConsumed?: boolean;
+  berryMessage?: string;
+  berryHealAmount?: number;
 }
 
   
@@ -1314,4 +1317,72 @@ export function checkPerishSong(mon: Pokemon): PerishSongResult {
     return { count: mon.perishSongTurns };
   }
   return {};
+}
+
+export interface BerryResult {
+  consumed: boolean;
+  effect: 'none' | 'heal' | 'cure_status';
+  message?: string;
+  healAmount?: number;
+  statusCured?: StatusCondition | 'confusion';
+}
+
+export function checkBerryConsumption(mon: Pokemon, hpBeforeDamage: number): BerryResult {
+  if (!mon.heldItem || !isBerry(mon.heldItem)) {
+    return { consumed: false, effect: 'none' };
+  }
+  
+  const item = mon.heldItem;
+  const hpPercent = mon.hp / mon.maxHp;
+  const hpPercentBefore = hpBeforeDamage / mon.maxHp;
+  
+  if (item.berryTrigger === 'hp_low') {
+    if (hpPercent <= BERRY_HEAL_HP_THRESHOLD && hpPercentBefore > BERRY_HEAL_HP_THRESHOLD) {
+      const healAmount = getBerryHealAmount(item, mon.maxHp);
+      mon.hp = Math.min(mon.maxHp, mon.hp + healAmount);
+      mon.heldItem = null;
+      return { 
+        consumed: true, 
+        effect: 'heal', 
+        message: `${mon.name} ate its ${item.name}!`,
+        healAmount 
+      };
+    }
+  }
+  
+  if (item.berryTrigger === 'cure_paralyze' && mon.status === 'paralyze') {
+    mon.status = null;
+    mon.heldItem = null;
+    return { consumed: true, effect: 'cure_status', message: `${mon.name} ate its ${item.name}!`, statusCured: 'paralyze' };
+  }
+  
+  if (item.berryTrigger === 'cure_sleep' && mon.status === 'sleep') {
+    mon.status = null;
+    mon.sleepTurns = 0;
+    mon.heldItem = null;
+    return { consumed: true, effect: 'cure_status', message: `${mon.name} ate its ${item.name}!`, statusCured: 'sleep' };
+  }
+  
+  if (item.berryTrigger === 'cure_poison' && (mon.status === 'poison' || mon.status === 'toxic')) {
+    const cured = mon.status;
+    mon.status = null;
+    mon.toxicCounter = 0;
+    mon.heldItem = null;
+    return { consumed: true, effect: 'cure_status', message: `${mon.name} ate its ${item.name}!`, statusCured: cured };
+  }
+  
+  if (item.berryTrigger === 'cure_burn' && mon.status === 'burn') {
+    mon.status = null;
+    mon.heldItem = null;
+    return { consumed: true, effect: 'cure_status', message: `${mon.name} ate its ${item.name}!`, statusCured: 'burn' };
+  }
+  
+  if (item.berryTrigger === 'cure_confusion' && mon.confused) {
+    mon.confused = false;
+    mon.confuseTurns = 0;
+    mon.heldItem = null;
+    return { consumed: true, effect: 'cure_status', message: `${mon.name} ate its ${item.name}!`, statusCured: 'confusion' };
+  }
+  
+  return { consumed: false, effect: 'none' };
 }
